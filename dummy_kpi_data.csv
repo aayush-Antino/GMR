@@ -1,0 +1,106 @@
+Category,KPI Name,Department,Priority,Remarks,Status,Trend
+Energy Audit,Feeder Loss (%),Finance,P0,Feeder readings exist in provided dataset; feasibility depends on code consistency & interval alignment.,Good,Stable
+Energy Audit,DT (Distribution Transformer) Loss (%),Finance,P0,DT readings exist; mapping must be validated (DTRcode alignment).,Good,Stable
+Energy Audit,LT Loss (%),Finance,P1,,Good,Stable
+Energy Audit,Billing Efficiency (%),Finance,P0,,Good,Stable
+Energy Audit,Collection Efficiency (%),Finance,P0,,Good,Stable
+Energy Audit,AT&C Loss (%),Finance,P0,,Good,Stable
+Energy Audit,Top X Best/Worst Feeders/DTs,Finance,P1,Can rank on partial coverage immediately; full ranking after mapping validation.,Good,Stable
+Loss Analytics,Top High Loss DTs / Feeders,Finance,P1,Ranking depends on completeness of feeder/DT loss calculations.,Good,Stable
+Management Summary,Top High-Loss Feeders / DTs,Finance,P1,,Good,Stable
+Reliability Indices,SAIDI,Operation,P0,,Good,Stable
+Reliability Indices,SAIFI,Operation,P0,,Good,Stable
+Reliability Indices,CAIDI,Operation,P1,,Good,Stable
+Reliability Indices,CAIFI,Operation,P1,,Good,Stable
+Reliability Indices,MAIFI,Operation,P2,,Good,Stable
+Reliability Indices,Number of Outages (Frequency),Operation,P0,,Good,Stable
+Reliability Indices,Duration of Outages (Minutes),Operation,P0,,Good,Stable
+Reliability Indices,DT/Feeder Reliability Trends (Monthly/Yearly),Operation,P1,,Good,Stable
+Loss Analytics,DTs with High Failure Rate,Operation,P1,,Good,Stable
+Anomaly Detection System,Detection Accuracy,Operation,P0,,Good,Stable
+Anomaly Detection System,False Positive Rate,Operation,P0,,Good,Stable
+Anomaly Detection System,Field inspection hit-rate,Operation,P0,,Good,Stable
+Anomaly Detection System,MTTI,Operation,P1,,Good,Stable
+Anomaly Detection System,MTTR,Operation,P1,,Good,Stable
+Anomaly Detection System,Alert response time,Operation,P1,,Good,Stable
+Anomaly Detection System,Planned outage suppression rate,Operation,P2,,Good,Stable
+Anomaly Types (11),Low-voltage pockets,Analytics,High,,Good,Stable
+Management Summary,Feeders with Maximum Outages,Operation,P1,,Good,Stable
+Management Summary,Reliability Improvement Trend,Operation,P1,,Good,Stable
+Management Summary,Consumer Service Reliability Score,Operation,P2,,Good,Stable
+Management Summary,Composite Reliability Score,Operation,P2,,Good,Stable
+Management Summary,Composite Efficiency Score,Operation,P2,,Good,Stable
+Load Management,% DT Peak Loading,Technical,P0,DTRRating available only for a subset in dataset; needs completion.,Good,Stable
+Load Management,% DT Loading,Technical,P1,Requires DT capacity for correct % loading.,Good,Stable
+Load Management,DT Load (kVA),Technical,P0,Approx using ?kVAh; best with instantaneous kVA.,Good,Stable
+Load Management,% Loading Bands,Technical,P1,,Good,Stable
+Load Management,Top Overloaded DTs / Feeders,Technical,P1,Feeder overload needs feeder capacity; DT overload needs DT capacity.,Good,Stable
+Load Management,Load Rise Trend,Technical,P2,Consumer-level possible; asset-level needs topology.,Good,Stable
+Load Management,Consumers exceeding sanctioned load,Technical,P0,,Good,Stable
+Load Management,% Consumers with Load Violation,Technical,P1,,Good,Stable
+Load Management,Load Duration Curve & Asset Loading Spread,Technical,P2,Can generate LDC for meters; asset spread needs capacity/mapping.,Good,Stable
+Management Summary,DT Failure Rate (%),Technical,P1,,Good,Stable
+Management Summary,Top Overloaded Assets,Technical,P1,,Good,Stable
+Management Summary,Top Power Quality Issues,Technical,P1,,Good,Stable
+Power Quality,Voltage Deviation (%),Operation,P0,,Good,Stable
+Power Quality,Voltage Deviation Index (VDI),Operation,P1,,Good,Stable
+Power Quality,Frequency Deviation Index (FDI),Operation,P1,,Good,Stable
+Power Quality,Voltage Fluctuation Index,Operation,P2,,Good,Stable
+Power Quality,Voltage Unbalance Index,Operation,P1,,Good,Stable
+Power Quality,Voltage Drop (V),Operation,P1,,Good,Stable
+Power Quality,Low Power Factor (%) by DT/Feeder,Operation,P1,,Good,Stable
+Power Quality,Meter Current Unbalance (%),Operation,P1,,Good,Stable
+Power Quality,% Time beyond voltage tolerance band,Operation,P0,,Good,Stable
+Power Quality,% Time with unacceptable current imbalance (>10%),Operation,P2,,Good,Stable
+Loss Analytics,Number of Tamper Alerts (Cover Open),Analytics,P0,Requires IS 15959 event capture.,Good,Stable
+Loss Analytics,Number of Tamper Alerts (External Magnet),Analytics,P0,Requires IS 15959 event capture.,Good,Stable
+Loss Analytics,Number of Tamper Alerts (Neutral Disturbance),Analytics,P0,Requires IS 15959 event capture.,Good,Stable
+Loss Analytics,Number of Tamper Alerts (Neutral Missing),Analytics,P0,Requires IS 15959 event capture.,Good,Stable
+Loss Analytics,Consumption Comparison - Energy Gap (kWh),Analytics,P0,Can compute where DT meter-to-DTR mapping is confirmed.,Good,Stable
+Anomaly Analytics,Total anomalies detected (by time period),Analytics,P1,,Good,Stable
+Anomaly Analytics,Anomalies by type,Analytics,P1,,Good,Stable
+Anomaly Analytics,Anomalies by severity,Analytics,P1,,Good,Stable
+Anomaly Analytics,Anomalies by geography,Analytics,P1,,Good,Stable
+Anomaly Analytics,Anomaly trends (daily/weekly/monthly),Analytics,P1,,Good,Stable
+Anomaly Analytics,Repeat anomaly tracking,Analytics,P1,,Good,Stable
+Loss Analytics,Theft Suspect Flags,Analytics,P0,,Good,Stable
+Loss Analytics,% Reduction in Theft Events (monthly trend),Analytics,P1,,Good,Stable
+Anomaly Types (11),Theft / Load diversion,Analytics,Critical,Energy gap/peer deviation possible now; confirmation needs billing/events.,Good,Stable
+Management Summary,Areas with Highest Theft Risk,Analytics,P1,,Good,Stable
+Management Summary,Revenue Recovery Improvement (%),Finance,P1,,Good,Stable
+Anomaly Types (11),Communication health issues,Analytics,Low,,Good,Stable
+Communication Health,Signal strength statistics,Technical,P1,,Good,Stable
+Communication Health,Packet loss percentage,Technical,P1,,Good,Stable
+Communication Health,Communication retry counts,Technical,P2,,Good,Stable
+Communication Health,Non-reporting meters (>24 hours),Technical,P0,,Good,Stable
+Communication Health,Communication technology performance (RF/GPRS/PLC),Technical,P2,,Good,Stable
+Auto-Indexing / Mapping,Auto-indexing consumers and DTRs for correct mapping,Advanced Analytics,P0,,Good,Stable
+Auto-Indexing / Mapping,Track updated tag of DTs to Feeders,Advanced Analytics,P0,,Good,Stable
+Auto-Indexing / Mapping,Track updated tag of consumers to DTs,Advanced Analytics,P0,,Good,Stable
+Auto-Indexing / Mapping,Re-index consumer/DTR data for correct past-period T&D loss,Advanced Analytics,P1,,Good,Stable
+Data Mapping System,Mapping Accuracy (95%),Advanced Analytics,P0,,Good,Stable
+Data Mapping System,DT-to-meter mapping accuracy,Advanced Analytics,P0,,Good,Stable
+Data Mapping System,% meters pending field verification (<5%),Advanced Analytics,P1,,Good,Stable
+Data Mapping System,Confidence scoring (High/Medium/Low),Advanced Analytics,P2,,Good,Stable
+Data Mapping System,Total assets tracked (Meters/Feeders/DTs),Advanced Analytics,P0,,Good,Stable
+Data Mapping System,Overloaded DTs identified and monitored,Advanced Analytics,P0,,Good,Stable
+Data Mapping System,"Mismatch analysis (Feeder?DT, DT?Meter)",Advanced Analytics,P1,,Good,Stable
+Operational Efficiency,Correctly mapped meters (%),Advanced Analytics,P0,,Good,Stable
+Operational Efficiency,Incorrectly mapped meters requiring correction (%),Advanced Analytics,P1,,Good,Stable
+Operational Efficiency,Verification pending count,Advanced Analytics,P1,,Good,Stable
+Operational Efficiency,Correction cycle time (avg days),Advanced Analytics,P2,,Good,Stable
+Operational Efficiency,Transformer utilization rate (% of rated capacity),Advanced Analytics,P1,,Good,Stable
+Operational Efficiency,Field verification completion rate,Advanced Analytics,P1,,Good,Stable
+Anomaly Types (11),Tamper sequence detection,Analytics,Critical,,Good,Stable
+Anomaly Types (11),Voltage/Current imbalance,Analytics,High,,Good,Stable
+Anomaly Types (11),Power factor deterioration,Analytics,Medium,,Good,Stable
+Anomaly Types (11),Overload / MD breach risk,Analytics,High,,Good,Stable
+Anomaly Types (11),Hidden outage pockets,Analytics,High,,Good,Stable
+Anomaly Types (11),Data quality issues,Analytics,Medium,,Good,Stable
+Anomaly Types (11),Reverse flow,Analytics,Critical,,Good,Stable
+Anomaly Types (11),Consumption spikes/drops,Analytics,Medium,,Good,Stable
+Phase Management,Phase-level mapping accuracy,Analytics,P1,,Good,Stable
+Phase Management,Phase imbalance reduced by minimum 30%,Analytics,P2,,Good,Stable
+Phase Management,Real-time phase load monitoring per transformer,Analytics,P1,,Good,Stable
+Phase Management,Imbalance alerts when threshold exceeded,Analytics,High,,Good,Stable
+Phase Management,Phase transfer recommendations (what-if),Analytics,P2,,Good,Stable
