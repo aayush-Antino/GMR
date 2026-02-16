@@ -17,7 +17,7 @@ export const executiveDummyData = {
         "operation": {
             "health": 25,
             "issues": 31,
-            "summary": "Operation stability is concerning.",
+            "summary": "Operations stability is concerning.",
             "link": "/departments"
         },
         "analytics": {
@@ -167,8 +167,8 @@ export const executiveDummyData = {
         },
         {
             "id": "dept_2",
-            "name": "Operation",
-            "impactStatement": "Operation performance is at risk with 9 critical items.",
+            "name": "Operations",
+            "impactStatement": "Operations performance is at risk with 9 critical items.",
             "kpis": 31,
             "kpiList": [
                 {

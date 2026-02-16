@@ -17,23 +17,6 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
     // Use currentChartData instead of chartData
     const chartData = currentChartData;
 
-    const getPriorityColor = (priority) => {
-        switch (priority.toLowerCase()) {
-            case 'high': return 'text-accentRed bg-red-50';
-            case 'medium': return 'text-accentOrange bg-orange-50';
-            case 'low': return 'text-green-600 bg-green-50';
-            default: return 'text-gray-600 bg-gray-50';
-        }
-    };
-
-    const getFeasibilityColor = (feasibility) => {
-        switch (feasibility.toLowerCase()) {
-            case 'feasible': return 'text-green-600 bg-green-50 ring-green-600/20';
-            case 'not feasible': return 'text-red-600 bg-red-50 ring-red-600/20';
-            case 'in progress': return 'text-yellow-600 bg-yellow-50 ring-yellow-600/20';
-            default: return 'text-gray-600 bg-gray-50 ring-gray-600/20';
-        }
-    };
 
     return (
         <DashboardLayout title={title} description={description}>
@@ -42,8 +25,8 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <SummaryCard label="Total KPIs" value={summary.totalKPIs} change="+12%" />
                 <SummaryCard label="Anomalies Detected" value={summary.totalAnomalies} change="+2" isNegative />
-                <SummaryCard label="High Priority" value={summary.highPriority} change="-3" />
-                <SummaryCard label="Not Feasible" value={summary.notFeasible} change="0" />
+                <SummaryCard label="Critical Priority" value={summary.highPriority} change="-3" />
+                <SummaryCard label="Stable Metrics" value={Math.floor(summary.totalKPIs * 0.4)} change="+5" />
             </div>
 
             {/* Charts Section */}
@@ -71,8 +54,7 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
                             <tr className="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
                                 <th className="p-4 font-medium">KPI Name</th>
                                 <th className="p-4 font-medium">Department</th>
-                                <th className="p-4 font-medium">Priority</th>
-                                <th className="p-4 font-medium">Feasibility</th>
+                                <th className="p-4 font-medium">Description</th>
                                 <th className="p-4 font-medium">Status</th>
                             </tr>
                         </thead>
@@ -81,17 +63,16 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
                                 <tr key={index} className="hover:bg-gray-50 transition-colors">
                                     <td className="p-4 font-medium text-textDark">{row.name}</td>
                                     <td className="p-4 text-gray-600">{row.department}</td>
+                                    <td className="p-4 text-gray-600 text-sm max-w-md">
+                                        <p className="truncate hover:whitespace-normal transition-all duration-300" title={row.description}>
+                                            {row.description}
+                                        </p>
+                                    </td>
                                     <td className="p-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getPriorityColor(row.priority)}`}>
-                                            {row.priority}
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${row.status === 'Critical' ? 'text-accentRed bg-red-50' : row.status === 'Warning' ? 'text-accentOrange bg-orange-50' : 'text-green-600 bg-green-50'}`}>
+                                            {row.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-gray-600">
-                                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${getFeasibilityColor(row.feasibility)}`}>
-                                            {row.feasibility}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-gray-500">{row.status}</td>
                                 </tr>
                             ))}
                         </tbody>
