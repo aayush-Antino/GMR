@@ -74,22 +74,30 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                     </div>
 
                     {/* Detailed Analysis / Specifications */}
-                    {(kpi.anomalyTypes || kpi.voltageQuality) && (
+                    {(kpi.analysisItems || kpi.qualityDescription) && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                                <h4 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-2">Analysis Detals</h4>
-                                <ul className="space-y-2 text-sm text-indigo-900">
-                                    {kpi.anomalyTypes && <li className="flex justify-between"><span>Anomaly Types:</span> <span className="font-semibold">{kpi.anomalyTypes}</span></li>}
-                                    {kpi.voltageDetails && <li className="flex justify-between"><span>Voltage Details:</span> <span className="font-semibold">{kpi.voltageDetails}</span></li>}
-                                    {kpi.voltageBandConfig && <li className="flex justify-between"><span>Config:</span> <span className="font-semibold">{kpi.voltageBandConfig}</span></li>}
-                                </ul>
-                            </div>
-                            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-                                <h4 className="text-sm font-bold text-purple-800 uppercase tracking-wider mb-2">Quality Metrics</h4>
-                                <p className="text-sm text-purple-900 leading-relaxed font-medium">
-                                    {kpi.voltageQuality}
-                                </p>
-                            </div>
+                            {kpi.analysisItems && (
+                                <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                    <h4 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-2">Analysis Details</h4>
+                                    <ul className="space-y-2 text-sm text-indigo-900">
+                                        {kpi.analysisItems.map((item, idx) => (
+                                            <li key={idx} className="flex justify-between">
+                                                <span>{item.label}:</span>
+                                                <span className="font-semibold text-right">{item.value}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {kpi.qualityDescription && (
+                                <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                    <h4 className="text-sm font-bold text-purple-800 uppercase tracking-wider mb-2">Quality Metrics</h4>
+                                    <p className="text-sm text-purple-900 leading-relaxed font-medium">
+                                        {kpi.qualityDescription}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 

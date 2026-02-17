@@ -18,7 +18,7 @@ const BarChartComponent = ({ data }) => {
                     />
                     <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                         {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                            <Cell key={`cell-${index}`} fill={entry.color || colors[index % colors.length]} />
                         ))}
                     </Bar>
                 </BarChart>

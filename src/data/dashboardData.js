@@ -157,10 +157,12 @@ export const dashboardData = {
             "department": "Analytics",
             "description": "Voltage quality",
             "status": "Critical",
-            "anomalyTypes": 11,
-            "voltageQuality": "Voltage < band for N intervals; cluster by geo",
-            "voltageDetails": "Voltage bands + geo mapping optional",
-            "voltageBandConfig": "+GIS optional",
+            "analysisItems": [
+                { "label": "Anomaly Types", "value": "11" },
+                { "label": "Voltage Details", "value": "Voltage bands + geo mapping optional" },
+                { "label": "Config", "value": "+GIS optional" }
+            ],
+            "qualityDescription": "Voltage < band for N intervals; cluster by geo",
             "chartData": {
                 "trendTitle": "Low Voltage Events (Last 7 Days)",
                 "trend": [
@@ -453,7 +455,32 @@ export const dashboardData = {
             "name": "Communication health issues",
             "department": "Analytics",
             "description": "Comms monitoring",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Anomaly Types", "value": "11" },
+                { "label": "Signal Details", "value": "Signal strength; timestamps" },
+                { "label": "Config", "value": "Comms tech metadata optional" },
+                { "label": "Tech Attribute", "value": "Optional comms tech attribute" }
+            ],
+            "qualityDescription": "Packet loss %, non-reporting, low signal",
+            "chartData": {
+                "trendTitle": "Packet Loss Events (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 12 },
+                    { "name": "Tue", "value": 15 },
+                    { "name": "Wed", "value": 8 },
+                    { "name": "Thu", "value": 22 },
+                    { "name": "Fri", "value": 18 },
+                    { "name": "Sat", "value": 9 },
+                    { "name": "Sun", "value": 7 }
+                ],
+                "distTitle": "Signal Strength Distribution",
+                "distribution": [
+                    { "name": "Good (> -70dBm)", "value": 65, "color": "#10B981" },
+                    { "name": "Fair (<= -70dBm)", "value": 25, "color": "#F59E0B" },
+                    { "name": "Poor (<= -90dBm)", "value": 10, "color": "#EF4444" }
+                ]
+            }
         },
         {
             "name": "Signal strength statistics",
