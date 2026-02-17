@@ -386,13 +386,59 @@ export const dashboardData = {
             "name": "Total anomalies detected (by time period)",
             "department": "Analytics",
             "description": "Volume tracking",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Source", "value": "Scoring pipeline output" },
+                { "label": "System", "value": "ML scoring output" },
+                { "label": "Key IDs", "value": "Anomaly flags" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count anomalies grouped by day/week/month",
+            "chartData": {
+                "trendTitle": "Anomaly Volume Trend (Last 30 Days)",
+                "trend": [
+                    { "name": "Week 1", "value": 150 },
+                    { "name": "Week 2", "value": 180 },
+                    { "name": "Week 3", "value": 120 },
+                    { "name": "Week 4", "value": 200 }
+                ],
+                "distTitle": "Anomalies by Severity",
+                "distribution": [
+                    { "name": "Critical", "value": 45, "color": "#EF4444" },
+                    { "name": "Warning", "value": 120, "color": "#F59E0B" },
+                    { "name": "Info", "value": 200, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Anomalies by type",
             "department": "Analytics",
             "description": "Distribution",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Source", "value": "Scoring output" },
+                { "label": "Key IDs", "value": "Anomaly flags + type" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count by anomaly_type",
+            "chartData": {
+                "distTitle": "Anomaly Type Distribution",
+                "distribution": [
+                    { "name": "Tamper", "value": 120, "color": "#EF4444" },
+                    { "name": "Bypass", "value": 85, "color": "#F59E0B" },
+                    { "name": "Imbalance", "value": 60, "color": "#3B82F6" },
+                    { "name": "Magnetic", "value": 40, "color": "#8B5CF6" }
+                ],
+                "trendTitle": "Top 3 Anomalies Trend (Last 30 Days)",
+                "trend": [
+                    { "name": "Week 1", "value": 45 },
+                    { "name": "Week 2", "value": 52 },
+                    { "name": "Week 3", "value": 48 },
+                    { "name": "Week 4", "value": 60 }
+                ]
+            }
         },
         {
             "name": "Anomalies by severity",
