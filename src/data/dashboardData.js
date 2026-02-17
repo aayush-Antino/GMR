@@ -294,7 +294,33 @@ export const dashboardData = {
             "name": "Voltage Deviation (%)",
             "department": "Operations",
             "description": "Voltage quality",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Voltage" },
+                { "label": "Config", "value": "Utility config: Vnom & bands" },
+                { "label": "Refs", "value": "Vnom + tolerance bands" },
+                { "label": "Note", "value": "Nominal: 1ph:240, 3ph:440, HT:11KV" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(Measured Voltage− Nominal Voltage)/Nominal Voltage ×100",
+            "chartData": {
+                "trendTitle": "Average Deviation Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 2.5 },
+                    { "name": "Tue", "value": 3.1 },
+                    { "name": "Wed", "value": 1.8 },
+                    { "name": "Thu", "value": 4.2 },
+                    { "name": "Fri", "value": 3.5 },
+                    { "name": "Sat", "value": 1.5 },
+                    { "name": "Sun", "value": 1.2 }
+                ],
+                "distTitle": "Deviation Histogram",
+                "distribution": [
+                    { "name": "< 2%", "value": 60, "color": "#10B981" },
+                    { "name": "2-5%", "value": 30, "color": "#F59E0B" },
+                    { "name": "> 5%", "value": 10, "color": "#EF4444" }
+                ]
+            }
         },
         {
             "name": "Voltage Deviation Index (VDI)",
@@ -324,7 +350,33 @@ export const dashboardData = {
             "name": "Voltage Drop (V)",
             "department": "Operations",
             "description": "Low voltage magnitude",
-            "status": "Stable"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Voltage" },
+                { "label": "Refs", "value": "Vnom" },
+                { "label": "Config", "value": "Provide Vnom" },
+                { "label": "Note", "value": "Nominal: 1ph:240, 3ph:440, HT:11KV" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "MAX(0, (230*0.9) - MIN(Voltage,Vrn, Voltage,Vyn, Voltage,Vbn))",
+            "chartData": {
+                "trendTitle": "Max Voltage Drop Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 12 },
+                    { "name": "Tue", "value": 15 },
+                    { "name": "Wed", "value": 10 },
+                    { "name": "Thu", "value": 18 },
+                    { "name": "Fri", "value": 14 },
+                    { "name": "Sat", "value": 8 },
+                    { "name": "Sun", "value": 6 }
+                ],
+                "distTitle": "Worst Affected Feeders",
+                "distribution": [
+                    { "name": "Feeder A", "value": 25, "color": "#EF4444" },
+                    { "name": "Feeder B", "value": 20, "color": "#F59E0B" },
+                    { "name": "Feeder C", "value": 15, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Low Power Factor (%) by DT/Feeder",
@@ -342,7 +394,32 @@ export const dashboardData = {
             "name": "% Time beyond voltage tolerance band",
             "department": "Operations",
             "description": "Compliance",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Voltage + timestamps" },
+                { "label": "Config", "value": "Define voltage bands" },
+                { "label": "Refs", "value": "Voltage band config" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(Time Voltage Outside Limits / Total Time) × 100",
+            "chartData": {
+                "trendTitle": "Non-Compliance Trend (%)",
+                "trend": [
+                    { "name": "Mon", "value": 5 },
+                    { "name": "Tue", "value": 8 },
+                    { "name": "Wed", "value": 4 },
+                    { "name": "Thu", "value": 12 },
+                    { "name": "Fri", "value": 9 },
+                    { "name": "Sat", "value": 3 },
+                    { "name": "Sun", "value": 2 }
+                ],
+                "distTitle": "Duration of Excursions (Mins)",
+                "distribution": [
+                    { "name": "< 15m", "value": 50, "color": "#F59E0B" },
+                    { "name": "15-60m", "value": 30, "color": "#EF4444" },
+                    { "name": "> 60m", "value": 20, "color": "#7C3AED" }
+                ]
+            }
         },
         {
             "name": "% Time with unacceptable current imbalance (>10%)",
