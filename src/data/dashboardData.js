@@ -159,10 +159,11 @@ export const dashboardData = {
             "status": "Critical",
             "analysisItems": [
                 { "label": "Anomaly Types", "value": "11" },
-                { "label": "Voltage Details", "value": "Voltage bands + geo mapping optional" },
+                { "label": "Parameters", "value": "Voltage, Vrn, Voltage, Vyn, Voltage, Vbn" },
                 { "label": "Config", "value": "+GIS optional" }
             ],
-            "qualityDescription": "Voltage < band for N intervals; cluster by geo",
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Voltage < (230*0.9) for >30 mins AND \ncount(Account ID) > 5 in DTR",
             "chartData": {
                 "trendTitle": "Low Voltage Events (Last 7 Days)",
                 "trend": [
@@ -651,7 +652,31 @@ export const dashboardData = {
             "name": "Correction cycle time (avg days)",
             "department": "Advanced Analytics",
             "description": "Speed improvements",
-            "status": "Stable"
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Source", "value": "Ticketing/work order system" },
+                { "label": "Key IDs", "value": "Ticket timestamps" },
+                { "label": "Priority", "value": "P2" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Cycle Time = Final_QC_Date − installationDate\nAvg Cycle Time: MEAN(Cycle Time)",
+            "chartData": {
+                "trendTitle": "Avg Cycle Time Trend (Last 6 Months)",
+                "trend": [
+                    { "name": "Aug", "value": 12 },
+                    { "name": "Sep", "value": 10 },
+                    { "name": "Oct", "value": 9 },
+                    { "name": "Nov", "value": 7 },
+                    { "name": "Dec", "value": 5 },
+                    { "name": "Jan", "value": 4 }
+                ],
+                "distTitle": "Cycle Time Distribution",
+                "distribution": [
+                    { "name": "< 2 Days", "value": 60, "color": "#10B981" },
+                    { "name": "2-5 Days", "value": 30, "color": "#F59E0B" },
+                    { "name": "> 5 Days", "value": 10, "color": "#EF4444" }
+                ]
+            }
         },
         {
             "name": "Transformer utilization rate (% of rated capacity)",
