@@ -92,7 +92,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
 
                             {kpi.qualityDescription && (
                                 <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-                                    <h4 className="text-sm font-bold text-purple-800 uppercase tracking-wider mb-2">Quality Metrics</h4>
+                                    <h4 className="text-sm font-bold text-purple-800 uppercase tracking-wider mb-2">{kpi.qualityHeader || 'Quality Metrics'}</h4>
                                     <p className="text-sm text-purple-900 leading-relaxed font-medium">
                                         {kpi.qualityDescription}
                                     </p>

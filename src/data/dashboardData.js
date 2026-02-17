@@ -566,7 +566,32 @@ export const dashboardData = {
             "name": "Total assets tracked (Meters/Feeders/DTs)",
             "department": "Advanced Analytics",
             "description": "Inventory visibility",
-            "status": "Stable"
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Meter IDs only" },
+                { "label": "Source", "value": "Data Mapping System" },
+                { "label": "Registry", "value": "Asset registry" },
+                { "label": "Master", "value": "Asset master registry" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Meters: COUNT(DISTINCT newMeterNumber)\nFeeders: COUNT(DISTINCT FeederCode)\nDTs: COUNT(DISTINCT DTRCode)",
+            "chartData": {
+                "trendTitle": "Asset Growth Trend (Last 6 Months)",
+                "trend": [
+                    { "name": "Aug", "value": 12000 },
+                    { "name": "Sep", "value": 12500 },
+                    { "name": "Oct", "value": 13200 },
+                    { "name": "Nov", "value": 14000 },
+                    { "name": "Dec", "value": 14800 },
+                    { "name": "Jan", "value": 15500 }
+                ],
+                "distTitle": "Current Asset Breakdown",
+                "distribution": [
+                    { "name": "Meters", "value": 15500, "color": "#3B82F6" },
+                    { "name": "DTs", "value": 450, "color": "#10B981" },
+                    { "name": "Feeders", "value": 85, "color": "#F59E0B" }
+                ]
+            }
         },
         {
             "name": "Overloaded DTs identified and monitored",
