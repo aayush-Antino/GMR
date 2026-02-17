@@ -772,7 +772,34 @@ export const dashboardData = {
             "name": "Data quality issues",
             "department": "Analytics",
             "description": "Data SLA",
-            "status": "Warning"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Source", "value": "Load Duration Curve" },
+                { "label": "Config", "value": "Interval definition" },
+                { "label": "Anomaly", "value": "Anomaly Types (11)" },
+                { "label": "SLA", "value": "Data SLA" },
+                { "label": "Note", "value": "Confirm block interval & expected blocks" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Flatline>6h; missing blocks; timestamp drift",
+            "chartData": {
+                "trendTitle": "Data Quality Incidents (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 12 },
+                    { "name": "Tue", "value": 15 },
+                    { "name": "Wed", "value": 8 },
+                    { "name": "Thu", "value": 22 },
+                    { "name": "Fri", "value": 18 },
+                    { "name": "Sat", "value": 9 },
+                    { "name": "Sun", "value": 7 }
+                ],
+                "distTitle": "Issue Type Breakdown",
+                "distribution": [
+                    { "name": "Missing Blocks", "value": 45, "color": "#EF4444" },
+                    { "name": "Flatline", "value": 30, "color": "#F59E0B" },
+                    { "name": "Drift", "value": 25, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Reverse flow",
@@ -784,7 +811,33 @@ export const dashboardData = {
             "name": "Consumption spikes/drops",
             "department": "Analytics",
             "description": "Anomaly detection",
-            "status": "Warning"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Source", "value": "Historical kWh" },
+                { "label": "Config", "value": "Optional peer grouping" },
+                { "label": "Anomaly", "value": "Anomaly Types (11)" },
+                { "label": "Context", "value": "Peer baselines optional" },
+                { "label": "Note", "value": "Baseline=Avg. of theft, event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Spike/drop >5σ from baseline",
+            "chartData": {
+                "trendTitle": "Discrepancy Volume (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 15 },
+                    { "name": "Tue", "value": 8 },
+                    { "name": "Wed", "value": 25 },
+                    { "name": "Thu", "value": 12 },
+                    { "name": "Fri", "value": 30 },
+                    { "name": "Sat", "value": 10 },
+                    { "name": "Sun", "value": 5 }
+                ],
+                "distTitle": "Anomaly Severity Distribution",
+                "distribution": [
+                    { "name": "> 5σ", "value": 20, "color": "#EF4444" },
+                    { "name": "> 3σ", "value": 80, "color": "#F59E0B" }
+                ]
+            }
         },
         {
             "name": "Phase-level mapping accuracy",
