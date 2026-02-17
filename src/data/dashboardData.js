@@ -621,7 +621,31 @@ export const dashboardData = {
             "name": "Verification pending count",
             "department": "Advanced Analytics",
             "description": "Track work",
-            "status": "Stable"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Source", "value": "Field workflow data" },
+                { "label": "System", "value": "Field app/work order system" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "COUNT(*) WHERE \nQC1Status != 'Approved' OR \nQC2Status != 'Approved' OR \nQC3Status != 'Approved'",
+            "chartData": {
+                "trendTitle": "Pending Requests Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 15 },
+                    { "name": "Tue", "value": 18 },
+                    { "name": "Wed", "value": 12 },
+                    { "name": "Thu", "value": 25 },
+                    { "name": "Fri", "value": 22 },
+                    { "name": "Sat", "value": 10 },
+                    { "name": "Sun", "value": 8 }
+                ],
+                "distTitle": "Pending by Stage",
+                "distribution": [
+                    { "name": "QC1", "value": 45, "color": "#F59E0B" },
+                    { "name": "QC2", "value": 20, "color": "#10B981" },
+                    { "name": "QC3", "value": 12, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Correction cycle time (avg days)",
