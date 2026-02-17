@@ -610,7 +610,32 @@ export const dashboardData = {
             "name": "Signal strength statistics",
             "department": "Technical",
             "description": "Network quality",
-            "status": "Stable"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Signal strength" },
+                { "label": "Source", "value": "HES/MDM" },
+                { "label": "Config", "value": "None" },
+                { "label": "Ref", "value": "AVG/MIN/MAX/STD of TSP1/TSP2" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Mean: AVG(TSP1, TSP2); Min / Max: MIN, MAX; Std Dev: STD(TSP1, TSP2)",
+            "chartData": {
+                "trendTitle": "Signal Stats Trend (Last 7 Days) (dBm)",
+                "trend": [
+                    { "name": "Mon", "min": -85, "avg": -72, "max": -60 },
+                    { "name": "Tue", "min": -88, "avg": -74, "max": -62 },
+                    { "name": "Wed", "min": -82, "avg": -70, "max": -58 },
+                    { "name": "Thu", "min": -90, "avg": -75, "max": -65 },
+                    { "name": "Fri", "min": -84, "avg": -71, "max": -59 },
+                    { "name": "Sat", "min": -80, "avg": -68, "max": -55 },
+                    { "name": "Sun", "min": -78, "avg": -66, "max": -52 }
+                ],
+                "distTitle": "Signal Stability Distribution",
+                "distribution": [
+                    { "name": "Stable (< 3dB Var)", "value": 70, "color": "#10B981" },
+                    { "name": "Unstable (> 3dB Var)", "value": 30, "color": "#F59E0B" }
+                ]
+            }
         },
         {
             "name": "Packet loss percentage",
@@ -628,13 +653,59 @@ export const dashboardData = {
             "name": "Non-reporting meters (>24 hours)",
             "department": "Technical",
             "description": "Dead meters",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Timestamps" },
+                { "label": "Source", "value": "HES/MDM" },
+                { "label": "Note", "value": "MDM date & form buckets" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Meter is non-reporting if: Current_Time − MDM Date > 24 hr, 48 hr",
+            "chartData": {
+                "trendTitle": "Non-Reporting Trend (Count)",
+                "trend": [
+                    { "name": "Mon", "value": 45 },
+                    { "name": "Tue", "value": 50 },
+                    { "name": "Wed", "value": 42 },
+                    { "name": "Thu", "value": 55 },
+                    { "name": "Fri", "value": 48 },
+                    { "name": "Sat", "value": 40 },
+                    { "name": "Sun", "value": 35 }
+                ],
+                "distTitle": "Aging Buckets",
+                "distribution": [
+                    { "name": "24-48h", "value": 50, "color": "#F59E0B" },
+                    { "name": "48-72h", "value": 30, "color": "#EF4444" },
+                    { "name": "> 72h", "value": 20, "color": "#7F1D1D" }
+                ]
+            }
         },
         {
             "name": "Communication technology performance (RF/GPRS/PLC)",
             "department": "Technical",
             "description": "Compare comms modes",
-            "status": "Stable"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Asset registry/HES attribute" },
+                { "label": "Config", "value": "Comms tech attribute per meter" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Compare comms modes (RF/GPRS/PLC)\nHistogram of (TSP1 (dBm), TSP2 (dBm))",
+            "chartData": {
+                "trendTitle": "Avg Signal by Tech (dBm)",
+                "trend": [
+                    { "name": "RF", "value": -72 },
+                    { "name": "GPRS", "value": -65 },
+                    { "name": "PLC", "value": -80 }
+                ],
+                "distTitle": "Tech Distribution Mix",
+                "distribution": [
+                    { "name": "RF", "value": 60, "color": "#3B82F6" },
+                    { "name": "GPRS", "value": 30, "color": "#10B981" },
+                    { "name": "PLC", "value": 10, "color": "#F59E0B" }
+                ]
+            }
         }
     ],
     "dashboard8": [
