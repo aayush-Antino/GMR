@@ -73,6 +73,26 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                         </div>
                     </div>
 
+                    {/* Detailed Analysis / Specifications */}
+                    {(kpi.anomalyTypes || kpi.voltageQuality) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                <h4 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-2">Analysis Detals</h4>
+                                <ul className="space-y-2 text-sm text-indigo-900">
+                                    {kpi.anomalyTypes && <li className="flex justify-between"><span>Anomaly Types:</span> <span className="font-semibold">{kpi.anomalyTypes}</span></li>}
+                                    {kpi.voltageDetails && <li className="flex justify-between"><span>Voltage Details:</span> <span className="font-semibold">{kpi.voltageDetails}</span></li>}
+                                    {kpi.voltageBandConfig && <li className="flex justify-between"><span>Config:</span> <span className="font-semibold">{kpi.voltageBandConfig}</span></li>}
+                                </ul>
+                            </div>
+                            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                <h4 className="text-sm font-bold text-purple-800 uppercase tracking-wider mb-2">Quality Metrics</h4>
+                                <p className="text-sm text-purple-900 leading-relaxed font-medium">
+                                    {kpi.voltageQuality}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Text Analysis */}
                     <div className="bg-blue-50/50 p-6 rounded-xl border border-blue-100 text-gray-700 shadow-sm">
                         <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-2">Business Objective</h4>
@@ -86,17 +106,21 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
 
                         {/* Trend Chart */}
                         <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">6-Week Performance Trend</h3>
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
+                                {kpi.chartData?.trendTitle || 'Performance Trend'}
+                            </h3>
                             <div className="h-64">
-                                <LineChartComponent data={trendData} />
+                                <LineChartComponent data={kpi.chartData?.trend || trendData} />
                             </div>
                         </div>
 
-                        {/* Target vs Actual */}
+                        {/* Target/Distribution Chart */}
                         <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Target vs Actual</h3>
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
+                                {kpi.chartData?.distTitle || 'Target vs Actual'}
+                            </h3>
                             <div className="h-64">
-                                <BarChartComponent data={targetData} />
+                                <BarChartComponent data={kpi.chartData?.distribution || targetData} />
                             </div>
                         </div>
                     </div>

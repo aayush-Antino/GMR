@@ -156,7 +156,30 @@ export const dashboardData = {
             "name": "Low-voltage pockets",
             "department": "Analytics",
             "description": "Voltage quality",
-            "status": "Critical"
+            "status": "Critical",
+            "anomalyTypes": 11,
+            "voltageQuality": "Voltage < band for N intervals; cluster by geo",
+            "voltageDetails": "Voltage bands + geo mapping optional",
+            "voltageBandConfig": "+GIS optional",
+            "chartData": {
+                "trendTitle": "Low Voltage Events (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 45 },
+                    { "name": "Tue", "value": 52 },
+                    { "name": "Wed", "value": 38 },
+                    { "name": "Thu", "value": 65 },
+                    { "name": "Fri", "value": 42 },
+                    { "name": "Sat", "value": 30 },
+                    { "name": "Sun", "value": 25 }
+                ],
+                "distTitle": "Voltage Band Distribution",
+                "distribution": [
+                    { "name": "<200V", "value": 15 },
+                    { "name": "200-210V", "value": 35 },
+                    { "name": "210-230V", "value": 120 },
+                    { "name": ">240V", "value": 10 }
+                ]
+            }
         },
         {
             "name": "Feeders with Maximum Outages",
