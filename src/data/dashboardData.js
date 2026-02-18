@@ -408,7 +408,35 @@ export const dashboardData = {
             "name": "Low Power Factor (%) by DT/Feeder",
             "department": "Operations",
             "description": "Low PF pockets",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Group", "value": "Power Quality" },
+                { "label": "Anomaly Types", "value": "KPI" },
+                { "label": "Calculation", "value": "(Blocks with PF < threshold / Total Blocks) * 100" },
+                { "label": "Data Source", "value": "kVAh import (partial)" },
+                { "label": "Config", "value": "Provide PF/kW/kvar + topology" },
+                { "label": "Note", "value": "We need the threshold value" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Percentage of blocks where Power Factor is below the defined threshold.",
+            "chartData": {
+                "trendTitle": "Low PF % Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 15 },
+                    { "name": "Tue", "value": 18 },
+                    { "name": "Wed", "value": 12 },
+                    { "name": "Thu", "value": 25 },
+                    { "name": "Fri", "value": 20 },
+                    { "name": "Sat", "value": 10 },
+                    { "name": "Sun", "value": 8 }
+                ],
+                "distTitle": "Affected Feeders/DTs",
+                "distribution": [
+                    { "name": "Feeder X", "value": 40, "color": "#EF4444" },
+                    { "name": "Feeder Y", "value": 35, "color": "#F59E0B" },
+                    { "name": "Feeder Z", "value": 25, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Meter Current Unbalance (%)",
