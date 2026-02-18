@@ -884,7 +884,33 @@ export const dashboardData = {
             "name": "Power factor deterioration",
             "department": "Analytics",
             "description": "Efficiency",
-            "status": "Warning"
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Anomaly Types", "value": "11" },
+                { "label": "Registers", "value": "PF/kW/kvar" },
+                { "label": "Condition", "value": "PF < 0.85 sustained" },
+                { "label": "Data Source", "value": "kVAh only (partial)" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "PF = kWh ÷ kVAh\nFlag if Power Factor < 0.85 for sustained period.",
+            "chartData": {
+                "trendTitle": "Low PF Events (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 12 },
+                    { "name": "Tue", "value": 15 },
+                    { "name": "Wed", "value": 10 },
+                    { "name": "Thu", "value": 22 },
+                    { "name": "Fri", "value": 18 },
+                    { "name": "Sat", "value": 9 },
+                    { "name": "Sun", "value": 7 }
+                ],
+                "distTitle": "PF Range Distribution",
+                "distribution": [
+                    { "name": "< 0.85", "value": 15, "color": "#EF4444" },
+                    { "name": "0.85-0.95", "value": 35, "color": "#F59E0B" },
+                    { "name": "> 0.95", "value": 50, "color": "#10B981" }
+                ]
+            }
         },
         {
             "name": "Overload / MD breach risk",
