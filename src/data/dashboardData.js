@@ -430,116 +430,98 @@ export const dashboardData = {
     ],
     "dashboard5": [
         {
-            "name": "Number of Tamper Alerts (Cover Open)",
-            "department": "Analytics",
-            "description": "Tamper monitoring",
-            "status": "Stable"
-        },
-        {
-            "name": "Number of Tamper Alerts (External Magnet)",
-            "department": "Analytics",
-            "description": "Tamper monitoring",
-            "status": "Stable"
-        },
-        {
-            "name": "Number of Tamper Alerts (Neutral Disturbance)",
-            "department": "Analytics",
-            "description": "Tamper monitoring",
-            "status": "Stable"
-        },
-        {
-            "name": "Number of Tamper Alerts (Neutral Missing)",
-            "department": "Analytics",
-            "description": "Tamper monitoring",
-            "status": "Stable"
-        },
-        {
-            "name": "Consumption Comparison - Energy Gap (kWh)",
-            "department": "Analytics",
-            "description": "Detect theft/loss pockets",
-            "status": "Stable"
-        },
-        {
-            "name": "Total anomalies detected (by time period)",
-            "department": "Analytics",
-            "description": "Volume tracking",
-            "status": "Critical",
-            "analysisItems": [
-                { "label": "Source", "value": "Scoring pipeline output" },
-                { "label": "System", "value": "ML scoring output" },
-                { "label": "Key IDs", "value": "Anomaly flags" },
-                { "label": "Note", "value": "Event profile needed" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Count anomalies grouped by day/week/month",
-            "chartData": {
-                "trendTitle": "Anomaly Volume Trend (Last 30 Days)",
-                "trend": [
-                    { "name": "Week 1", "value": 150 },
-                    { "name": "Week 2", "value": 180 },
-                    { "name": "Week 3", "value": 120 },
-                    { "name": "Week 4", "value": 200 }
-                ],
-                "distTitle": "Anomalies by Severity",
-                "distribution": [
-                    { "name": "Critical", "value": 45, "color": "#EF4444" },
-                    { "name": "Warning", "value": 120, "color": "#F59E0B" },
-                    { "name": "Info", "value": 200, "color": "#3B82F6" }
-                ]
-            }
-        },
-        {
-            "name": "Anomalies by type",
-            "department": "Analytics",
-            "description": "Distribution",
-            "status": "Critical",
-            "analysisItems": [
-                { "label": "Source", "value": "Scoring output" },
-                { "label": "Key IDs", "value": "Anomaly flags + type" },
-                { "label": "Note", "value": "Event profile needed" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Count by anomaly_type",
-            "chartData": {
-                "distTitle": "Anomaly Type Distribution",
-                "distribution": [
-                    { "name": "Tamper", "value": 120, "color": "#EF4444" },
-                    { "name": "Bypass", "value": 85, "color": "#F59E0B" },
-                    { "name": "Imbalance", "value": 60, "color": "#3B82F6" },
-                    { "name": "Magnetic", "value": 40, "color": "#8B5CF6" }
-                ],
-                "trendTitle": "Top 3 Anomalies Trend (Last 30 Days)",
-                "trend": [
-                    { "name": "Week 1", "value": 45 },
-                    { "name": "Week 2", "value": 52 },
-                    { "name": "Week 3", "value": 48 },
-                    { "name": "Week 4", "value": 60 }
-                ]
-            }
-        },
-        {
             "name": "Anomalies by severity",
             "department": "Analytics",
             "description": "Severity mix",
-            "status": "Stable"
-        },
-        {
-            "name": "Anomalies by geography",
-            "department": "Analytics",
-            "description": "Hotspots",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Source", "value": "Scoring output" },
+                { "label": "Key IDs", "value": "Anomaly flags + severity" },
+                { "label": "Config", "value": "Severity mapping" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count of anomalies grouped by severity level (Critical, Major, Minor).",
+            "chartData": {
+                "trendTitle": "Severity Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "critical": 5, "major": 12, "minor": 20 },
+                    { "name": "Tue", "critical": 8, "major": 15, "minor": 18 },
+                    { "name": "Wed", "critical": 4, "major": 10, "minor": 22 },
+                    { "name": "Thu", "critical": 6, "major": 14, "minor": 25 },
+                    { "name": "Fri", "critical": 9, "major": 11, "minor": 19 },
+                    { "name": "Sat", "critical": 3, "major": 8, "minor": 15 },
+                    { "name": "Sun", "critical": 2, "major": 5, "minor": 10 }
+                ],
+                "distTitle": "Current Severity Mix",
+                "distribution": [
+                    { "name": "Critical", "value": 15, "color": "#EF4444" },
+                    { "name": "Major", "value": 35, "color": "#F59E0B" },
+                    { "name": "Minor", "value": 50, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Anomaly trends (daily/weekly/monthly)",
             "department": "Analytics",
             "description": "Trends",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Source", "value": "Scoring output" },
+                { "label": "Key IDs", "value": "Anomaly history" },
+                { "label": "Config", "value": "None" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Time-series count of total anomalies detected per day/week/month.",
+            "chartData": {
+                "trendTitle": "Daily Anomaly Count (Last 30 Days)",
+                "trend": [
+                    { "name": "Week 1", "value": 145 },
+                    { "name": "Week 2", "value": 132 },
+                    { "name": "Week 3", "value": 158 },
+                    { "name": "Week 4", "value": 120 }
+                ],
+                "distTitle": "Monthly Volume Comparison",
+                "distribution": [
+                    { "name": "Last Month", "value": 600, "color": "#94A3B8" },
+                    { "name": "This Month", "value": 555, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Repeat anomaly tracking",
             "department": "Analytics",
             "description": "Repeat offenders",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Source", "value": "Scoring output" },
+                { "label": "Key IDs", "value": "Meter ID + anomaly history" },
+                { "label": "Config", "value": "None" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Identification of meters with >X anomalies within Y days (Repeat Offenders).",
+            "chartData": {
+                "trendTitle": "Repeat Offenders Count",
+                "trend": [
+                    { "name": "Mon", "value": 12 },
+                    { "name": "Tue", "value": 15 },
+                    { "name": "Wed", "value": 10 },
+                    { "name": "Thu", "value": 18 },
+                    { "name": "Fri", "value": 14 },
+                    { "name": "Sat", "value": 8 },
+                    { "name": "Sun", "value": 6 }
+                ],
+                "distTitle": "Top 5 Repeat Offender Meters",
+                "distribution": [
+                    { "name": "M-1023", "value": 25, "color": "#EF4444" },
+                    { "name": "M-4512", "value": 22, "color": "#F59E0B" },
+                    { "name": "M-7890", "value": 19, "color": "#F59E0B" },
+                    { "name": "M-3321", "value": 15, "color": "#3B82F6" },
+                    { "name": "M-5544", "value": 12, "color": "#3B82F6" }
+                ]
+            }
         }
     ],
     "dashboard6": [
@@ -1274,48 +1256,71 @@ export const dashboardData = {
         "dashboard5": {
             "bar": [
                 {
-                    "name": "Analytics",
-                    "value": 11
+                    "name": "M-1023",
+                    "value": 25
+                },
+                {
+                    "name": "M-4512",
+                    "value": 22
+                },
+                {
+                    "name": "M-7890",
+                    "value": 19
+                },
+                {
+                    "name": "M-3321",
+                    "value": 15
+                },
+                {
+                    "name": "M-5544",
+                    "value": 12
                 }
             ],
             "pie": [
                 {
-                    "name": "Stable",
-                    "value": 11
-                },
-                {
-                    "name": "Warning",
-                    "value": 0
-                },
-                {
                     "name": "Critical",
-                    "value": 0
+                    "value": 15,
+                    "color": "#EF4444"
+                },
+                {
+                    "name": "Major",
+                    "value": 35,
+                    "color": "#F59E0B"
+                },
+                {
+                    "name": "Minor",
+                    "value": 50,
+                    "color": "#3B82F6"
                 }
             ],
             "line": [
                 {
-                    "name": "Jan",
+                    "name": "Mon",
+                    "value": 45
+                },
+                {
+                    "name": "Tue",
+                    "value": 52
+                },
+                {
+                    "name": "Wed",
+                    "value": 38
+                },
+                {
+                    "name": "Thu",
                     "value": 65
                 },
                 {
-                    "name": "Feb",
-                    "value": 93
+                    "name": "Fri",
+                    "value": 42
                 },
                 {
-                    "name": "Mar",
-                    "value": 70
+                    "name": "Sat",
+                    "value": 30
                 },
                 {
-                    "name": "Apr",
-                    "value": 93
-                },
-                {
-                    "name": "May",
-                    "value": 85
-                },
-                {
-                    "name": "Jun",
-                    "value": 75
+                    "name": "Sun",
+                    "value": 25
                 }
             ]
         },

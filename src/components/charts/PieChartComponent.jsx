@@ -19,7 +19,7 @@ const PieChartComponent = ({ data }) => {
                         dataKey="value"
                     >
                         {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
                     <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />

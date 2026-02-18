@@ -12,6 +12,9 @@ const LineChartComponent = ({ data }) => {
             case 'min': return '#EF4444'; // Red for min
             case 'max': return '#10B981'; // Green for max
             case 'avg': return '#3B82F6'; // Blue for avg
+            case 'critical': return '#EF4444'; // Red
+            case 'major': return '#F59E0B'; // Orange
+            case 'minor': return '#3B82F6'; // Blue
             default: return '#0B3C6D';    // Default blue
         }
     };

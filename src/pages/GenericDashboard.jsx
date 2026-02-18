@@ -6,7 +6,7 @@ import PieChartComponent from '../components/charts/PieChartComponent';
 import LineChartComponent from '../components/charts/LineChartComponent';
 import { dashboardData } from '../data/dashboardData';
 
-const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
+const GenericDashboard = ({ title, description, dataKey = 'dashboard1', chartTitles = {} }) => {
     // Safe access to data with fallback
     const currentSummary = dashboardData.summary[dataKey] || dashboardData.summary.dashboard1;
     const currentChartData = dashboardData.chartData[dataKey] || dashboardData.chartData.dashboard1;
@@ -16,6 +16,14 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
     const summary = currentSummary;
     // Use currentChartData instead of chartData
     const chartData = currentChartData;
+
+    // Default titles if not provided
+    const titles = {
+        bar: chartTitles.bar || "KPIs by Department",
+        pie: chartTitles.pie || "Feasibility Status",
+        line: chartTitles.line || "Performance Trends",
+        ...chartTitles
+    };
 
 
     return (
@@ -31,13 +39,13 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1' }) => {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                <ChartCard title="KPIs by Department">
+                <ChartCard title={titles.bar}>
                     <BarChartComponent data={chartData.bar} />
                 </ChartCard>
-                <ChartCard title="Feasibility Status">
+                <ChartCard title={titles.pie}>
                     <PieChartComponent data={chartData.pie} />
                 </ChartCard>
-                <ChartCard title="Performance Trends">
+                <ChartCard title={titles.line}>
                     <LineChartComponent data={chartData.line} />
                 </ChartCard>
             </div>
