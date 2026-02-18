@@ -326,7 +326,33 @@ export const dashboardData = {
             "name": "Voltage Deviation Index (VDI)",
             "department": "Operations",
             "description": "Composite voltage metric",
-            "status": "Stable"
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Group", "value": "Power Quality" },
+                { "label": "Key IDs", "value": "Voltage time-series" },
+                { "label": "Config", "value": "VDI definition" },
+                { "label": "Calculation", "value": "Aggregate |deviation| over time" },
+                { "label": "Note", "value": "Define VDI method + bands" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Metric representing aggregate voltage deviation over time (mean/p95).",
+            "chartData": {
+                "trendTitle": "VDI Trend (Last 24 Hours)",
+                "trend": [
+                    { "name": "00:00", "value": 0.8 },
+                    { "name": "04:00", "value": 1.2 },
+                    { "name": "08:00", "value": 2.5 },
+                    { "name": "12:00", "value": 3.1 },
+                    { "name": "16:00", "value": 2.8 },
+                    { "name": "20:00", "value": 1.5 }
+                ],
+                "distTitle": "VDI Severity Distribution",
+                "distribution": [
+                    { "name": "Low", "value": 50, "color": "#10B981" },
+                    { "name": "Medium", "value": 35, "color": "#F59E0B" },
+                    { "name": "High", "value": 15, "color": "#EF4444" }
+                ]
+            }
         },
         {
             "name": "Frequency Deviation Index (FDI)",
