@@ -15,6 +15,9 @@ const LineChartComponent = ({ data }) => {
             case 'critical': return '#EF4444'; // Red
             case 'major': return '#F59E0B'; // Orange
             case 'minor': return '#3B82F6'; // Blue
+            case 'R-Phase': return '#EF4444'; // Red
+            case 'Y-Phase': return '#F59E0B'; // Yellow/Amber
+            case 'B-Phase': return '#3B82F6'; // Blue
             default: return '#0B3C6D';    // Default blue
         }
     };

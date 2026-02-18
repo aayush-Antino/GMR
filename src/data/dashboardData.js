@@ -1011,7 +1011,32 @@ export const dashboardData = {
             "name": "Real-time phase load monitoring per transformer",
             "department": "Analytics",
             "description": "Operational monitoring",
-            "status": "Stable"
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Anomaly Types", "value": "KPI/Anomaly" },
+                { "label": "Group", "value": "Phase Management" },
+                { "label": "Calculation", "value": "kVA = V x I / 1000" },
+                { "label": "Data Source", "value": "Topology + per-phase V/I" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Phase kVA = Vphase × Iphase ÷ 1000\nReal-time monitoring of R, Y, B phase loads.",
+            "chartData": {
+                "trendTitle": "Phase Load Trend (Last 24 Hours) (kVA)",
+                "trend": [
+                    { "name": "00:00", "R-Phase": 45, "Y-Phase": 42, "B-Phase": 48 },
+                    { "name": "04:00", "R-Phase": 40, "Y-Phase": 38, "B-Phase": 44 },
+                    { "name": "08:00", "R-Phase": 65, "Y-Phase": 60, "B-Phase": 68 },
+                    { "name": "12:00", "R-Phase": 85, "Y-Phase": 82, "B-Phase": 88 },
+                    { "name": "16:00", "R-Phase": 75, "Y-Phase": 78, "B-Phase": 72 },
+                    { "name": "20:00", "R-Phase": 90, "Y-Phase": 85, "B-Phase": 92 }
+                ],
+                "distTitle": "Average Load Balance",
+                "distribution": [
+                    { "name": "R-Phase", "value": 34, "color": "#EF4444" },
+                    { "name": "Y-Phase", "value": 32, "color": "#F59E0B" },
+                    { "name": "B-Phase", "value": 34, "color": "#3B82F6" }
+                ]
+            }
         },
         {
             "name": "Imbalance alerts when threshold exceeded",
