@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin } from 'lucide-react';
-import LineChartComponent from './charts/LineChartComponent';
-import BarChartComponent from './charts/BarChartComponent';
+import SmartChart from './charts/SmartChart';
 import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 
 const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
@@ -29,20 +28,6 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         }
     };
 
-    // Mock Data for Charts (since we don't have it in the CSV currently)
-    const trendData = [
-        { name: 'Week 1', value: Math.floor(Math.random() * 20) + 70 },
-        { name: 'Week 2', value: Math.floor(Math.random() * 20) + 75 },
-        { name: 'Week 3', value: Math.floor(Math.random() * 20) + 72 },
-        { name: 'Week 4', value: Math.floor(Math.random() * 20) + 80 },
-        { name: 'Week 5', value: Math.floor(Math.random() * 20) + 82 },
-        { name: 'Current', value: Math.floor(Math.random() * 20) + 85 },
-    ];
-
-    const targetData = [
-        { name: 'Current', value: 85 },
-        { name: 'Target', value: 98 },
-    ];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -149,18 +134,18 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
                                     {activeChartData?.trendTitle || 'Performance Trend'}
                                 </h3>
-                                <div className="h-64">
-                                    <LineChartComponent data={activeChartData?.trend || trendData} />
+                                <div className="h-60">
+                                    <SmartChart data={activeChartData?.trend} />
                                 </div>
                             </div>
 
                             {/* Distribution Chart */}
                             <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                                 <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                                    {activeChartData?.distTitle || 'Target vs Actual'}
+                                    {activeChartData?.distTitle || 'Distribution'}
                                 </h3>
-                                <div className="h-64">
-                                    <BarChartComponent data={activeChartData?.distribution || targetData} />
+                                <div className="h-60">
+                                    <SmartChart data={activeChartData?.distribution} />
                                 </div>
                             </div>
                         </div>
