@@ -1,10 +1,15 @@
-import React from 'react';
-import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin } from 'lucide-react';
 import LineChartComponent from './charts/LineChartComponent';
 import BarChartComponent from './charts/BarChartComponent';
+import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 
 const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
+    const [selectedRegion, setSelectedRegion] = useState('All');
     if (!isOpen || !kpi) return null;
+
+    // Derive region-specific chart data (falls back to global data when 'All')
+    const activeChartData = getRegionChartData(kpi.chartData, selectedRegion);
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -109,26 +114,54 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                         </p>
                     </div>
 
-                    {/* Charts Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        {/* Trend Chart */}
-                        <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                                {kpi.chartData?.trendTitle || 'Performance Trend'}
+                    {/* Charts Section */}
+                    <div>
+                        {/* Section header: title + region pill toggles */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                <Activity size={15} />
+                                Analytics Charts
                             </h3>
-                            <div className="h-64">
-                                <LineChartComponent data={kpi.chartData?.trend || trendData} />
+
+                            {/* Region Pill Toggle */}
+                            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+                                <MapPin size={13} className="text-gray-400 ml-2 flex-shrink-0" />
+                                {REGIONS.map(r => (
+                                    <button
+                                        key={r}
+                                        onClick={() => setSelectedRegion(r)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap
+                                            ${selectedRegion === r
+                                                ? 'bg-primary text-white shadow-md shadow-primary/30 scale-105'
+                                                : 'text-gray-500 hover:text-gray-800 hover:bg-white/70'
+                                            }`}
+                                    >
+                                        {r === 'All' ? 'All Regions' : r}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Target/Distribution Chart */}
-                        <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                                {kpi.chartData?.distTitle || 'Target vs Actual'}
-                            </h3>
-                            <div className="h-64">
-                                <BarChartComponent data={kpi.chartData?.distribution || targetData} />
+                        {/* Chart grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Trend Chart */}
+                            <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
+                                    {activeChartData?.trendTitle || 'Performance Trend'}
+                                </h3>
+                                <div className="h-64">
+                                    <LineChartComponent data={activeChartData?.trend || trendData} />
+                                </div>
+                            </div>
+
+                            {/* Distribution Chart */}
+                            <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
+                                    {activeChartData?.distTitle || 'Target vs Actual'}
+                                </h3>
+                                <div className="h-64">
+                                    <BarChartComponent data={activeChartData?.distribution || targetData} />
+                                </div>
                             </div>
                         </div>
                     </div>
