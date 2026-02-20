@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import KPIDetailModal from '../components/KPIDetailModal';
 import { dashboardData } from '../data/dashboardData';
 import { executiveDummyData } from '../data/executiveDummyData';
@@ -27,9 +27,9 @@ const DeptSpecificDashboard = () => {
     );
 
     if (!department) return (
-        <div className="flex min-h-screen bg-lightBg font-sans">
-            <Sidebar />
-            <div className="flex-1 ml-64 flex items-center justify-center">
+        <div className="min-h-screen bg-lightBg font-sans">
+            <Topbar />
+            <div className="pt-16 flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-400">Department Not Found</h2>
                 </div>
@@ -38,9 +38,9 @@ const DeptSpecificDashboard = () => {
     );
 
     return (
-        <div className="flex min-h-screen bg-lightBg font-sans">
-            <Sidebar />
-            <div className="flex-1 ml-64 relative overflow-y-auto overflow-x-hidden">
+        <div className="min-h-screen bg-lightBg font-sans">
+            <Topbar />
+            <div className="pt-16 overflow-y-auto overflow-x-hidden">
 
                 {/* Hero Section */}
                 <div className="bg-gradient-to-br from-primary to-blue-900 h-64 w-full relative overflow-hidden">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import Topbar from '../components/Topbar';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { Activity, AlertTriangle, TrendingUp, CheckCircle, ArrowRight, ShieldAlert, DollarSign, Database, Server } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
@@ -85,9 +85,9 @@ const Home = () => {
     const actions = generateActions();
 
     return (
-        <div className="flex min-h-screen bg-gray-50 font-sans">
-            <Sidebar />
-            <div className="flex-1 ml-64 p-8 overflow-y-auto">
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Topbar />
+            <div className="pt-16 p-8">
 
                 {/* Header */}
                 <div className="mb-8">
