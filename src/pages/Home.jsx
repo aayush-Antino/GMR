@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Topbar from '../components/Topbar';
 import { executiveDummyData } from '../data/executiveDummyData';
+import { findKPIOrigin } from '../utils/dashboardUtils';
 import { Activity, AlertTriangle, TrendingUp, CheckCircle, ArrowRight, ShieldAlert, DollarSign, Database, Server } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
@@ -53,24 +54,43 @@ const Home = () => {
 
         // Add specific KPI insights
         criticalKPIs.slice(0, 3).forEach(kpi => {
+            const origin = findKPIOrigin(kpi.kpiName, kpi.dept);
+            const deptObj = departments.find(d => d.name === kpi.dept);
             insights.push({
                 text: `${kpi.kpiName} in ${kpi.dept} is Critical (${kpi.value}).`,
-                type: "critical"
+                type: "critical",
+                nav: origin && deptObj ? `/departments/${deptObj.id}/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(kpi.kpiName)}` : null
             });
         });
 
         if (insights.length < 4) {
-            if (businessAreas.finance.issues > 5) insights.push({ text: "Finance department shows elevated risk levels.", type: "warning" });
-            if (businessAreas.operation.health < 70) insights.push({ text: "Operational stability below target.", type: "warning" });
+            const financeDept = departments.find(d => d.id === 'dept_1');
+            const opsDept = departments.find(d => d.id === 'dept_2');
+
+            if (businessAreas.finance.issues > 5) insights.push({
+                text: "Finance department shows elevated risk levels.",
+                type: "warning",
+                nav: financeDept ? `/departments/${financeDept.id}` : null
+            });
+            if (businessAreas.operation.health < 70) insights.push({
+                text: "Operational stability below target.",
+                type: "warning",
+                nav: opsDept ? `/departments/${opsDept.id}` : null
+            });
         }
         return insights;
     };
 
     // 3. Generate Actions based on specific KPIs
     const generateActions = () => {
-        const actions = criticalKPIs.slice(0, 4).map(kpi =>
-            `Investigate root cause for ${kpi.kpiName} (${kpi.dept}).`
-        );
+        const actions = criticalKPIs.slice(0, 4).map(kpi => {
+            const origin = findKPIOrigin(kpi.kpiName, kpi.dept);
+            const deptObj = departments.find(d => d.name === kpi.dept);
+            return {
+                text: `Investigate root cause for ${kpi.kpiName} (${kpi.dept}).`,
+                nav: origin && deptObj ? `/departments/${deptObj.id}/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(kpi.kpiName)}` : null
+            };
+        });
 
         // Fallback actions if few criticals
         if (actions.length < 4) {
@@ -215,11 +235,15 @@ const Home = () => {
                         </h3>
                         <div className="space-y-3">
                             {insights.map((insight, idx) => (
-                                <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div
+                                    key={idx}
+                                    onClick={() => insight.nav && navigate(insight.nav)}
+                                    className={`flex items-start gap-3 p-3 bg-gray-50 rounded-lg ${insight.nav ? 'cursor-pointer hover:bg-white hover:shadow-md transition-all group' : ''}`}
+                                >
                                     <span className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${insight.type === 'critical' ? 'bg-red-500' :
                                         insight.type === 'warning' ? 'bg-orange-500' : 'bg-green-500'
                                         }`}></span>
-                                    <p className="text-gray-700 font-medium text-sm leading-relaxed">{insight.text}</p>
+                                    <p className={`text-gray-700 font-medium text-sm leading-relaxed ${insight.nav ? 'group-hover:text-primary' : ''}`}>{insight.text}</p>
                                 </div>
                             ))}
                         </div>
@@ -231,16 +255,20 @@ const Home = () => {
                             <CheckCircle className="text-green-600" size={20} />
                             Recommended Actions
                         </h3>
-                        <ul className="space-y-0">
+                        <div className="space-y-3">
                             {actions.map((action, idx) => (
-                                <li key={idx} className="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 px-2 rounded transition-colors">
-                                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold text-xs ring-2 ring-white">
-                                        {idx + 1}
-                                    </span>
-                                    <p className="text-gray-700 font-medium text-sm">{action}</p>
-                                </li>
+                                <div
+                                    key={idx}
+                                    onClick={() => action.nav && navigate(action.nav)}
+                                    className={`flex items-center gap-3 p-4 bg-gray-50 rounded-lg border-l-4 border-primary text-gray-700 font-bold text-sm ${action.nav ? 'cursor-pointer hover:bg-white hover:shadow-md transition-all group' : ''}`}
+                                >
+                                    <div className="flex-1 group-hover:text-primary transition-colors">{action.text}</div>
+                                    <div className="p-1 bg-white rounded-md text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ArrowRight size={14} />
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
 
                 </div>

@@ -35,7 +35,7 @@ const Topbar = () => {
     };
 
     return (
-        <header className="w-full bg-primary text-white h-16 flex items-center px-6 shadow-md fixed top-0 left-0 right-0 z-50">
+        <header className="w-full bg-primary text-white h-12 flex items-center px-6 shadow-md fixed top-0 left-0 right-0 z-50">
             {/* Logo */}
             <div className="flex items-center mr-8 flex-shrink-0">
                 <div className="bg-white py-1.5 px-3 rounded-lg">

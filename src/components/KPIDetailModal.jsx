@@ -3,6 +3,17 @@ import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin } from 'l
 import SmartChart from './charts/SmartChart';
 import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 
+const STATUS_CFG = {
+    Critical: { color: '#ef4444', light: '#fff1f1', border: '#fecaca', label: 'Critical', shadow: 'rgba(239, 68, 68, 0.15)' },
+    Warning: { color: '#f97316', light: '#fff4ed', border: '#fed7aa', label: 'Warning', shadow: 'rgba(249, 115, 22, 0.15)' },
+    Stable: { color: '#3b82f6', light: '#eff6ff', border: '#bfdbfe', label: 'Stable', shadow: 'rgba(59, 130, 246, 0.15)' },
+    Ready: { color: '#8b5cf6', light: '#f5f3ff', border: '#ddd6fe', label: 'Ready', shadow: 'rgba(139, 92, 246, 0.15)' },
+    'On Track': { color: '#10b981', light: '#f0fdf4', border: '#a7f3d0', label: 'On Track', shadow: 'rgba(16, 185, 129, 0.15)' },
+    Good: { color: '#10b981', light: '#f0fdf4', border: '#a7f3d0', label: 'Good', shadow: 'rgba(16, 185, 129, 0.15)' },
+};
+
+const cfgOf = s => STATUS_CFG[s] || { color: '#9ca3af', light: '#f9fafb', border: '#e5e7eb', label: s, shadow: 'rgba(156, 163, 175, 0.1)' };
+
 const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     const [selectedRegion, setSelectedRegion] = useState('All');
     if (!isOpen || !kpi) return null;
@@ -20,12 +31,13 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     };
 
     const getStatusColor = (status) => {
-        switch (status) {
-            case 'Critical': return 'bg-red-50 text-red-700 border-red-200';
-            case 'Warning': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-            case 'Stable': return 'bg-green-50 text-green-700 border-green-200';
-            default: return 'bg-blue-50 text-blue-700 border-blue-200';
-        }
+        const c = cfgOf(status);
+        return {
+            bg: c.light,
+            text: c.color,
+            border: c.border,
+            shadow: c.shadow
+        };
     };
 
 
@@ -34,32 +46,44 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
-                    <div className="flex items-center gap-3">
-                        {getStatusIcon(kpi.status)}
+                <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                            {getStatusIcon(kpi.status)}
+                        </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-800">{kpi.name}</h2>
-                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{kpi.department} Department</p>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-1 h-3 bg-primary rounded-full" />
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{kpi.department}</p>
+                            </div>
+                            <h2 className="text-2xl font-black text-slate-900 leading-tight tracking-tight">{kpi.name}</h2>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                        <X size={20} className="text-gray-500" />
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-white hover:shadow-md rounded-xl transition-all border border-gray-100">
+                        <X size={20} className="text-gray-400" />
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-6 space-y-6">
+                <div className="p-8 space-y-8">
 
                     {/* Status Badge Row */}
-                    <div className="flex gap-4 flex-wrap">
-                        <div className={`px-4 py-2 rounded-lg border font-semibold flex items-center gap-2 ${getStatusColor(kpi.status)}`}>
-                            <span>Status: {kpi.status}</span>
-                        </div>
-                        <div className="px-4 py-2 rounded-lg border bg-blue-50 text-primary border-blue-100 font-semibold shadow-sm">
-                            <div className="flex items-center gap-2">
-                                <Activity size={16} />
-                                <span>Verified Metric</span>
-                            </div>
+                    <div className="flex gap-3 flex-wrap">
+                        {(() => {
+                            const sc = getStatusColor(kpi.status);
+                            return (
+                                <div
+                                    className="px-4 py-2 rounded-full border text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm"
+                                    style={{ background: sc.bg, color: sc.text, borderColor: sc.border }}
+                                >
+                                    <div className="w-2 h-2 rounded-full" style={{ background: sc.text }} />
+                                    {kpi.status} Status
+                                </div>
+                            );
+                        })()}
+                        <div className="px-4 py-2 rounded-full border bg-slate-900 text-white border-slate-800 text-[11px] font-bold uppercase tracking-wider shadow-md flex items-center gap-2">
+                            <Activity size={12} />
+                            Verified Parameter
                         </div>
                     </div>
 
@@ -91,12 +115,17 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                         </div>
                     )}
 
-                    {/* Text Analysis */}
-                    <div className="bg-blue-50/50 p-6 rounded-xl border border-blue-100 text-gray-700 shadow-sm">
-                        <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-2">Business Objective</h4>
-                        <p className="text-lg leading-relaxed text-gray-800 italic">
-                            "{kpi.description}"
-                        </p>
+                    {/* Objective Analysis */}
+                    <div className="relative p-8 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                            <Activity size={120} className="text-primary" />
+                        </div>
+                        <div className="relative flex flex-col gap-4">
+                            <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Business Objective</h4>
+                            <p className="text-xl font-bold text-slate-800 leading-relaxed italic max-w-2xl">
+                                "{kpi.description}"
+                            </p>
+                        </div>
                     </div>
 
                     {/* Charts Section */}

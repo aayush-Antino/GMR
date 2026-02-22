@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import LineChartComponent from '../components/charts/LineChartComponent';
 import PieChartComponent from '../components/charts/PieChartComponent';
 import { executiveDummyData } from '../data/executiveDummyData';
-import { ThumbsUp, AlertOctagon, Activity, TrendingUp, CheckCircle } from 'lucide-react';
+import { findKPIOrigin } from '../utils/dashboardUtils';
+import { ThumbsUp, AlertOctagon, Activity, TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
 
 const DepartmentPerformance = () => {
+    const navigate = useNavigate();
     const { departments } = executiveDummyData;
     const [selectedDeptId, setSelectedDeptId] = useState(departments[0].id);
 
@@ -78,6 +81,14 @@ const DepartmentPerformance = () => {
                             <span className="font-semibold">6-Month Trend Available</span>
                         </div>
                     </div>
+                    <div className="mt-8">
+                        <button
+                            onClick={() => navigate(`/departments/${selectedDeptId}`)}
+                            className="bg-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-sm"
+                        >
+                            View Department Dashboards <ArrowRight size={16} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -92,11 +103,21 @@ const DepartmentPerformance = () => {
                             Where Attention Is Required
                         </h3>
                         <ul className="space-y-4">
-                            {currentDept.needsAttention.map((item, idx) => (
-                                <li key={idx} className="flex items-start gap-3 p-4 bg-red-50 rounded-lg border-l-4 border-red-400">
-                                    <span className="text-gray-800 font-medium">{item}</span>
-                                </li>
-                            ))}
+                            {currentDept.needsAttention.map((item, idx) => {
+                                const origin = findKPIOrigin(item, currentDept.name);
+                                const navPath = origin ? `/departments/${selectedDeptId}/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(item)}` : null;
+
+                                return (
+                                    <li
+                                        key={idx}
+                                        onClick={() => navPath && navigate(navPath)}
+                                        className={`flex items-start justify-between gap-3 p-4 bg-red-50 rounded-lg border-l-4 border-red-400 group transition-all ${navPath ? 'cursor-pointer hover:bg-red-100/50 hover:shadow-sm' : ''}`}
+                                    >
+                                        <span className="text-gray-800 font-medium group-hover:text-red-700">{item}</span>
+                                        {navPath && <ArrowRight size={14} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity mt-1" />}
+                                    </li>
+                                );
+                            })}
                         </ul>
 
                         <h3 className="font-bold text-lg text-green-600 mt-8 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">

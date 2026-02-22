@@ -5,166 +5,236 @@ import KPIDetailModal from '../components/KPIDetailModal';
 import { dashboardData } from '../data/dashboardData';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { dashboardMeta } from '../utils/dashboardUtils';
-import { ChevronRight, ArrowLeft, Search, Activity, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-const DeptSpecificDashboard = () => {
-    const { deptId, dashKey } = useParams();
-    const navigate = useNavigate();
-    const [selectedKPI, setSelectedKPI] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
+const STATUS_CFG = {
+    Critical: { color: '#ef4444', light: '#fff1f1', border: '#fecaca', label: 'Critical', shadow: 'rgba(239, 68, 68, 0.15)' },
+    Warning: { color: '#f97316', light: '#fff4ed', border: '#fed7aa', label: 'Warning', shadow: 'rgba(249, 115, 22, 0.15)' },
+    Stable: { color: '#3b82f6', light: '#eff6ff', border: '#bfdbfe', label: 'Stable', shadow: 'rgba(59, 130, 246, 0.15)' },
+    Ready: { color: '#8b5cf6', light: '#f5f3ff', border: '#ddd6fe', label: 'Ready', shadow: 'rgba(139, 92, 246, 0.15)' },
+    'On Track': { color: '#10b981', light: '#f0fdf4', border: '#a7f3d0', label: 'On Track', shadow: 'rgba(16, 185, 129, 0.15)' },
+    Good: { color: '#10b981', light: '#f0fdf4', border: '#a7f3d0', label: 'Good', shadow: 'rgba(16, 185, 129, 0.15)' },
+};
 
-    // Find Department
-    const department = executiveDummyData.departments.find(d => d.id === deptId);
+const cfgOf = s => STATUS_CFG[s] || { color: '#9ca3af', light: '#f9fafb', border: '#e5e7eb', label: s, shadow: 'rgba(156, 163, 175, 0.1)' };
+const STATUS_RANK = { Critical: 0, Warning: 1, 'On Track': 2, Stable: 3, Ready: 4, Good: 5 };
 
-    // Get Dashboard Data
-    const allItems = dashboardData[dashKey] || [];
-    const meta = dashboardMeta[dashKey] || { title: 'Dashboard', description: '' };
+const Sparkline = ({ color }) => (
+    <svg width="60" height="24" viewBox="0 0 60 24" fill="none" className="opacity-60">
+        <path
+            d="M2 18C8 16 12 6 18 10C24 14 30 4 36 8C42 12 48 2 54 6"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
+);
 
-    // Filter Items for this Department
-    const filteredItems = allItems.filter(item =>
-        item.department === department?.name &&
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (!department) return (
-        <div className="min-h-screen bg-lightBg font-sans">
-            <Topbar />
-            <div className="pt-16 flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-400">Department Not Found</h2>
-                </div>
-            </div>
-        </div>
-    );
+const KPICard = ({ kpi, idx, onClick }) => {
+    const c = cfgOf(kpi.status);
+    const isPositive = kpi.status === 'Good' || kpi.status === 'On Track' || kpi.status === 'Stable';
 
     return (
-        <div className="min-h-screen bg-lightBg font-sans">
-            <Topbar />
-            <div className="pt-16 overflow-y-auto overflow-x-hidden">
+        <div
+            onClick={onClick}
+            className="group bg-white rounded-2xl p-5 cursor-pointer border border-gray-100/50 hover:border-transparent transition-all duration-300 relative flex flex-col overflow-hidden"
+            style={{
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+            }}
+            onMouseEnter={e => {
+                e.currentTarget.style.boxShadow = `0 20px 25px -5px ${c.shadow}, 0 10px 10px -5px ${c.shadow}`;
+                e.currentTarget.style.transform = 'translateY(-4px)';
+            }}
+            onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+                e.currentTarget.style.transform = 'translateY(0)';
+            }}
+        >
+            {/* Left Accent Bar */}
+            <div className="absolute top-4 bottom-4 left-0 w-1 rounded-r-lg transition-all duration-300 group-hover:w-1.5"
+                style={{ background: c.color }} />
 
-                {/* Hero Section */}
-                <div className="bg-gradient-to-br from-primary to-blue-900 h-64 w-full relative overflow-hidden">
-                    {/* Abstract Shapes */}
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accentOrange/10 rounded-full -translate-x-1/4 translate-y-1/4 blur-2xl"></div>
-
-                    <div className="max-w-7xl mx-auto px-8 flex flex-col justify-center h-full relative z-10">
-                        {/* Breadcrumb */}
-                        <div className="flex items-center gap-2 mb-4 text-sm text-blue-200/80">
-                            <button onClick={() => navigate(`/departments/${deptId}`)} className="hover:text-white flex items-center gap-1 transition-colors">
-                                <ArrowLeft size={16} /> Back to {department.name}
-                            </button>
-                            <ChevronRight size={14} className="opacity-50" />
-                            <span className="font-medium text-white">{meta.title}</span>
-                        </div>
-
-                        <h1 className="text-4xl font-extrabold text-white mb-2 tracking-tight drop-shadow-lg">
-                            {meta.title}
-                        </h1>
-                        <p className="text-blue-100 max-w-2xl text-lg font-light">
-                            {meta.description}
-                        </p>
-                    </div>
+            <div className="flex items-start justify-between mb-4 pl-1">
+                <div className="flex flex-col gap-1">
+                    <span
+                        className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest self-start"
+                        style={{ background: c.light, color: c.color }}
+                    >
+                        {c.label}
+                    </span>
                 </div>
+                <Sparkline color={c.color} />
+            </div>
 
-                {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-8 -mt-8 pb-16 relative z-20">
+            <h3 className="text-[14px] font-bold text-gray-800 group-hover:text-primary transition-colors leading-tight mb-2 pl-1 line-clamp-2">
+                {kpi.name}
+            </h3>
 
-                    {/* Controls & Stats */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                        {/* Search Bar */}
-                        <div className="relative w-full md:w-96 shadow-lg rounded-xl overflow-hidden group">
-                            <div className="absolute inset-0 bg-white opacity-95 group-hover:opacity-100 transition-opacity"></div>
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors" size={20} />
-                            <input
-                                type="text"
-                                placeholder={`Search in ${meta.title}...`}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-transparent relative z-10 focus:outline-none text-gray-700 placeholder-gray-400"
-                            />
-                        </div>
+            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed mb-4 pl-1">
+                {kpi.description || 'Monitoring operational excellence and performance metrics.'}
+            </p>
 
-                        {/* Quick Stat */}
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-sm">
-                            <Activity size={16} />
-                            <span>{filteredItems.length} KPIs Tracked</span>
-                        </div>
-                    </div>
-
-                    {/* KPI Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredItems.map((kpi, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => setSelectedKPI(kpi)}
-                                className={`bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group border border-gray-100 hover:border-primary/20 hover:-translate-y-1 overflow-hidden relative ${kpi.status === 'Critical' ? 'border-l-4 border-l-accentRed' :
-                                    kpi.status === 'Warning' ? 'border-l-4 border-l-accentOrange' :
-                                        'border-l-4 border-l-emerald-500'
-                                    }`}
-                            >
-                                <div className="p-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="p-3 rounded-lg bg-gray-50 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                                            <Activity size={24} />
-                                        </div>
-                                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${kpi.status === 'Critical' ? 'bg-red-50 text-accentRed border border-red-100' :
-                                            kpi.status === 'Warning' ? 'bg-orange-50 text-accentOrange border border-orange-100' :
-                                                'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                                            }`}>
-                                            {kpi.status === 'Critical' && <AlertCircle size={12} />}
-                                            {kpi.status === 'Warning' && <Clock size={12} />}
-                                            {kpi.status === 'On Track' && <CheckCircle2 size={12} />}
-                                            {kpi.status}
-                                        </div>
-                                    </div>
-
-                                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary transition-colors line-clamp-1">
-                                        {kpi.name}
-                                    </h3>
-
-                                    <div className="text-sm text-gray-600 mb-6 line-clamp-3 min-h-[4.5rem] leading-relaxed">
-                                        {kpi.description}
-                                    </div>
-                                </div>
-
-                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center group-hover:bg-primary/5 transition-colors">
-                                    <span className="text-xs font-semibold text-gray-400 group-hover:text-primary transition-colors">Real-time Analysis</span>
-                                    <span className="text-sm font-bold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                        Analyze <ChevronRight size={16} />
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {filteredItems.length === 0 && (
-                        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
-                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                <Search size={32} className="text-gray-300" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-gray-800">No KPIs Found</h3>
-                            <p className="text-gray-500 mt-1 max-w-sm">We couldn't find any KPIs matching "{searchTerm}" in this dashboard.</p>
-                            <button
-                                onClick={() => setSearchTerm('')}
-                                className="mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Clear Search
-                            </button>
-                        </div>
+            <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between pl-1">
+                <div className="flex items-center gap-2">
+                    {isPositive ? (
+                        <TrendingUp size={14} className="text-green-500" />
+                    ) : kpi.status === 'Warning' ? (
+                        <Minus size={14} className="text-orange-500" />
+                    ) : (
+                        <TrendingDown size={14} className="text-red-500" />
                     )}
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Active</span>
                 </div>
-
-                {/* Modal */}
-                <KPIDetailModal
-                    isOpen={!!selectedKPI}
-                    onClose={() => setSelectedKPI(null)}
-                    kpi={selectedKPI}
-                />
-
+                <div className="text-[10px] font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
+                    #{String(idx + 1).padStart(2, '0')}
+                </div>
             </div>
         </div>
     );
 };
 
+const DeptSpecificDashboard = () => {
+    const { deptId, dashKey, kpiName } = useParams();
+    const navigate = useNavigate();
+    const [search, setSearch] = useState('');
+    const [activeFilter, setActiveFilter] = useState('All');
+
+    const dept = executiveDummyData.departments.find(d => d.id === deptId);
+    const allItems = dashboardData[dashKey] || [];
+    const meta = dashboardMeta[dashKey] || { title: 'Dashboard', description: '' };
+
+    const deptItems = allItems.filter(item => item.department === dept?.name);
+
+    const statuses = ['All', ...Object.keys(
+        deptItems.reduce((acc, k) => { acc[k.status] = true; return acc; }, {})
+    ).sort((a, b) => (STATUS_RANK[a] ?? 99) - (STATUS_RANK[b] ?? 99))];
+
+    const items = deptItems.filter(item =>
+        (activeFilter === 'All' || item.status === activeFilter) &&
+        item.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const selectedKPI = kpiName ? deptItems.find(k => k.name.toLowerCase().trim() === kpiName.toLowerCase().trim()) : null;
+
+    const handleKPIClick = (kpi) => {
+        navigate(`/departments/${deptId}/dashboard/${dashKey}/kpi/${encodeURIComponent(kpi.name)}`);
+    };
+
+    const handleCloseModal = () => {
+        navigate(`/departments/${deptId}/dashboard/${dashKey}`);
+    };
+
+    if (!dept) return (
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Topbar />
+            <div className="pt-12 flex items-center justify-center min-h-screen">
+                <p className="text-gray-400">Department not found.</p>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen font-sans pt-12" style={{ background: '#f8fafc' }}>
+            <Topbar />
+
+            {/* ── Sticky Glass Header ── */}
+            <div className="sticky top-12 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between py-4 gap-4">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => navigate(`/departments/${deptId}`)}
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-white hover:shadow-md transition-all border border-gray-100"
+                            >
+                                <ArrowLeft size={16} />
+                            </button>
+                            <div>
+                                <div className="flex items-center gap-2 mb-0.5">
+                                    <div className="w-1 h-3 bg-primary rounded-full" />
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">{dept.name}</p>
+                                </div>
+                                <h1 className="text-xl font-black text-slate-900 leading-tight tracking-tight">
+                                    {meta.title}
+                                </h1>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <div className="relative group">
+                                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Search across metrics..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    className="w-64 pl-10 pr-4 py-2 text-sm bg-gray-50/50 border border-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white placeholder-gray-400 text-gray-700 transition-all"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Professional Pill Filters */}
+                    <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar">
+                        {statuses.map(s => {
+                            const c = s === 'All' ? null : cfgOf(s);
+                            const isActive = activeFilter === s;
+                            const count = s === 'All' ? deptItems.length : deptItems.filter(i => i.status === s).length;
+                            return (
+                                <button
+                                    key={s}
+                                    onClick={() => setActiveFilter(s)}
+                                    className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 border whitespace-nowrap ${isActive
+                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105'
+                                        : 'bg-white border-gray-100 text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                                        }`}
+                                >
+                                    {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: isActive ? '#fff' : c.color }}></span>}
+                                    {s}
+                                    <span className={`ml-1 text-[10px] opacity-60 ${isActive ? 'text-white' : 'text-gray-400'}`}>
+                                        ({count})
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Dashboard Content ── */}
+            <div className="max-w-7xl mx-auto px-6 py-12">
+                {items.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {items.map((kpi, idx) => (
+                            <KPICard
+                                key={idx}
+                                kpi={kpi}
+                                idx={idx}
+                                onClick={() => handleKPIClick(kpi)}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center py-24 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
+                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+                            <Search size={32} className="text-gray-200" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-500">No parameters found matching your search</p>
+                        <p className="text-xs text-gray-400 mt-1">Try adjusting your filters or search terms</p>
+                        <button
+                            onClick={() => { setSearch(''); setActiveFilter('All'); }}
+                            className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-primary transition-all shadow-sm"
+                        >
+                            Reset Dashboard
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <KPIDetailModal isOpen={!!selectedKPI} onClose={handleCloseModal} kpi={selectedKPI} />
+        </div>
+    );
+};
+
 export default DeptSpecificDashboard;
+

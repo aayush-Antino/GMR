@@ -31,3 +31,22 @@ export const getDashboardsForDepartment = (deptName) => {
 
     return availableDashboards;
 };
+export const findKPIOrigin = (kpiName, deptName) => {
+    if (!kpiName) return null;
+    let result = null;
+    const searchName = kpiName.toLowerCase().trim();
+
+    Object.keys(dashboardData).forEach(dashKey => {
+        const data = dashboardData[dashKey];
+        if (Array.isArray(data)) {
+            const kpi = data.find(k =>
+                k.name.toLowerCase().trim() === searchName &&
+                (!deptName || k.department.toLowerCase().trim() === deptName.toLowerCase().trim())
+            );
+            if (kpi) {
+                result = { dashKey, kpi };
+            }
+        }
+    });
+    return result;
+};

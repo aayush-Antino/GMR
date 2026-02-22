@@ -6,7 +6,7 @@ const DashboardLayout = ({ title, description, children }) => {
     return (
         <div className="min-h-screen bg-lightBg font-sans">
             <Topbar />
-            <div className="pt-16">
+            <div className="pt-12">
                 <div className="p-8 max-w-7xl mx-auto space-y-8">
 
                     {/* Header Section */}
