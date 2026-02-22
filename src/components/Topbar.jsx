@@ -30,7 +30,7 @@ const Topbar = () => {
     };
 
     const handleDashboardClick = (deptId, dashKey) => {
-        navigate(`/departments/${deptId}/dashboard/${dashKey}`);
+        navigate(`/dashboard/${dashKey}`);
         setActiveDept(null);
     };
 

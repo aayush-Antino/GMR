@@ -96,17 +96,22 @@ const KPICard = ({ kpi, idx, onClick }) => {
 
 const DeptSpecificDashboard = () => {
     const params = useParams();
-    const { deptId, dashKey } = params;
+    const { dashKey } = params;
     const kpiName = params['*'] || null;
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
 
-    const dept = executiveDummyData.departments.find(d => d.id === deptId);
     const allItems = dashboardData[dashKey] || [];
     const meta = dashboardMeta[dashKey] || { title: 'Dashboard', description: '' };
 
-    const deptItems = allItems.filter(item => item.department === dept?.name);
+    // Derive department from the first item since dashKey is unique to a department's dashboard
+    const departmentName = allItems.length > 0 ? allItems[0].department : 'Unknown';
+    // Optionally find the dept config if needed for display
+    const dept = executiveDummyData.departments.find(d => d.name === departmentName);
+
+    // Filter items (all items in this dashKey already belong to the same department anyway)
+    const deptItems = allItems;
 
     const statuses = ['All', ...Object.keys(
         deptItems.reduce((acc, k) => { acc[k.status] = true; return acc; }, {})
@@ -120,11 +125,11 @@ const DeptSpecificDashboard = () => {
     const selectedKPI = kpiName ? deptItems.find(k => k.name.toLowerCase().trim() === kpiName.toLowerCase().trim()) : null;
 
     const handleKPIClick = (kpi) => {
-        navigate(`/departments/${deptId}/dashboard/${dashKey}/kpi/${encodeURIComponent(kpi.name)}`);
+        navigate(`/dashboard/${dashKey}/kpi/${encodeURIComponent(kpi.name)}`);
     };
 
     const handleCloseModal = () => {
-        navigate(`/departments/${deptId}/dashboard/${dashKey}`);
+        navigate(`/dashboard/${dashKey}`);
     };
 
     if (!dept) return (
@@ -148,7 +153,7 @@ const DeptSpecificDashboard = () => {
                         {/* Left accent bar */}
                         <div className="hidden sm:block w-1 self-stretch rounded-full" style={{ background: 'linear-gradient(180deg, #F4A300 0%, #0f2744 100%)', minHeight: '48px' }} />
                         <button
-                            onClick={() => navigate(`/departments/${deptId}`)}
+                            onClick={() => navigate('/')}
                             className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all flex-shrink-0"
                             style={{ borderColor: '#e2e8f0', color: '#64748b', background: '#f8fafc' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#0f2744'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f2744'; }}
@@ -157,7 +162,7 @@ const DeptSpecificDashboard = () => {
                             <ArrowLeft size={16} />
                         </button>
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.25em] mb-1" style={{ color: '#F4A300' }}>{dept.name}</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.25em] mb-1" style={{ color: '#F4A300' }}>{dept?.name || departmentName}</p>
                             <h1 className="text-2xl font-black leading-tight" style={{ color: '#0f2744' }}>{meta.title}</h1>
                         </div>
                     </div>

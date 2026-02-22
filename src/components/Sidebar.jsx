@@ -26,11 +26,15 @@ const Sidebar = () => {
         // { title: 'Executive Control Center', path: '/', icon: BarChart2 },
     ];
 
-    const departmentItems = executiveDummyData.departments.map(dept => ({
-        title: dept.name,
-        path: `/departments/${dept.id}`,
-        icon: ChevronRight
-    }));
+    const departmentItems = executiveDummyData.departments.map(dept => {
+        // Find the first dashboard key for this department (assuming format dashboard(id*3-2))
+        const firstDashId = (parseInt(dept.id.replace('dept_', '')) - 1) * 3 + 1;
+        return {
+            title: dept.name,
+            path: `/dashboard/dashboard${firstDashId}`,
+            icon: ChevronRight
+        };
+    });
 
     const otherItems = [
         // { title: 'Risk Overview', path: '/risk', icon: AlertTriangle },

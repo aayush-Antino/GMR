@@ -1,311 +1,305 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Topbar from '../components/Topbar';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { findKPIOrigin } from '../utils/dashboardUtils';
-import { Activity, AlertTriangle, TrendingUp, CheckCircle, ArrowRight, ShieldAlert, DollarSign, Database, Server } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Activity, AlertTriangle, TrendingUp, CheckCircle, ArrowRight, ShieldAlert, DollarSign, Database, Server, Clock, Zap, Wifi, Layers, Shield, Box, Crosshair, Network } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, CartesianGrid, LineChart, Line } from 'recharts';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { summary, businessAreas, departments } = executiveDummyData;
+    const { departments } = executiveDummyData;
 
-    // Calculate Health Score
-    // Weighted deduction: Critical=100%, High=20% weight relative to total KPIs
-    const weightedDefects = (summary.critical * 1.0) + (summary.high * 0.2);
-    const defectPercentage = (weightedDefects / summary.totalKPIs) * 100;
-    const calculatedHealthScore = Math.max(0, Math.round(100 - defectPercentage));
+    // Helper to extract a specific KPI by its exact name across all departments
+    const getKPI = (nameToFind) => {
+        for (let dept of departments) {
+            if (dept.kpiList) {
+                const found = dept.kpiList.find(k => k.kpiName === nameToFind);
+                if (found) return { ...found, dept: dept.name, deptId: dept.id };
+            }
+        }
+        return { value: 'N/A', status: 'Unknown', kpiName: nameToFind, dept: 'System' };
+    };
 
-    // Determine Status
-    const healthStatus = calculatedHealthScore > 80 ? "Healthy" : calculatedHealthScore >= 60 ? "Needs Attention" : "Critical Risk";
-    const healthColor = calculatedHealthScore > 80 ? "text-green-500" : calculatedHealthScore >= 60 ? "text-yellow-500" : "text-red-500";
-    const healthBg = calculatedHealthScore > 80 ? "bg-green-50 border-green-200" : calculatedHealthScore >= 60 ? "bg-yellow-50 border-yellow-200" : "bg-red-50 border-red-200";
-
-    // Circular Chart Data
-    const healthChartData = [
-        { name: 'Score', value: calculatedHealthScore },
-        { name: 'Remaining', value: 100 - calculatedHealthScore }
-    ];
-    const CHART_COLORS = [calculatedHealthScore > 80 ? '#22c55e' : calculatedHealthScore >= 60 ? '#eab308' : '#ef4444', '#f3f4f6'];
-
-    // AGGREGATE INSIGHTS FROM REAL DATA
-    // 1. Collect all critical/high KPIs across departments
-    const getAllCriticalKPIs = () => {
-        let criticals = [];
+    // Helper to get array of all Security/Tamper alerts ignoring priority
+    const getAllSecurityAlerts = () => {
+        let alerts = [];
         departments.forEach(dept => {
             if (dept.kpiList) {
-                const depCriticals = dept.kpiList.filter(k => k.status === 'Critical').map(k => ({ ...k, dept: dept.name }));
-                criticals = [...criticals, ...depCriticals];
+                const threats = dept.kpiList.filter(k =>
+                    k.kpiName.toLowerCase().includes('tamper') ||
+                    k.kpiName.toLowerCase().includes('theft') ||
+                    k.kpiName.toLowerCase().includes('anomaly')
+                ).map(k => ({ ...k, dept: dept.name, deptId: dept.id }));
+                alerts = [...alerts, ...threats];
             }
         });
-        return criticals;
+        return alerts;
     };
 
-    const criticalKPIs = getAllCriticalKPIs();
+    // Metric Extraction for Category Nodes
+    // Node 1: Finance & Energy Accounting
+    const atcLoss = getKPI('AT&C Loss (%)');
+    const billingEff = getKPI('Billing Efficiency (%)');
+    const collectEff = getKPI('Collection Efficiency (%)');
 
-    // 2. Generate Insights based on specific KPIs
-    const generateInsights = () => {
-        const insights = [
-            {
-                text: `System Health is ${healthStatus} (${calculatedHealthScore}%) with ${summary.critical} critical metrics.`,
-                type: calculatedHealthScore < 60 ? "critical" : "warning"
-            }
-        ];
+    // Node 2: Grid Operations (Reliability)
+    const saidi = getKPI('SAIDI');
+    const saifi = getKPI('SAIFI');
+    const voltageDev = getKPI('Voltage Deviation Index (VDI)');
 
-        // Add specific KPI insights
-        criticalKPIs.slice(0, 3).forEach(kpi => {
-            const origin = findKPIOrigin(kpi.kpiName, kpi.dept);
-            const deptObj = departments.find(d => d.name === kpi.dept);
-            insights.push({
-                text: `${kpi.kpiName} in ${kpi.dept} is Critical (${kpi.value}).`,
-                type: "critical",
-                nav: origin && deptObj ? `/departments/${deptObj.id}/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(kpi.kpiName)}` : null
-            });
-        });
+    // Node 3: Security & Intelligence (Anomalies)
+    const allSecurityNodes = useMemo(() => getAllSecurityAlerts(), []);
+    const securityCount = allSecurityNodes.length;
+    const coverOpen = getKPI('Number of Tamper Alerts (Cover Open)');
+    const theftDiversion = getKPI('Theft / Load diversion');
 
-        if (insights.length < 4) {
-            const financeDept = departments.find(d => d.id === 'dept_1');
-            const opsDept = departments.find(d => d.id === 'dept_2');
+    // Node 4: Network Asset Tracking
+    const overloadedFeeders = getKPI('Top Overloaded DTs / Feeders');
+    const dtPeakLoading = getKPI('% DT Peak Loading');
+    const dtFailure = getKPI('DT Failure Rate (%)');
 
-            if (businessAreas.finance.issues > 5) insights.push({
-                text: "Finance department shows elevated risk levels.",
-                type: "warning",
-                nav: financeDept ? `/departments/${financeDept.id}` : null
-            });
-            if (businessAreas.operation.health < 70) insights.push({
-                text: "Operational stability below target.",
-                type: "warning",
-                nav: opsDept ? `/departments/${opsDept.id}` : null
-            });
+    const handleKPIClick = (kpi) => {
+        if (!kpi.deptId) return;
+        const origin = findKPIOrigin(kpi.kpiName, kpi.dept);
+        if (origin) {
+            navigate(`/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(kpi.kpiName)}`);
+        } else {
+            console.warn('Origin not found for KPI:', kpi.kpiName);
         }
-        return insights;
     };
 
-    // 3. Generate Actions based on specific KPIs
-    const generateActions = () => {
-        const actions = criticalKPIs.slice(0, 4).map(kpi => {
-            const origin = findKPIOrigin(kpi.kpiName, kpi.dept);
-            const deptObj = departments.find(d => d.name === kpi.dept);
-            return {
-                text: `Investigate root cause for ${kpi.kpiName} (${kpi.dept}).`,
-                nav: origin && deptObj ? `/departments/${deptObj.id}/dashboard/${origin.dashKey}/kpi/${encodeURIComponent(kpi.kpiName)}` : null
-            };
-        });
+    // Charts Dummy Data
+    const efficiencyData = [
+        { name: 'Q1', Billing: 85, Collection: 88, Loss: 15 },
+        { name: 'Q2', Billing: 82, Collection: 85, Loss: 18 },
+        { name: 'Q3', Billing: 88, Collection: 89, Loss: 12 },
+        { name: 'Q4', Billing: parseInt(billingEff.value) || 82, Collection: parseInt(collectEff.value) || 90, Loss: parseInt(atcLoss.value) || 10 },
+    ];
 
-        // Fallback actions if few criticals
-        if (actions.length < 4) {
-            actions.push("Review operational expenditure reports.");
-            actions.push("Conduct weekly system maintenance check.");
-            actions.push("Analyze recent data mapping anomalies.");
-        }
-        return actions;
-    };
+    const reliabilityData = [
+        { name: 'W1', SAIDI: 45, SAIFI: 12 },
+        { name: 'W2', SAIDI: 50, SAIFI: 15 },
+        { name: 'W3', SAIDI: 35, SAIFI: 8 },
+        { name: 'W4', SAIDI: 42, SAIFI: 10 },
+        { name: 'W5', SAIDI: parseInt(saidi.value) || 40, SAIFI: parseInt(saifi.value) || 11 },
+    ];
 
-    const insights = generateInsights();
-    const actions = generateActions();
+    const anomalyData = [
+        { name: 'North', size: 120 }, { name: 'South', size: 85 }, { name: 'East', size: 210 }, { name: 'West', size: 60 }
+    ];
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="min-h-screen font-sans bg-slate-50 text-slate-700 selection:bg-primary/20 pb-20">
             <Topbar />
-            <div className="pt-16 p-8">
 
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Executive Control Center</h1>
-                    <p className="text-gray-500 text-lg mt-1">High-level performance and risk visibility across the smart metering ecosystem.</p>
-                </div>
-
-                {/* Section 1: Overall System Health (Hero) */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center relative z-10">
-                        {/* Health Score */}
-                        <div className="flex flex-col items-center justify-center border-r border-gray-100 pr-8">
-                            <div className="relative w-48 h-48 min-w-[12rem] min-h-[12rem]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={healthChartData}
-                                            innerRadius={60}
-                                            outerRadius={80}
-                                            startAngle={90}
-                                            endAngle={-270}
-                                            dataKey="value"
-                                            stroke="none"
-                                        >
-                                            {healthChartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={CHART_COLORS[index]} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className={`text-5xl font-extrabold ${healthColor}`}>{calculatedHealthScore}%</span>
-                                    <span className="text-xs uppercase font-bold text-gray-400 mt-1 tracking-wider">Health Score</span>
-                                </div>
-                            </div>
-                            <div className={`mt-4 px-4 py-1.5 rounded-full text-sm font-bold border ${healthBg} ${healthColor}`}>
-                                {healthStatus}
-                            </div>
-                        </div>
-
-                        {/* Key Metrics */}
-                        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <MetricBlock label="Total KPIs" value={summary.totalKPIs} icon={<CheckCircle size={20} className="text-blue-500" />} />
-                            <MetricBlock label="Total Issues" value={summary.totalIssues} icon={<AlertTriangle size={20} className="text-orange-500" />} />
-                            <MetricBlock label="Critical Issues" value={summary.critical} icon={<ShieldAlert size={20} className="text-red-500" />} />
-                            <MetricBlock label="Impacted Depts" value={summary.departments} icon={<Server size={20} className="text-gray-500" />} />
-                        </div>
+            <div className="pt-24 px-4 md:px-8 max-w-[1600px] mx-auto">
+                <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">System Telemetry Matrix</h1>
+                        <p className="text-slate-500 text-lg mt-1 font-medium">Categorical aggregate of 105 active grid parameters.</p>
                     </div>
-                </div>
-
-                {/* Section 2: Business Focus Areas */}
-                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                    Business Focus Areas
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                    {/* Operational Stability */}
-                    <FocusCard
-                        title="Operational Stability"
-                        score={businessAreas.operation.health}
-                        issueCount={businessAreas.operation.issues}
-                        summary={businessAreas.operation.summary}
-                        onClick={() => navigate(businessAreas.operation.link)}
-                        icon={<Activity size={24} className="text-blue-600" />}
-                        colorClass="text-blue-600"
-                    />
-
-                    {/* Financial Risk */}
-                    <FocusCard
-                        title="Financial Risk"
-                        score={businessAreas.finance.health}
-                        issueCount={businessAreas.finance.issues}
-                        summary={businessAreas.finance.summary}
-                        onClick={() => navigate(businessAreas.finance.link)}
-                        icon={<DollarSign size={24} className="text-orange-600" />}
-                        colorClass="text-orange-600"
-                        isRisk={true}
-                    />
-
-                    {/* Data Reliability */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><Database size={24} /></div>
-                            <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">Stable</span>
-                        </div>
-                        <h3 className="font-bold text-lg text-gray-800 mb-1">Data Reliability</h3>
-                        <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-3xl font-extrabold text-gray-900">{businessAreas.advancedAnalytics.health}%</span>
-                            <span className="text-sm text-gray-500">Completeness</span>
-                        </div>
-                        <p className="text-gray-500 text-sm mb-4 min-h-[40px]">{businessAreas.advancedAnalytics.summary}</p>
-                        <button onClick={() => navigate('/risk')} className="text-purple-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                            View Details <ArrowRight size={14} />
-                        </button>
-                    </div>
-
-                    {/* Performance Trend */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-2 bg-gray-50 rounded-lg text-gray-600"><TrendingUp size={24} /></div>
-                            <span className="text-xs font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Monitoring</span>
-                        </div>
-                        <h3 className="font-bold text-lg text-gray-800 mb-1">Performance Trend</h3>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="text-3xl font-extrabold text-gray-900">Rising</span>
-                            <TrendingUp className="text-red-500" size={24} />
-                        </div>
-                        <p className="text-gray-500 text-sm mb-4 min-h-[40px]">{businessAreas.performanceTrend.summary}</p>
-                        <button onClick={() => navigate('/trends')} className="text-gray-600 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                            View Details <ArrowRight size={14} />
+                    <div className="flex gap-3">
+                        <button className="px-5 py-2 rounded-lg bg-white border border-slate-200 shadow-sm text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                            Matrix Settings
                         </button>
                     </div>
                 </div>
 
-                {/* Section 3 & 4: Insights and Actions */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* The 4-Node Grid Matrix */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
-                    {/* Executive Insights */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
-                            <Activity className="text-primary" size={20} />
-                            Executive Insights
-                        </h3>
-                        <div className="space-y-3">
-                            {insights.map((insight, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => insight.nav && navigate(insight.nav)}
-                                    className={`flex items-start gap-3 p-3 bg-gray-50 rounded-lg ${insight.nav ? 'cursor-pointer hover:bg-white hover:shadow-md transition-all group' : ''}`}
-                                >
-                                    <span className={`w-2 h-2 mt-2 rounded-full flex-shrink-0 ${insight.type === 'critical' ? 'bg-red-500' :
-                                        insight.type === 'warning' ? 'bg-orange-500' : 'bg-green-500'
-                                        }`}></span>
-                                    <p className={`text-gray-700 font-medium text-sm leading-relaxed ${insight.nav ? 'group-hover:text-primary' : ''}`}>{insight.text}</p>
+                    {/* NODE 1: Financial & Energy Accounting */}
+                    <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-shadow">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><DollarSign size={24} /></div>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Finance & Accounting</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">19 Active KPIs</p>
                                 </div>
-                            ))}
+                            </div>
+                            <button onClick={() => navigate('/dashboard/dashboard1')} className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                                Open Hub <ArrowRight size={16} />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            <NodeStat kpi={atcLoss} label="Energy Accounting" onClick={() => handleKPIClick(atcLoss)} />
+                            <NodeStat kpi={billingEff} label="Billing Eff." onClick={() => handleKPIClick(billingEff)} />
+                        </div>
+
+                        <div className="h-40 w-full mt-4 bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={efficiencyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dy={5} />
+                                    <Tooltip cursor={{ fill: 'rgba(226, 232, 240, 0.5)' }} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} />
+                                    <Bar dataKey="Billing" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={16} />
+                                    <Bar dataKey="Collection" fill="#14b8a6" radius={[4, 4, 0, 0]} barSize={16} />
+                                    <Bar dataKey="Loss" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={16} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 
-                    {/* Recommended Actions */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
-                            <CheckCircle className="text-green-600" size={20} />
-                            Recommended Actions
-                        </h3>
-                        <div className="space-y-3">
-                            {actions.map((action, idx) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => action.nav && navigate(action.nav)}
-                                    className={`flex items-center gap-3 p-4 bg-gray-50 rounded-lg border-l-4 border-primary text-gray-700 font-bold text-sm ${action.nav ? 'cursor-pointer hover:bg-white hover:shadow-md transition-all group' : ''}`}
-                                >
-                                    <div className="flex-1 group-hover:text-primary transition-colors">{action.text}</div>
-                                    <div className="p-1 bg-white rounded-md text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ArrowRight size={14} />
+                    {/* NODE 2: Grid Operations (Reliability) */}
+                    <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-shadow">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Server size={24} /></div>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Grid Reliability Ops</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">31 Active KPIs</p>
+                                </div>
+                            </div>
+                            <button onClick={() => navigate('/dashboard/dashboard4')} className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
+                                Open Hub <ArrowRight size={16} />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            <NodeStat kpi={saidi} label="System SAIDI" onClick={() => handleKPIClick(saidi)} />
+                            <NodeStat kpi={saifi} label="System SAIFI" onClick={() => handleKPIClick(saifi)} />
+                        </div>
+
+                        <div className="h-40 w-full mt-4 bg-slate-50 rounded-2xl p-4 border border-slate-100 relative overflow-hidden">
+                            <span className="absolute top-4 left-4 text-[10px] font-black tracking-widest uppercase text-slate-400">Reliability Trend</span>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={reliabilityData} margin={{ top: 30, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} dy={5} />
+                                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+                                    <Line type="monotone" dataKey="SAIDI" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey="SAIFI" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* NODE 3: Security & Anomaly Center */}
+                    <div className="bg-slate-900 rounded-3xl border border-slate-800 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-shadow relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity"><Layers size={150} className="text-white" /></div>
+
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-orange-500/20 text-orange-400 rounded-xl"><Shield size={24} /></div>
+                                <div>
+                                    <h2 className="text-xl font-black text-white tracking-tight">Security & Analytics</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">30 Active KPIs</p>
+                                </div>
+                            </div>
+                            <button onClick={() => navigate('/dashboard/dashboard7')} className="text-sm font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors">
+                                Access Core <ArrowRight size={16} />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 relative z-10">
+                            <div className="col-span-1 md:col-span-1 bg-slate-800/80 rounded-2xl p-5 border border-slate-700/50 flex flex-col justify-center items-center">
+                                <span className="text-5xl font-black text-orange-500">{securityCount}</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-2 text-center">Total Monitored Nodes</span>
+                            </div>
+                            <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
+                                <NodeStatDark kpi={coverOpen} onClick={() => handleKPIClick(coverOpen)} />
+                                <NodeStatDark kpi={theftDiversion} onClick={() => handleKPIClick(theftDiversion)} />
+                            </div>
+                        </div>
+
+                        {/* Heatmap Micro-viz */}
+                        <div className="mt-4 flex gap-2 h-16 w-full relative z-10">
+                            {anomalyData.map((d, i) => (
+                                <div key={i} className="flex-1 bg-slate-800 rounded-xl border border-slate-700 p-2 flex flex-col justify-end relative overflow-hidden group/bar">
+                                    <div className="absolute bottom-0 left-0 w-full bg-orange-500/20 group-hover/bar:bg-orange-500/40 transition-colors" style={{ height: `${(d.size / 250) * 100}%` }}>
+                                        <div className="w-full h-0.5 bg-orange-500 absolute top-0"></div>
+                                    </div>
+                                    <div className="relative z-10 w-full flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{d.name}</span>
+                                        <span className="text-[10px] font-black text-white">{d.size}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                </div>
+                    {/* NODE 4: Network Asset Tracking */}
+                    <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-shadow">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><Network size={24} /></div>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Asset Management</h2>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">25 Active KPIs</p>
+                                </div>
+                            </div>
+                            <button onClick={() => navigate('/dashboard/dashboard10')} className="text-sm font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 transition-colors">
+                                Open Hub <ArrowRight size={16} />
+                            </button>
+                        </div>
 
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <NodeStat kpi={dtPeakLoading} label="DT Diagnostics" onClick={() => handleKPIClick(dtPeakLoading)} />
+                            <NodeStat kpi={dtFailure} label="Failure Tracking" onClick={() => handleKPIClick(dtFailure)} />
+                        </div>
+
+                        <div className="mt-4 p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><Box size={14} /> Asset Saturation Watchlist</span>
+                            </div>
+                            <div
+                                onClick={() => handleKPIClick(overloadedFeeders)}
+                                className="w-full flex justify-between items-center p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-emerald-300 hover:shadow-md transition-all"
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-black text-slate-800">{overloadedFeeders.kpiName}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Automated Topology Map</span>
+                                </div>
+                                <span className="text-lg font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">{overloadedFeeders.value}</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
         </div>
     );
 };
 
-const MetricBlock = ({ label, value, icon }) => (
-    <div className="flex flex-col p-4 bg-gray-50 rounded-xl border border-gray-100">
-        <div className="flex items-center gap-2 mb-2 opacity-70">
-            {icon}
-            <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
+// Extracted UI Component for Light KPIs
+const NodeStat = ({ kpi, label, onClick }) => {
+    return (
+        <div
+            onClick={onClick}
+            className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between h-32"
+        >
+            <div className="flex justify-between items-start">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+                <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md ${kpi.status === 'Critical' ? 'bg-red-50 text-red-600' : kpi.status === 'Watchlist' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>
+                    {kpi.status}
+                </span>
+            </div>
+            <div>
+                <h3 className="text-2xl font-black text-slate-800 mb-1 group-hover:text-primary transition-colors">{kpi.value}</h3>
+                <p className="text-xs font-bold text-slate-500 line-clamp-1 truncate">{kpi.kpiName}</p>
+            </div>
         </div>
-        <span className="text-2xl font-extrabold text-gray-900">{value}</span>
-    </div>
-);
+    );
+};
 
-const FocusCard = ({ title, score, issueCount, summary, onClick, icon, colorClass, isRisk }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
-        <div className="flex justify-between items-start mb-4">
-            <div className={`p-2 rounded-lg bg-gray-50 ${colorClass}`}>{icon}</div>
-            <span className={`text-xs font-bold px-2 py-1 rounded ${score < 70 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                {score}% Health
-            </span>
+// Extracted UI Component for Dark (Security) KPIs
+const NodeStatDark = ({ kpi, onClick }) => {
+    return (
+        <div
+            onClick={onClick}
+            className="p-4 rounded-xl border border-slate-700/50 bg-slate-800/80 hover:border-orange-500/50 hover:bg-slate-800 transition-all cursor-pointer group flex flex-col justify-between h-full"
+        >
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 line-clamp-2">{kpi.kpiName}</span>
+            <div className="flex items-end justify-between mt-auto">
+                <h3 className="text-2xl font-black text-slate-200 group-hover:text-white transition-colors">{kpi.value}</h3>
+                <ArrowRight size={16} className="text-slate-600 group-hover:text-orange-500 transition-colors" />
+            </div>
         </div>
-        <h3 className="font-bold text-lg text-gray-800 mb-1">{title}</h3>
-        <div className="flex items-center gap-2 mb-2">
-            <span className="text-3xl font-extrabold text-gray-900">{issueCount}</span>
-            <span className="text-sm text-gray-500 font-medium">Active Issues</span>
-        </div>
-        <p className="text-gray-500 text-sm mb-4 min-h-[40px]">{summary}</p>
-        <button onClick={onClick} className={`${colorClass} text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all`}>
-            View Details <ArrowRight size={14} />
-        </button>
-    </div>
-);
+    );
+};
 
 export default Home;
