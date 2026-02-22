@@ -95,7 +95,9 @@ const KPICard = ({ kpi, idx, onClick }) => {
 };
 
 const DeptSpecificDashboard = () => {
-    const { deptId, dashKey, kpiName } = useParams();
+    const params = useParams();
+    const { deptId, dashKey } = params;
+    const kpiName = params['*'] || null;
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');

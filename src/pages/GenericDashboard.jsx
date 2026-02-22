@@ -2,13 +2,12 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import KPIDetailModal from '../components/KPIDetailModal';
-import BarChartComponent from '../components/charts/BarChartComponent';
-import PieChartComponent from '../components/charts/PieChartComponent';
-import LineChartComponent from '../components/charts/LineChartComponent';
+import SmartChart from '../components/charts/SmartChart';
 import { dashboardData } from '../data/dashboardData';
 
 const GenericDashboard = ({ title, description, dataKey = 'dashboard1', chartTitles = {} }) => {
-    const { kpiName } = useParams();
+    const params = useParams();
+    const kpiName = params['*'] || null;
     const navigate = useNavigate();
 
     // Safe access to data with fallback
@@ -59,13 +58,13 @@ const GenericDashboard = ({ title, description, dataKey = 'dashboard1', chartTit
                 {/* Charts Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
                     <ChartCard title={titles.bar}>
-                        <BarChartComponent data={chartData.bar} />
+                        <SmartChart data={chartData.bar} hint="bar" />
                     </ChartCard>
                     <ChartCard title={titles.pie}>
-                        <PieChartComponent data={chartData.pie} />
+                        <SmartChart data={chartData.pie} hint="donut" />
                     </ChartCard>
                     <ChartCard title={titles.line}>
-                        <LineChartComponent data={chartData.line} />
+                        <SmartChart data={chartData.line} hint="multi-area" />
                     </ChartCard>
                 </div>
 

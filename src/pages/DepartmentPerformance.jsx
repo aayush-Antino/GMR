@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
-import LineChartComponent from '../components/charts/LineChartComponent';
-import PieChartComponent from '../components/charts/PieChartComponent';
+import SmartChart from '../components/charts/SmartChart';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { findKPIOrigin } from '../utils/dashboardUtils';
 import { ThumbsUp, AlertOctagon, Activity, TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
@@ -139,14 +138,14 @@ const DepartmentPerformance = () => {
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h3 className="font-bold text-lg text-gray-800 mb-4">6-Month Performance Trend</h3>
                         <div className="h-[250px]">
-                            <LineChartComponent data={currentDept.trend} />
+                            <SmartChart data={currentDept.trend} hint="multi-area" />
                         </div>
                     </div>
 
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                         <h3 className="font-bold text-lg text-gray-800 mb-4">Current Issue Distribution</h3>
                         <div className="h-[250px]">
-                            <PieChartComponent data={issueData} />
+                            <SmartChart data={issueData} hint="donut" />
                         </div>
                     </div>
                 </div>
