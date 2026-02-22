@@ -135,47 +135,50 @@ const DeptSpecificDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen font-sans pt-12" style={{ background: '#f8fafc' }}>
+        <div className="min-h-screen font-sans pt-16" style={{ background: '#f8fafc' }}>
             <Topbar />
 
-            {/* ── Sticky Glass Header ── */}
-            <div className="sticky top-12 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between py-4 gap-4">
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => navigate(`/departments/${deptId}`)}
-                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-white hover:shadow-md transition-all border border-gray-100"
-                            >
-                                <ArrowLeft size={16} />
-                            </button>
-                            <div>
-                                <div className="flex items-center gap-2 mb-0.5">
-                                    <div className="w-1 h-3 bg-primary rounded-full" />
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">{dept.name}</p>
-                                </div>
-                                <h1 className="text-xl font-black text-slate-900 leading-tight tracking-tight">
-                                    {meta.title}
-                                </h1>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <div className="relative group">
-                                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
-                                <input
-                                    type="text"
-                                    placeholder="Search across metrics..."
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    className="w-64 pl-10 pr-4 py-2 text-sm bg-gray-50/50 border border-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary focus:bg-white placeholder-gray-400 text-gray-700 transition-all"
-                                />
-                            </div>
+            {/* ── Premium Header (Light Theme) ── */}
+            <div className="sticky top-16 z-30 bg-white border-b" style={{ boxShadow: '0 4px 24px rgba(15,39,68,0.07)', borderBottomColor: '#e8edf4' }}>
+                {/* Top row */}
+                <div className="max-w-screen-2xl mx-auto px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        {/* Left accent bar */}
+                        <div className="hidden sm:block w-1 self-stretch rounded-full" style={{ background: 'linear-gradient(180deg, #F4A300 0%, #0f2744 100%)', minHeight: '48px' }} />
+                        <button
+                            onClick={() => navigate(`/departments/${deptId}`)}
+                            className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all flex-shrink-0"
+                            style={{ borderColor: '#e2e8f0', color: '#64748b', background: '#f8fafc' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#0f2744'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f2744'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                        >
+                            <ArrowLeft size={16} />
+                        </button>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.25em] mb-1" style={{ color: '#F4A300' }}>{dept.name}</p>
+                            <h1 className="text-2xl font-black leading-tight" style={{ color: '#0f2744' }}>{meta.title}</h1>
                         </div>
                     </div>
 
-                    {/* Professional Pill Filters */}
-                    <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar">
+                    {/* Search */}
+                    <div className="relative flex-shrink-0">
+                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: '#94a3b8' }} />
+                        <input
+                            type="text"
+                            placeholder="Search across metrics..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-72 pl-10 pr-4 py-2.5 text-sm rounded-xl focus:outline-none text-slate-700 transition-all"
+                            style={{ background: '#f1f5f9', border: '1.5px solid #e2e8f0' }}
+                            onFocus={e => { e.currentTarget.style.borderColor = '#0f2744'; e.currentTarget.style.background = '#fff'; }}
+                            onBlur={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f1f5f9'; }}
+                        />
+                    </div>
+                </div>
+
+                {/* Filter pills */}
+                <div className="max-w-screen-2xl mx-auto px-8 pb-4 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
+                    <div className="flex items-center gap-2 pt-3">
                         {statuses.map(s => {
                             const c = s === 'All' ? null : cfgOf(s);
                             const isActive = activeFilter === s;
@@ -184,16 +187,24 @@ const DeptSpecificDashboard = () => {
                                 <button
                                     key={s}
                                     onClick={() => setActiveFilter(s)}
-                                    className={`flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 border whitespace-nowrap ${isActive
-                                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-105'
-                                        : 'bg-white border-gray-100 text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                                        }`}
+                                    className="flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 whitespace-nowrap"
+                                    style={isActive ? {
+                                        background: '#0f2744',
+                                        color: '#fff',
+                                        border: '1.5px solid #0f2744',
+                                        boxShadow: '0 4px 12px rgba(15,39,68,0.2)',
+                                        transform: 'scale(1.05)',
+                                    } : {
+                                        background: '#f8fafc',
+                                        color: '#64748b',
+                                        border: '1.5px solid #e2e8f0',
+                                    }}
+                                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = '#0f2744'; e.currentTarget.style.color = '#0f2744'; } }}
+                                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; } }}
                                 >
-                                    {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: isActive ? '#fff' : c.color }}></span>}
+                                    {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.color }} />}
                                     {s}
-                                    <span className={`ml-1 text-[10px] opacity-60 ${isActive ? 'text-white' : 'text-gray-400'}`}>
-                                        ({count})
-                                    </span>
+                                    <span className="opacity-50">({count})</span>
                                 </button>
                             );
                         })}
