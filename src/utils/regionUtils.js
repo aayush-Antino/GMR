@@ -89,3 +89,17 @@ export function getRegionChartData(chartData, region) {
 }
 
 export const REGIONS = ['All', 'Kashi', 'Agra', 'Triveni'];
+
+/**
+ * Deterministically assigns a region to a KPI based on its ID so that Home page 
+ * Region View stays consistent.
+ * 
+ * @param {string} kpiId 
+ * @returns {string} region name
+ */
+export function getRegionForKPI(kpiId) {
+    if (!kpiId) return 'Kashi';
+    const num = parseInt(kpiId.replace(/\D/g, ''), 10) || 0;
+    const regions = ['Kashi', 'Agra', 'Triveni'];
+    return regions[num % 3];
+}

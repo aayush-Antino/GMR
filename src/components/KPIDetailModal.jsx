@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin, ChevronDown } from 'lucide-react';
 import SmartChart from './charts/SmartChart';
 import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 
@@ -16,6 +16,19 @@ const cfgOf = s => STATUS_CFG[s] || { color: '#9ca3af', light: '#f9fafb', border
 
 const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     const [selectedRegion, setSelectedRegion] = useState('All');
+    const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsRegionDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     if (!isOpen || !kpi) return null;
 
     // Derive region-specific chart data (falls back to global data when 'All')
@@ -155,21 +168,35 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     <Activity size={15} />
                                     Analytics Charts
                                 </h3>
-                                <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-                                    <MapPin size={13} className="text-gray-400 ml-2 flex-shrink-0" />
-                                    {REGIONS.map(r => (
-                                        <button
-                                            key={r}
-                                            onClick={() => setSelectedRegion(r)}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 whitespace-nowrap
-                                                ${selectedRegion === r
-                                                    ? 'bg-primary text-white shadow-md shadow-primary/30 scale-105'
-                                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/70'
-                                                }`}
-                                        >
-                                            {r === 'All' ? 'All Regions' : r}
-                                        </button>
-                                    ))}
+                                <div className="relative" ref={dropdownRef}>
+                                    <button
+                                        onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
+                                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-xl shadow-[0_4px_12px_rgba(15,39,68,0.25)] transition-all duration-200 focus:outline-none"
+                                    >
+                                        <MapPin size={14} className="text-white/80 flex-shrink-0" />
+                                        <span className="text-xs font-bold whitespace-nowrap tracking-wide">
+                                            {selectedRegion === 'All' ? 'All Regions' : selectedRegion}
+                                        </span>
+                                        <ChevronDown size={14} className={`text-white/80 transition-transform duration-200 ${isRegionDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isRegionDropdownOpen && (
+                                        <div className="absolute right-0 top-[calc(100%+0.5rem)] w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 overflow-hidden text-left origin-top-right animate-in fade-in zoom-in-95 duration-100">
+                                            {REGIONS.map(r => (
+                                                <button
+                                                    key={r}
+                                                    onClick={() => { setSelectedRegion(r); setIsRegionDropdownOpen(false); }}
+                                                    className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors
+                                                        ${selectedRegion === r
+                                                            ? 'bg-primary/5 text-primary'
+                                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                        }`}
+                                                >
+                                                    {r === 'All' ? 'All Regions' : r}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
