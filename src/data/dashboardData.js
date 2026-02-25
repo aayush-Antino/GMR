@@ -484,6 +484,36 @@ export const dashboardData = {
     ],
     "dashboard5": [
         {
+            "name": "Total anomalies detected (by time period)",
+            "department": "Analytics",
+            "description": "Volume tracking",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Anomaly flags" },
+                { "label": "Source", "value": "Scoring pipeline output" },
+                { "label": "Pipeline", "value": "ML scoring output" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count anomalies grouped by day/week/month",
+            "chartData": {
+                "trendTitle": "Total Anomalies (Last 30 Days)",
+                "trend": [
+                    { "name": "Week 1", "value": 350 },
+                    { "name": "Week 2", "value": 420 },
+                    { "name": "Week 3", "value": 310 },
+                    { "name": "Week 4", "value": 380 }
+                ],
+                "distTitle": "Anomalies by Region",
+                "distribution": [
+                    { "name": "North", "value": 45, "color": "#EF4444" },
+                    { "name": "South", "value": 30, "color": "#F59E0B" },
+                    { "name": "East", "value": 25, "color": "#3B82F6" }
+                ]
+            }
+        },
+        {
             "name": "Anomalies by severity",
             "department": "Analytics",
             "description": "Severity mix",

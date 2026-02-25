@@ -487,9 +487,9 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_2646",
                     "kpiName": "Total anomalies detected (by time period)",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "81%"
+                    "status": "Critical",
+                    "trend": "up",
+                    "value": "3,150"
                 },
                 {
                     "id": "kpi_7057",
@@ -654,9 +654,9 @@ export const executiveDummyData = {
                 }
             ],
             "issues": {
-                "critical": 10,
+                "critical": 11,
                 "high": 15,
-                "medium": 4,
+                "medium": 3,
                 "low": 1
             },
             "needsAttention": [
