@@ -576,6 +576,39 @@ export const dashboardData = {
                     { "name": "M-5544", "value": 12, "color": "#3B82F6" }
                 ]
             }
+        },
+        {
+            "name": "Anomalies by type",
+            "department": "Analytics",
+            "description": "Distribution",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Anomaly flags + type" },
+                { "label": "Config", "value": "None" },
+                { "label": "Source", "value": "Scoring output" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count by anomaly_type",
+            "chartData": {
+                "trendTitle": "Anomaly Type Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 150 },
+                    { "name": "Tue", "value": 180 },
+                    { "name": "Wed", "value": 120 },
+                    { "name": "Thu", "value": 250 },
+                    { "name": "Fri", "value": 190 },
+                    { "name": "Sat", "value": 110 },
+                    { "name": "Sun", "value": 90 }
+                ],
+                "distTitle": "Distribution by Type",
+                "distribution": [
+                    { "name": "Tamper", "value": 45, "color": "#EF4444" },
+                    { "name": "Bypass", "value": 30, "color": "#F59E0B" },
+                    { "name": "Defective", "value": 25, "color": "#3B82F6" }
+                ]
+            }
         }
     ],
     "dashboard6": [
