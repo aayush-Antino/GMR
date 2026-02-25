@@ -677,7 +677,33 @@ export const dashboardData = {
             "name": "Packet loss percentage",
             "department": "Technical",
             "description": "Comms reliability",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Key IDs", "value": "Timestamps" },
+                { "label": "Config", "value": "Interval definition" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Note", "value": "Confirm block interval" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(Expected blocks \u2212 received) / expected \u00d7 100",
+            "chartData": {
+                "trendTitle": "Packet Loss % Trend (Last 7 Days)",
+                "trend": [
+                    { "name": "Mon", "value": 2.5 },
+                    { "name": "Tue", "value": 3.1 },
+                    { "name": "Wed", "value": 1.8 },
+                    { "name": "Thu", "value": 4.2 },
+                    { "name": "Fri", "value": 3.5 },
+                    { "name": "Sat", "value": 1.5 },
+                    { "name": "Sun", "value": 1.2 }
+                ],
+                "distTitle": "Severity Distribution",
+                "distribution": [
+                    { "name": "< 2%", "value": 60, "color": "#10B981" },
+                    { "name": "2-5%", "value": 30, "color": "#F59E0B" },
+                    { "name": "> 5%", "value": 10, "color": "#EF4444" }
+                ]
+            }
         },
         {
             "name": "Communication retry counts",

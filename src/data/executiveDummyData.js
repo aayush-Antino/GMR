@@ -800,9 +800,9 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_6539",
                     "kpiName": "Packet loss percentage",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "88%"
+                    "status": "Critical",
+                    "trend": "down",
+                    "value": "2.5%"
                 },
                 {
                     "id": "kpi_8694",
@@ -827,9 +827,9 @@ export const executiveDummyData = {
                 }
             ],
             "issues": {
-                "critical": 4,
+                "critical": 5,
                 "high": 9,
-                "medium": 4,
+                "medium": 3,
                 "low": 0
             },
             "needsAttention": [
