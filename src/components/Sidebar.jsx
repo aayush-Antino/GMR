@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { useAuth } from '../context/AuthContext';
+import { getDashboardsForDepartment } from '../utils/dashboardUtils';
 
 const Sidebar = () => {
     const location = useLocation();
@@ -27,11 +28,11 @@ const Sidebar = () => {
     ];
 
     const departmentItems = executiveDummyData.departments.map(dept => {
-        // Find the first dashboard key for this department (assuming format dashboard(id*3-2))
-        const firstDashId = (parseInt(dept.id.replace('dept_', '')) - 1) * 3 + 1;
+        const dashboards = getDashboardsForDepartment(dept.name);
+        const firstDashKey = dashboards.length > 0 ? dashboards[0].key : 'dashboard1';
         return {
             title: dept.name,
-            path: `/dashboard/dashboard${firstDashId}`,
+            path: `/dashboard/${firstDashKey}`,
             icon: ChevronRight
         };
     });

@@ -10,6 +10,7 @@ export const dashboardMeta = {
     dashboard7: { title: "Dashboard 7", description: "Source System Dependency - Data health." },
     dashboard8: { title: "Dashboard 8", description: "Performance Trends - Historical analysis." },
     dashboard9: { title: "Dashboard 9", description: "KPI Dictionary - Definitions and metadata." },
+    dashboard10: { title: "Smart Meter Operations Dashboard", description: "Real-time monitoring of smart meter operations." },
 };
 
 export const getDashboardsForDepartment = (deptName) => {

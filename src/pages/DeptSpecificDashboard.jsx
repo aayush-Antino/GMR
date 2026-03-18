@@ -34,6 +34,7 @@ const Sparkline = ({ color }) => (
 const KPICard = ({ kpi, idx, onClick }) => {
     const c = cfgOf(kpi.status);
     const isPositive = kpi.status === 'Good' || kpi.status === 'On Track' || kpi.status === 'Stable';
+    const isBusiness = kpi.department === 'Business';
 
     return (
         <div
@@ -43,7 +44,8 @@ const KPICard = ({ kpi, idx, onClick }) => {
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
             }}
             onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = `0 20px 25px -5px ${c.shadow}, 0 10px 10px -5px ${c.shadow}`;
+                const shadowColor = c.shadow;
+                e.currentTarget.style.boxShadow = `0 20px 25px -5px ${shadowColor}, 0 10px 10px -5px ${shadowColor}`;
                 e.currentTarget.style.transform = 'translateY(-4px)';
             }}
             onMouseLeave={e => {
@@ -51,43 +53,51 @@ const KPICard = ({ kpi, idx, onClick }) => {
                 e.currentTarget.style.transform = 'translateY(0)';
             }}
         >
-            {/* Left Accent Bar */}
-            <div className="absolute top-4 bottom-4 left-0 w-1 rounded-r-lg transition-all duration-300 group-hover:w-1.5"
-                style={{ background: c.color }} />
+            {/* Background Gradient on Hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 via-white to-blue-50/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+            
+            <div className="relative z-10 flex flex-col h-full">
+                {/* Left Accent Bar */}
+                <div className="absolute top-0 bottom-0 -left-5 w-1 rounded-r-lg transition-all duration-300 group-hover:w-1.5"
+                    style={{ background: c.color }} />
 
-            <div className="flex items-start justify-between mb-4 pl-1">
-                <div className="flex flex-col gap-1">
-                    <span
-                        className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest self-start"
-                        style={{ background: c.light, color: c.color }}
-                    >
-                        {c.label}
-                    </span>
+                <div className="flex items-start justify-between mb-4 pl-1">
+                    <div className="flex flex-col gap-1">
+                        {/* Status Badge - Hidden for Business */}
+                        {!isBusiness && (
+                            <span
+                                className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest self-start"
+                                style={{ background: c.light, color: c.color }}
+                            >
+                                {c.label}
+                            </span>
+                        )}
+                    </div>
+                    <Sparkline color={c.color} />
                 </div>
-                <Sparkline color={c.color} />
-            </div>
 
-            <h3 className="text-[14px] font-bold text-gray-800 group-hover:text-primary transition-colors leading-tight mb-2 pl-1 line-clamp-2">
-                {kpi.name}
-            </h3>
+                <h3 className="text-[14px] font-bold text-gray-800 group-hover:text-primary transition-colors leading-tight mb-2 pl-1 line-clamp-2">
+                    {kpi.name}
+                </h3>
 
-            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed mb-4 pl-1">
-                {kpi.description || 'Monitoring operational excellence and performance metrics.'}
-            </p>
+                <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed mb-4 pl-1">
+                    {kpi.description || 'Monitoring operational excellence and performance metrics.'}
+                </p>
 
-            <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between pl-1">
-                <div className="flex items-center gap-2">
-                    {isPositive ? (
-                        <TrendingUp size={14} className="text-green-500" />
-                    ) : kpi.status === 'Warning' ? (
-                        <Minus size={14} className="text-orange-500" />
-                    ) : (
-                        <TrendingDown size={14} className="text-red-500" />
-                    )}
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Active</span>
-                </div>
-                <div className="text-[10px] font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
-                    #{String(idx + 1).padStart(2, '0')}
+                <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between pl-1">
+                    <div className="flex items-center gap-2">
+                        {isPositive ? (
+                            <TrendingUp size={14} className="text-green-500" />
+                        ) : kpi.status === 'Warning' ? (
+                            <Minus size={14} className="text-orange-500" />
+                        ) : (
+                            <TrendingDown size={14} className="text-red-500" />
+                        )}
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Active</span>
+                    </div>
+                    <div className="text-[10px] font-black text-gray-200 group-hover:text-primary/20 transition-colors uppercase tracking-widest">
+                        #{String(idx + 1).padStart(2, '0')}
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,7 +152,7 @@ const DeptSpecificDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen font-sans pt-16" style={{ background: '#f8fafc' }}>
+        <div className="min-h-screen font-sans pt-16" style={{ background: 'linear-gradient(135deg, #f0f4f8 0%, #e5eef9 50%, #f1f5f9 100%)' }}>
             <Topbar />
 
             {/* ── Premium Header (Light Theme) ── */}
@@ -163,7 +173,7 @@ const DeptSpecificDashboard = () => {
                         </button>
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-[0.25em] mb-1" style={{ color: '#F4A300' }}>{dept?.name || departmentName}</p>
-                            <h1 className="text-2xl font-black leading-tight" style={{ color: '#0f2744' }}>{meta.title}</h1>
+                            <h1 className="text-2xl font-black leading-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0f2744] to-[#1e40af]">{meta.title}</h1>
                         </div>
                     </div>
 
@@ -183,38 +193,47 @@ const DeptSpecificDashboard = () => {
                     </div>
                 </div>
 
-                {/* Filter pills */}
+                {/* Filter pills or Total Summary */}
                 <div className="max-w-screen-2xl mx-auto px-8 pb-4 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
                     <div className="flex items-center gap-2 pt-3">
-                        {statuses.map(s => {
-                            const c = s === 'All' ? null : cfgOf(s);
-                            const isActive = activeFilter === s;
-                            const count = s === 'All' ? deptItems.length : deptItems.filter(i => i.status === s).length;
-                            return (
-                                <button
-                                    key={s}
-                                    onClick={() => setActiveFilter(s)}
-                                    className="flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 whitespace-nowrap"
-                                    style={isActive ? {
-                                        background: '#0f2744',
-                                        color: '#fff',
-                                        border: '1.5px solid #0f2744',
-                                        boxShadow: '0 4px 12px rgba(15,39,68,0.2)',
-                                        transform: 'scale(1.05)',
-                                    } : {
-                                        background: '#f8fafc',
-                                        color: '#64748b',
-                                        border: '1.5px solid #e2e8f0',
-                                    }}
-                                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = '#0f2744'; e.currentTarget.style.color = '#0f2744'; } }}
-                                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; } }}
-                                >
-                                    {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.color }} />}
-                                    {s}
-                                    <span className="opacity-50">({count})</span>
-                                </button>
-                            );
-                        })}
+                        {departmentName === 'Business' ? (
+                            // Simple Total Summary for Business
+                            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full border border-gray-100 bg-gray-50/50 text-slate-500 whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                Total KPIs: {deptItems.length}
+                            </div>
+                        ) : (
+                            // Interactive Filters for others
+                            statuses.map(s => {
+                                const c = s === 'All' ? null : cfgOf(s);
+                                const isActive = activeFilter === s;
+                                const count = s === 'All' ? deptItems.length : deptItems.filter(i => i.status === s).length;
+                                return (
+                                    <button
+                                        key={s}
+                                        onClick={() => setActiveFilter(s)}
+                                        className="flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 whitespace-nowrap"
+                                        style={isActive ? {
+                                            background: '#0f2744',
+                                            color: '#fff',
+                                            border: '1.5px solid #0f2744',
+                                            boxShadow: '0 4px 12px rgba(15,39,68,0.2)',
+                                            transform: 'scale(1.05)',
+                                        } : {
+                                            background: '#f8fafc',
+                                            color: '#64748b',
+                                            border: '1.5px solid #e2e8f0',
+                                        }}
+                                        onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = '#0f2744'; e.currentTarget.style.color = '#0f2744'; } }}
+                                        onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; } }}
+                                    >
+                                        {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.color }} />}
+                                        {s}
+                                        <span className="opacity-50">({count})</span>
+                                    </button>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             </div>

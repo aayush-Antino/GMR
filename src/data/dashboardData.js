@@ -1194,15 +1194,606 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
+    "dashboard10": [
+        {
+            "name": "MI-Progress (Total & Category wise)",
+            "department": "Business",
+            "description": "Meter Installation progress tracking.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(newMeterNumber)" },
+                { "label": "Frequency", "value": "Daily / Weekly / Monthly" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Total count of new meter numbers installed, segmented by category (Domestic, Commercial, Industrial).",
+            "chartData": {
+                "trendTitle": "MI Progress Trend",
+                "trend": [
+                    { "name": "Jan", "value": 4500 }, { "name": "Feb", "value": 5200 }, { "name": "Mar", "value": 6100 }
+                ],
+                "distTitle": "MI By Category (Funnel)",
+                "distribution": [
+                    { "name": "Target", "value": 10000 },
+                    { "name": "Surveyed", "value": 8500 },
+                    { "name": "Installed", "value": 6100 },
+                    { "name": "SAT Done", "value": 5800 }
+                ],
+                "allowedTrendTypes": ["line", "area", "bar"],
+                "allowedDistTypes": ["funnel", "bar", "donut"]
+            }
+        },
+        {
+            "name": "MI-Productivity per team (Total & Category wise)",
+            "department": "Business",
+            "description": "Output per installation team.",
+            "status": "On Track",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(*) GROUP BY Technician, Date" },
+                { "label": "Frequency", "value": "Daily / Weekly / Monthly" }
+            ],
+            "qualityDescription": "Average installations completed per technician or agency team per active working day.",
+            "chartData": {
+                "trendTitle": "Daily Performance",
+                "trend": [
+                    { "name": "Mon", "value": 8 }, { "name": "Tue", "value": 12 }, { "name": "Wed", "value": 10 }
+                ],
+                "distTitle": "Team Comparison (Bar)",
+                "distribution": [
+                    { "name": "Team A", "value": 45 }, { "name": "Team B", "value": 38 }, { "name": "Team C", "value": 52 }
+                ],
+                "allowedTrendTypes": ["bar", "line"],
+                "allowedDistTypes": ["hbar", "bar"]
+            }
+        },
+        {
+            "name": "Monthly Productivity trend (Total & Category wise)",
+            "department": "Business",
+            "description": "Productivity trends over time.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(*) GROUP BY DATE_TRUNC('month', installationDate)" },
+                { "label": "Frequency", "value": "Monthly" }
+            ],
+            "qualityDescription": "Month-over-month growth in installation volume and team efficiency.",
+            "chartData": {
+                "trendTitle": "Monthly Growth",
+                "trend": [
+                    { "name": "Jan", "value": 1200 }, { "name": "Feb", "value": 1500 }, { "name": "Mar", "value": 1800 }
+                ],
+                "distTitle": "Category Mix",
+                "distribution": [
+                    { "name": "1-Phase", "value": 70, "color": "#3b82f6" }, { "name": "3-Phase", "value": 30, "color": "#10b981" }
+                ],
+                "allowedTrendTypes": ["bar", "area"],
+                "allowedDistTypes": ["donut", "bar"],
+                "allowedDurations": ["Monthly"]
+            }
+        },
+        {
+            "name": "Defective Meters",
+            "department": "Business",
+            "description": "Meters found with technical defects.",
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Metric", "value": "Count of Failures" },
+                { "label": "Focus", "value": "Tech/Commercial" }
+            ],
+            "qualityDescription": "Meters rejected during installation or pre-installation check due to manufacturing flaws or damage.",
+            "chartData": {
+                "trendTitle": "Defect Rate (%)",
+                "trend": [
+                    { "name": "W1", "value": 1.2 }, { "name": "W2", "value": 0.8 }, { "name": "W3", "value": 2.1 }
+                ],
+                "distTitle": "RCA Defect Types (Pareto)",
+                "distribution": [
+                    { "name": "Display", "value": 45, "cumulative": 45 },
+                    { "name": "Comm Module", "value": 30, "cumulative": 75 },
+                    { "name": "Accuracy", "value": 15, "cumulative": 90 },
+                    { "name": "Physical", "value": 10, "cumulative": 100 }
+                ],
+                "allowedTrendTypes": ["line", "multi-line"],
+                "allowedDistTypes": ["pareto", "bar"]
+            }
+        },
+        {
+            "name": "Total & Category wise Inventory Utilization rate (Meters & Cable)",
+            "department": "Business",
+            "description": "Efficiency of material usage.",
+            "status": "Good",
+            "analysisItems": [
+                { "label": "Formula", "value": "(Installed / Total Inventory) * 100" },
+                { "label": "Frequency", "value": "Weekly / Monthly" }
+            ],
+            "qualityDescription": "Percentage of total stock issued that has been successfully installed and mapped.",
+            "chartData": {
+                "trendTitle": "Utilization Trend",
+                "trend": [
+                    { "name": "Jan", "value": 65 }, { "name": "Feb", "value": 78 }, { "name": "Mar", "value": 88 }
+                ],
+                "distTitle": "Current Rate (Gauge)",
+                "distribution": [
+                    { "name": "Utilization", "value": 88 }
+                ],
+                "allowedTrendTypes": ["area", "line"],
+                "allowedDistTypes": ["gauge", "bar"],
+                "allowedDurations": ["Weekly", "Monthly"]
+            }
+        },
+        {
+            "name": "MI pace Vs Stock availibility",
+            "department": "Business",
+            "description": "Installation speed relative to inventory.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Metric", "value": "Daily Install vs Stock" },
+                { "label": "Frequency", "value": "Daily" }
+            ],
+            "qualityDescription": "Monitors if the current installation rate will exceed available stock, leading to team downtime.",
+            "chartData": {
+                "trendTitle": "Pace vs Availability (Dual Axis)",
+                "trend": [
+                    { "name": "D1", "installations": 120, "stock": 5000 },
+                    { "name": "D2", "installations": 150, "stock": 4850 },
+                    { "name": "D3", "installations": 180, "stock": 4670 }
+                ],
+                "distTitle": "Stock Coverage (Days)",
+                "distribution": [
+                    { "name": "Meters", "value": 45 }, { "name": "Cable", "value": 12 }
+                ],
+                "allowedTrendTypes": ["dual-axis", "multi-line"],
+                "allowedDistTypes": ["bar"],
+                "allowedDurations": ["Daily"]
+            }
+        },
+        {
+            "name": "Un-utilized stock ageing",
+            "department": "Business",
+            "description": "Duration of stock sitting in inventory.",
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Formula", "value": "CURRENT_DATE - DIDate WHERE InstalledTS IS NULL" },
+                { "label": "Frequency", "value": "As on date" }
+            ],
+            "qualityDescription": "Identifies slow-moving or obsolete inventory items that have been in stock for extended periods.",
+            "chartData": {
+                "trendTitle": "Stock Intake (90 Days)",
+                "trend": [
+                    { "name": "M1", "value": 200 }, { "name": "M2", "value": 150 }, { "name": "M3", "value": 100 }
+                ],
+                "distTitle": "Ageing Buckets (BoxPlot)",
+                "distribution": [
+                    { "name": "0-30 days", "avg": 12 },
+                    { "name": "31-60 days", "avg": 45 },
+                    { "name": "61-90 days", "avg": 78 },
+                    { "name": "90+ days", "avg": 120 }
+                ],
+                "allowedTrendTypes": ["bar", "area"],
+                "allowedDistTypes": ["boxplot", "hbar"],
+                "allowedDurations": ["As on date"]
+            }
+        },
+        {
+            "name": "Never / Non-comm Status",
+            "department": "Business",
+            "description": "Meters that never communicated.",
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Metric", "value": "Non-communicating Count" }
+            ],
+            "qualityDescription": "Percentage of installed meters that have failed to establish a communication link with the HES.",
+            "chartData": {
+                "trendTitle": "Daily Comm Failures",
+                "trend": [
+                    { "name": "Mon", "value": 45 }, { "name": "Tue", "value": 38 }, { "name": "Wed", "value": 52 }
+                ],
+                "distTitle": "Total Non-Comm Rate (Gauge)",
+                "distribution": [
+                    { "name": "Non-Comm", "value": 1.2 }
+                ],
+                "allowedTrendTypes": ["line", "area"],
+                "allowedDistTypes": ["gauge", "bar"]
+            }
+        },
+        {
+            "name": "O&M-Productivity per team (Total & Category wise)",
+            "department": "Business",
+            "description": "Output of maintenance teams.",
+            "status": "On Track",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(Closed Tickets) GROUP BY Tech/Agency" },
+                { "label": "Frequency", "value": "Daily / Weekly / Monthly" }
+            ],
+            "qualityDescription": "Average number of O&M tickets resolved per person/team per work cycle.",
+            "chartData": {
+                "trendTitle": "Resolution Speed",
+                "trend": [
+                    { "name": "Jan", "value": 4.2 }, { "name": "Feb", "value": 3.8 }, { "name": "Mar", "value": 4.5 }
+                ],
+                "distTitle": "Productivity per Team (HBar)",
+                "distribution": [
+                    { "name": "Agency X", "value": 85 }, { "name": "Agency Y", "value": 92 }, { "name": "Agency Z", "value": 78 }
+                ],
+                "allowedTrendTypes": ["bar", "line"],
+                "allowedDistTypes": ["hbar", "bar"]
+            }
+        },
+        {
+            "name": "O&M Productivity trend (Total & Category wise)",
+            "department": "Business",
+            "description": "Historical O&M performance.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(Closed Tickets) GROUP BY Month" }
+            ],
+            "qualityDescription": "Long-term trend of ticket resolution volumes to identify seasonal spikes or team burnout.",
+            "chartData": {
+                "trendTitle": "Monthly Growth",
+                "trend": [
+                    { "name": "Jan", "value": 250 }, { "name": "Feb", "value": 280 }, { "name": "Mar", "value": 310 }
+                ],
+                "distTitle": "Ticket Type Distribution",
+                "distribution": [
+                    { "name": "Network", "value": 40 }, { "name": "Hardware", "value": 35 }, { "name": "Other", "value": 25 }
+                ],
+                "allowedTrendTypes": ["area", "bar"],
+                "allowedDistTypes": ["donut", "bar"]
+            }
+        },
+        {
+            "name": "O&M Not closed ticket Ageing",
+            "department": "Business",
+            "description": "Duration of open maintenance tickets.",
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Formula", "value": "CURRENT_DATE - CreatedDate" }
+            ],
+            "qualityDescription": "Ageing distribution of pending tickets to pinpoint bottlenecks in the repair cycle.",
+            "chartData": {
+                "trendTitle": "Total Open",
+                "trend": [
+                    { "name": "W1", "value": 85 }, { "name": "W2", "value": 92 }, { "name": "W3", "value": 110 }
+                ],
+                "distTitle": "Open Ticket Ageing (BoxPlot)",
+                "distribution": [
+                    { "name": "< 24h", "avg": 8 },
+                    { "name": "1-3 days", "avg": 36 },
+                    { "name": "4-7 days", "avg": 96 },
+                    { "name": "> 7 days", "avg": 180 }
+                ],
+                "allowedTrendTypes": ["line", "bar"],
+                "allowedDistTypes": ["boxplot", "hbar", "bar"]
+            }
+        },
+        {
+            "name": "O&M Ticket Closure Avg. Time",
+            "department": "Business",
+            "description": "Average time taken to close tickets.",
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Formula", "value": "AVG(ClosedDate - CreatedDate)" }
+            ],
+            "qualityDescription": "Measures the efficiency of the response team from complaint registration to final resolution.",
+            "chartData": {
+                "trendTitle": "Wait Time Trend",
+                "trend": [
+                    { "name": "Jan", "value": 36 }, { "name": "Feb", "value": 32 }, { "name": "Mar", "value": 28 }
+                ],
+                "distTitle": "Distribution per Team (BoxPlot)",
+                "distribution": [
+                    { "name": "Urban", "avg": 18 },
+                    { "name": "Semi-Urban", "avg": 24 },
+                    { "name": "Rural", "avg": 42 }
+                ],
+                "allowedTrendTypes": ["line", "area"],
+                "allowedDistTypes": ["boxplot", "bar"]
+            }
+        },
+        {
+            "name": "O&M Ticket Closed Analysis",
+            "department": "Business",
+            "description": "Categorized view of resolved tickets.",
+            "status": "Good",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(Closed Tickets) GROUP BY Category" }
+            ],
+            "qualityDescription": "Granular breakdown of what issues are being solved most frequently.",
+            "chartData": {
+                "trendTitle": "Daily Closures",
+                "trend": [
+                    { "name": "M", "value": 15 }, { "name": "T", "value": 22 }, { "name": "W", "value": 19 }
+                ],
+                "distTitle": "Closure Analysis (Bar)",
+                "distribution": [
+                    { "name": "Physical Fault", "value": 120 },
+                    { "name": "Signal Issue", "value": 85 },
+                    { "name": "Billing Sync", "value": 60 }
+                ],
+                "allowedTrendTypes": ["line"],
+                "allowedDistTypes": ["donut", "hbar", "bar"]
+            }
+        },
+        {
+            "name": "MI Vs SAT-Progress (Total & Category wise)",
+            "department": "Business",
+            "description": "Sites installed vs sites verified.",
+            "status": "On Track",
+            "analysisItems": [
+                { "label": "Formula", "value": "COUNT(SAT_Number) / COUNT(MI)" }
+            ],
+            "qualityDescription": "Tracks the lag between technical installation and formal acceptance testing.",
+            "chartData": {
+                "trendTitle": "SAT Rate (%)",
+                "trend": [
+                    { "name": "Jan", "value": 75 }, { "name": "Feb", "value": 78 }, { "name": "Mar", "value": 82 }
+                ],
+                "distTitle": "MI vs SAT Gap (Bar)",
+                "distribution": [
+                    { "name": "Installed", "value": 6100 },
+                    { "name": "Verified", "value": 4800 }
+                ],
+                "allowedTrendTypes": ["multi-line", "line"],
+                "allowedDistTypes": ["bar", "funnel"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "Non-SAT ageing",
+            "department": "Business",
+            "description": "Time since installation without SAT.",
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Formula", "value": "CURRENT_DATE - InstalledTS WHERE SATTS IS NULL" }
+            ],
+            "qualityDescription": "Identifies sites that are installed but idling without verification, affecting billing cycles.",
+            "chartData": {
+                "trendTitle": "Non-SAT Count",
+                "trend": [
+                    { "name": "W1", "value": 450 }, { "name": "W2", "value": 420 }, { "name": "W3", "value": 380 }
+                ],
+                "distTitle": "Non-SAT Ageing (BoxPlot)",
+                "distribution": [
+                    { "name": "0-7 days", "avg": 4 },
+                    { "name": "8-15 days", "avg": 12 },
+                    { "name": "16-30 days", "avg": 25 },
+                    { "name": "> 30 days", "avg": 45 }
+                ],
+                "allowedTrendTypes": ["bar"],
+                "allowedDistTypes": ["boxplot", "hbar"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "Non-SAT RCA",
+            "department": "Business",
+            "description": "Root cause analysis for pending SAT.",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Method", "value": "Pareto Analysis" }
+            ],
+            "qualityDescription": "Categorizes the main reasons why SAT is pending, using the 80/20 rule to prioritize fixes.",
+            "chartData": {
+                "trendTitle": "RCA Trend",
+                "trend": [
+                    { "name": "Jan", "value": 12 }, { "name": "Feb", "value": 15 }, { "name": "Mar", "value": 10 }
+                ],
+                "distTitle": "Root Causes (Pareto)",
+                "distribution": [
+                    { "name": "Document Missing", "value": 85, "cumulative": 40 },
+                    { "name": "HES Sync Error", "value": 65, "cumulative": 70 },
+                    { "name": "Access Issue", "value": 35, "cumulative": 85 },
+                    { "name": "Others", "value": 30, "cumulative": 100 }
+                ],
+                "allowedTrendTypes": ["line"],
+                "allowedDistTypes": ["pareto", "bar", "donut"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "MI Vs SAT Vs Invoice-Progress (Total & Category wise)",
+            "department": "Business",
+            "description": "Installation to billing workflow progress.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Workflow", "value": "MI -> SAT -> Invoice" }
+            ],
+            "qualityDescription": "Full lifecycle tracking from physical installation to revenue recognition.",
+            "chartData": {
+                "trendTitle": "Pipeline Throughput",
+                "trend": [
+                    { "name": "Jan", "value": 4500 }, { "name": "Feb", "value": 4200 }, { "name": "Mar", "value": 4800 }
+                ],
+                "distTitle": "Workflow Funnel",
+                "distribution": [
+                    { "name": "Installed", "value": 6100 },
+                    { "name": "SAT Done", "value": 4800 },
+                    { "name": "Invoiced", "value": 3200 }
+                ],
+                "allowedTrendTypes": ["multi-line", "line"],
+                "allowedDistTypes": ["funnel", "bar"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "Cable Invoice-Progress",
+            "department": "Business",
+            "description": "Invoicing status for cabling work.",
+            "status": "Good",
+            "analysisItems": [
+                { "label": "Scope", "value": "Service Cable Invoicing" }
+            ],
+            "qualityDescription": "Specifically tracks the billing status of auxiliary materials used during installation.",
+            "chartData": {
+                "trendTitle": "Invoiced Length (m)",
+                "trend": [
+                    { "name": "Jan", "value": 12000 }, { "name": "Feb", "value": 15000 }, { "name": "Mar", "value": 14000 }
+                ],
+                "distTitle": "Invoicing Status (Bar)",
+                "distribution": [
+                    { "name": "Billed", "value": 85000 },
+                    { "name": "Pending", "value": 25000 }
+                ],
+                "allowedTrendTypes": ["line", "area"],
+                "allowedDistTypes": ["bar", "funnel"]
+            }
+        },
+        {
+            "name": "Revenue realized (Total & Category wise)",
+            "department": "Business",
+            "description": "Actual income collected.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Formula", "value": "SUM(RealizedAmount)" }
+            ],
+            "qualityDescription": "Total revenue that has been successfully collected and verified against invoices.",
+            "chartData": {
+                "trendTitle": "Monthly Realization",
+                "trend": [
+                    { "name": "Jan", "value": 8.5 }, { "name": "Feb", "value": 9.2 }, { "name": "Mar", "value": 10.5 }
+                ],
+                "distTitle": "By Category (Donut)",
+                "distribution": [
+                    { "name": "Domestic", "value": 65, "color": "#3b82f6" },
+                    { "name": "Commercial", "value": 25, "color": "#10b981" },
+                    { "name": "Industrial", "value": 10, "color": "#f59e0b" }
+                ],
+                "allowedTrendTypes": ["multi-area", "area"],
+                "allowedDistTypes": ["gauge", "bar", "donut"]
+            }
+        },
+        {
+            "name": "Cable Revenue realized",
+            "department": "Business",
+            "description": "Revenue from cable-related activities.",
+            "status": "Good",
+            "analysisItems": [
+                { "label": "Scope", "value": "Cable Revenue" }
+            ],
+            "qualityDescription": "Revenue collected specifically for cabling work and secondary materials.",
+            "chartData": {
+                "trendTitle": "Cable Revenue Growth",
+                "trend": [
+                    { "name": "Jan", "value": 12 }, { "name": "Feb", "value": 15 }, { "name": "Mar", "value": 18 }
+                ],
+                "distTitle": "Realized vs Target",
+                "distribution": [
+                    { "name": "Realized", "value": 85 },
+                    { "name": "Balance", "value": 15 }
+                ],
+                "allowedTrendTypes": ["line", "area"],
+                "allowedDistTypes": ["gauge", "bar"]
+            }
+        },
+        {
+            "name": "Revenue not realized ageing (Total & Category wise)",
+            "department": "Business",
+            "description": "Ageing of pending revenue.",
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Formula", "value": "CURRENT_DATE - InvoiceDate WHERE Status != 'Paid'" }
+            ],
+            "qualityDescription": "Ageing buckets for revenue that is yet to be collected, highlighting risk areas.",
+            "chartData": {
+                "trendTitle": "Unpaid Volume",
+                "trend": [
+                    { "name": "Jan", "value": 4.5 }, { "name": "Feb", "value": 5.2 }, { "name": "Mar", "value": 6.1 }
+                ],
+                "distTitle": "Revenue Ageing (BoxPlot)",
+                "distribution": [
+                    { "name": "0-15 days", "avg": 8 },
+                    { "name": "16-30 days", "avg": 22 },
+                    { "name": "31-60 days", "avg": 45 },
+                    { "name": "> 60 days", "avg": 90 }
+                ],
+                "allowedTrendTypes": ["bar"],
+                "allowedDistTypes": ["boxplot", "hbar"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "Cable Revenue not realized ageing",
+            "department": "Business",
+            "description": "Ageing of pending cable revenue.",
+            "status": "Critical",
+            "analysisItems": [
+                { "label": "Focus", "value": "Cable Receivables" }
+            ],
+            "qualityDescription": "Specific ageing analysis for cable-related receivables.",
+            "chartData": {
+                "trendTitle": "Cable Arrears",
+                "trend": [
+                    { "name": "W1", "value": 1.2 }, { "name": "W2", "value": 1.5 }, { "name": "W3", "value": 1.8 }
+                ],
+                "distTitle": "Arrears Ageing (BoxPlot)",
+                "distribution": [
+                    { "name": "0-30d", "avg": 15 },
+                    { "name": "31-60d", "avg": 40 },
+                    { "name": "> 60d", "avg": 75 }
+                ],
+                "allowedTrendTypes": ["bar"],
+                "allowedDistTypes": ["boxplot", "hbar"]
+            }
+        },
+        {
+            "name": "Meters Journey Avg time across the levels for Revenue realized (Total & Category wise)",
+            "department": "Business",
+            "description": "Average lead time to revenue realization.",
+            "status": "Warning",
+            "analysisItems": [
+                { "label": "Formula", "value": "AVG(RealizedTS - InstalledTS)" }
+            ],
+            "qualityDescription": "Measures the total cycle time from physical install to cash realization.",
+            "chartData": {
+                "trendTitle": "Cycle Time (Days)",
+                "trend": [
+                    { "name": "Jan", "value": 45 }, { "name": "Feb", "value": 42 }, { "name": "Mar", "value": 38 }
+                ],
+                "distTitle": "Stage Latency (BoxPlot)",
+                "distribution": [
+                    { "name": "MI -> SAT", "avg": 12 },
+                    { "name": "SAT -> Inv", "avg": 8 },
+                    { "name": "Inv -> Cash", "avg": 25 }
+                ],
+                "allowedTrendTypes": ["line", "area"],
+                "allowedDistTypes": ["bar", "hbar", "boxplot"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        },
+        {
+            "name": "Meters Current Stage for Revenue not realized (Total & Category wise)",
+            "department": "Business",
+            "description": "Tracking stage of non-realized revenue meters.",
+            "status": "Stable",
+            "analysisItems": [
+                { "label": "Metric", "value": "Count per Workflow Stage" }
+            ],
+            "qualityDescription": "Visibility into where meters are 'stuck' in the revenue realization pipeline.",
+            "chartData": {
+                "trendTitle": "Meters in Pipe",
+                "trend": [
+                    { "name": "Jan", "value": 12000 }, { "name": "Feb", "value": 11500 }, { "name": "Mar", "value": 10800 }
+                ],
+                "distTitle": "Current Pipeline Mix (Donut)",
+                "distribution": [
+                    { "name": "At Survey", "value": 35, "color": "#3b82f6" },
+                    { "name": "At Install", "value": 45, "color": "#10b981" },
+                    { "name": "At SAT", "value": 15, "color": "#f59e0b" },
+                    { "name": "At Invoice", "value": 5, "color": "#ef4444" }
+                ],
+                "allowedTrendTypes": ["line"],
+                "allowedDistTypes": ["funnel", "bar", "donut"],
+                "allowedDurations": ["As on latest SAT"]
+            }
+        }
+    ],
     "summary": {
         "dashboard1": {
-            "totalKPIs": 9,
+            "totalKPIs": 10,
             "totalAnomalies": 11,
             "highPriority": 0,
             "notFeasible": 0
         },
         "dashboard2": {
-            "totalKPIs": 22,
+            "totalKPIs": 23,
             "totalAnomalies": 19,
             "highPriority": 1,
             "notFeasible": 0
@@ -1248,7 +1839,8 @@ export const dashboardData = {
             "totalAnomalies": 17,
             "highPriority": 6,
             "notFeasible": 0
-        }
+        },
+        "dashboard10": { "totalKPIs": 24, "totalAnomalies": 3, "highPriority": 3, "notFeasible": 0 }
     },
     "chartData": {
         "dashboard1": {
@@ -1256,6 +1848,10 @@ export const dashboardData = {
                 {
                     "name": "Finance",
                     "value": 9
+                },
+                {
+                    "name": "Business",
+                    "value": 1
                 }
             ],
             "pie": [
@@ -1307,6 +1903,10 @@ export const dashboardData = {
                 },
                 {
                     "name": "Analytics",
+                    "value": 1
+                },
+                {
+                    "name": "Business",
                     "value": 1
                 }
             ],
@@ -1717,6 +2317,11 @@ export const dashboardData = {
                     "value": 84
                 }
             ]
+        },
+        "dashboard10": {
+            "bar": [{ "name": "Business", "value": 24 }],
+            "pie": [{ "name": "Stable", "value": 10 }, { "name": "Ready", "value": 5 }, { "name": "Critical", "value": 9 }],
+            "line": [{ "name": "Jan", "value": 60 }, { "name": "Feb", "value": 65 }, { "name": "Mar", "value": 70 }]
         }
     }
 };

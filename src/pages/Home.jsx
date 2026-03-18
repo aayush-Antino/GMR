@@ -10,7 +10,6 @@ import SmartChart from '../components/charts/SmartChart';
 
 const Home = () => {
     const navigate = useNavigate();
-    const [viewMode, setViewMode] = useState('department');
     const [feedRegion, setFeedRegion] = useState('All'); // New state for feed filter
     const { departments } = executiveDummyData;
 
@@ -189,7 +188,7 @@ const Home = () => {
                                             <span className="text-base font-black text-slate-800 truncate group-hover:text-blue-600 transition-colors">{kpi.kpiName}</span>
                                             <div className="flex gap-3 items-center">
                                                 <span className={`text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm ${kpi.status === 'Critical' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-orange-50 text-orange-600 border border-orange-100'}`}>
-                                                    {kpi.status} Alert
+                                                    {kpi.deptName === 'Business' ? 'Alert' : `${kpi.status} Alert`}
                                                 </span>
                                                 <div className="h-4 w-px bg-slate-200"></div>
                                                 <span className="text-xs text-slate-500 font-bold uppercase tracking-wide truncate flex gap-2">

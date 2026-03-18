@@ -8,77 +8,36 @@ import {
     XAxis, YAxis, CartesianGrid, Label, LabelList,
     Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import { GMR, AXIS_STYLE, TOOLTIP_STYLE, detectVariant, getColor } from '../../utils/chartUtils';
 
-// ─── GMR Brand Palette (Exact BI Match) ──────────────────────────────────
-const GMR = {
-    blue: '#3b82f6',    // Inventory / Primary / Critical
-    green: '#10b981',   // Total Installed / Success / Major
-    orange: '#f59e0b',  // Cumulative SAT / Warning / Minor
-    slate: '#475569',   // axis text (darker for BI clarity)
-    grid: '#f1f5f9',    // lighter grid lines
-};
-
-// Map keys to specific brand colors for consistency
-const KEY_COLORS = {
-    'Inventory': GMR.blue,
-    'Total Installed': GMR.green,
-    'Cumulative SAT': GMR.orange,
-    'critical': GMR.blue,
-    'major': GMR.green,
-    'minor': GMR.orange,
-    'High': GMR.blue,
-    'Medium': GMR.green,
-    'Low': GMR.orange,
-};
-
-const GMR_PALETTE = [GMR.blue, GMR.green, GMR.orange, '#6366f1', '#ec4899'];
-
-const getColor = (key, index) => {
-    const k = key.toLowerCase().trim();
-    if (KEY_COLORS[k]) return KEY_COLORS[k];
-    if (KEY_COLORS[key]) return KEY_COLORS[key];
-    return GMR_PALETTE[index % GMR_PALETTE.length];
-};
-
-const TOOLTIP_STYLE = {
-    borderRadius: '8px',
-    border: '1px solid #e2e8f0',
-    backgroundColor: '#fff',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-    fontSize: '13px',
-    fontWeight: 700,
-    padding: '10px',
-};
-
-const AXIS_STYLE = { fill: GMR.slate, fontSize: 11, fontWeight: 600 };
+// ─── Sub-Variants ──────────────────────────────────────────────────────────
 
 const formatValue = (v) => {
+    if (v === undefined || v === null) return '0';
+    if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
     if (v >= 1000) return `${(v / 1000).toFixed(1)}K`;
     return v;
 };
 
-// ─── Helper: detect data shape ──────────────────────────────────────────────
-/**
- * Returns the chart variant best suited to the data:
- *   'area'        – single value series (trend line with fill)
- *   'multi-line'  – multiple numeric keys (min/avg/max, phases, severity)
- *   'donut'       – 3-7 named slices (distribution / severity mix)
- *   'hbar'        – 2-5 comparison items (feeder comparison, tech mix)
- *   'bar'         – everything else (counts, volume)
- */
-function detectVariant(data) {
-    if (!data || !data.length) return 'bar';
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
-    const isMultiKey = keys.length > 1;
-    const hasColors = data[0].color !== undefined;
-
-    if (isMultiKey) return 'multi-area'; // Default to multi-area for trends in image
-    if (hasColors && data.length <= 6) return 'donut';
-    if (data.length <= 5) return 'hbar';
-    return 'area';
-}
-
-// ─── Custom Components ──────────────────────────────────────────────────────
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div style={TOOLTIP_STYLE}>
+                <p className="font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">{label}</p>
+                {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center justify-between gap-4 py-0.5">
+                        <span className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                            <span className="text-slate-500 font-medium capitalize">{entry.name}:</span>
+                        </span>
+                        <span className="font-bold text-slate-900">{formatValue(entry.value)}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+    return null;
+};
 
 const CustomLabel = ({ x, y, value, color, position = 'top' }) => (
     <g>
@@ -124,13 +83,13 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
                     ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
-                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8}>
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8} interval="auto">
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend
                     verticalAlign="top"
                     align="center"
@@ -148,7 +107,8 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
                         fill={`url(#grad-${key})`}
                         dot={{ fill: getColor(key, i), r: 4, strokeWidth: 0 }}
                         activeDot={{ r: 6, strokeWidth: 0 }}
-                        label={<CustomLabel color={getColor(key, i)} />}
+                        animationDuration={1200}
+                        isAnimationActive={true}
                     />
                 ))}
             </AreaChart>
@@ -232,18 +192,36 @@ const DonutVariant = ({ data }) => {
 
 const HBarVariant = ({ data, xLabel, yLabel }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const isDense = data.length > 15;
+    const barSize = isDense ? Math.max(6, Math.min(12, 400 / data.length)) : 16;
 
     return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} layout="vertical" margin={{ top: 35, right: 80, left: 20, bottom: 20 }} barGap={2}>
+                <defs>
+                    {keys.map((key, i) => (
+                        <linearGradient key={key} id={`hbar-grad-${key}`} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={0.8} />
+                            <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={1} />
+                        </linearGradient>
+                    ))}
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={GMR.grid} />
                 <XAxis type="number" tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
-                <YAxis dataKey="name" type="category" tick={AXIS_STYLE} axisLine={false} tickLine={false} width={120}>
+                <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    tick={AXIS_STYLE} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    width={isDense ? 80 : 120}
+                    interval={isDense ? 'preserveStartEnd' : 0}
+                >
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
-                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} contentStyle={TOOLTIP_STYLE} />
+                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} content={<CustomTooltip />} />
                 <Legend
                     verticalAlign="top"
                     align="center"
@@ -255,24 +233,23 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                     <Bar
                         key={key}
                         dataKey={key}
-                        fill={getColor(key, i)}
+                        fill={`url(#hbar-grad-${key})`}
                         radius={[0, 4, 4, 0]}
-                        barSize={14}
+                        barSize={barSize}
+                        isAnimationActive={true}
+                        animationDuration={1500}
                     >
-                        {/* Custom label logic: 1st bar (Green) = Outside, 2nd bar (Orange) = Inside */}
-                        <LabelList
-                            dataKey={key}
-                            position={i === 0 ? "right" : "inside"}
-                            fill={i === 0 ? getColor(key, i) : "#fff"}
-                            fontSize={10}
-                            fontWeight={900}
-                            formatter={(v) => {
-                                if (key.toLowerCase().includes('sat') || key.toLowerCase().includes('achievement')) {
-                                    return typeof v === 'number' ? `${v}%` : v;
-                                }
-                                return formatValue(v);
-                            }}
-                        />
+                        {!isDense && (
+                            <LabelList
+                                dataKey={key}
+                                position="right"
+                                fill={getColor(key, i)}
+                                fontSize={10}
+                                fontWeight={900}
+                                offset={8}
+                                formatter={formatValue}
+                            />
+                        )}
                     </Bar>
                 ))}
             </BarChart>
@@ -282,17 +259,28 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
 
 const BarVariant = ({ data, xLabel, yLabel }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const isDense = data.length > 10;
+    const barSize = isDense ? Math.max(12, 300 / data.length) : 32;
+
     return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 20 }} barGap={8}>
+                <defs>
+                    {keys.map((key, i) => (
+                        <linearGradient key={key} id={`bar-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={1} />
+                            <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={0.7} />
+                        </linearGradient>
+                    ))}
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
-                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8}>
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8} interval={isDense ? 'preserveStartEnd' : 0}>
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
-                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} contentStyle={TOOLTIP_STYLE} />
+                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} content={<CustomTooltip />} />
                 <Legend
                     verticalAlign="top"
                     align="center"
@@ -304,24 +292,140 @@ const BarVariant = ({ data, xLabel, yLabel }) => {
                     <Bar
                         key={key}
                         dataKey={key}
-                        fill={getColor(key, i)}
-                        radius={[4, 4, 0, 0]}
-                        barSize={20}
-                        label={<CustomLabel color={getColor(key, i)} />}
-                    />
+                        fill={`url(#bar-grad-${key})`}
+                        radius={[6, 6, 0, 0]}
+                        barSize={barSize}
+                        isAnimationActive={true}
+                        animationDuration={1500}
+                    >
+                        {!isDense && (
+                            <LabelList
+                                dataKey={key}
+                                position="top"
+                                fill={getColor(key, i)}
+                                fontSize={11}
+                                fontWeight={900}
+                                formatter={formatValue}
+                                offset={10}
+                            />
+                        )}
+                    </Bar>
                 ))}
             </BarChart>
         </ResponsiveContainer>
     );
 };
 
-// ─── Main SmartChart export ─────────────────────────────────────────────────
-/**
- * SmartChart — picks the right chart type automatically from data shape.
- * @param {Array}  data    – chart data array
- * @param {string} [hint]  – optional override: 'area'|'multi-line'|'donut'|'hbar'|'bar'
- */
-const SmartChart = ({ data, hint }) => {
+const GaugeVariant = ({ data }) => {
+    const val = data[0]?.value || 0;
+    const gaugeData = [
+        { name: 'value', value: val, color: GMR.green },
+        { name: 'remaining', value: Math.max(0, 100 - val), color: GMR.grid }
+    ];
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+                <Pie
+                    data={gaugeData}
+                    cx="50%"
+                    cy="80%"
+                    startAngle={180}
+                    endAngle={0}
+                    innerRadius="65%"
+                    outerRadius="90%"
+                    paddingAngle={0}
+                    dataKey="value"
+                    stroke="none"
+                    isAnimationActive={true}
+                    animationDuration={1500}
+                >
+                    {gaugeData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                    ))}
+                    <Label
+                        value={`${val.toFixed(1)}%`}
+                        position="centerBottom"
+                        style={{ fontSize: '28px', fontWeight: 900, fill: GMR.slate, fontFamily: 'Inter' }}
+                        dy={-25}
+                    />
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+        </ResponsiveContainer>
+    );
+};
+
+const BoxPlotVariant = ({ data }) => {
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <defs>
+                    <linearGradient id="boxplot-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={GMR.blue} stopOpacity={1} />
+                        <stop offset="100%" stopColor={GMR.blue} stopOpacity={0.6} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="avg" fill="url(#boxplot-grad)" radius={[6, 6, 6, 6]} barSize={32} isAnimationActive={true}>
+                    <LabelList dataKey="avg" position="top" style={{ fill: GMR.blue, fontWeight: 800, fontSize: 11 }} />
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    );
+};
+
+const FunnelVariant = ({ data }) => {
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} layout="vertical" margin={{ top: 20, right: 60, left: 40, bottom: 20 }}>
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" tick={AXIS_STYLE} axisLine={false} tickLine={false} width={100} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="value" fill={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
+                    <LabelList dataKey="value" position="right" style={{ fill: GMR.orange, fontWeight: 900, fontSize: 12 }} offset={10} />
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+    );
+};
+
+const ParetoVariant = ({ data }) => {
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="%" />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar yAxisId="left" dataKey="value" fill={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
+                <Line yAxisId="right" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
+            </BarChart>
+        </ResponsiveContainer>
+    );
+};
+
+const DualAxisVariant = ({ data }) => {
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend verticalAlign="top" iconType="circle" wrapperStyle={{ top: -20, paddingBottom: 20 }} />
+                <Line yAxisId="left" dataKey="installations" stroke={GMR.green} strokeWidth={4} dot={{ fill: GMR.green, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
+                <Line yAxisId="right" dataKey="stock" stroke={GMR.blue} strokeWidth={4} strokeDasharray="6 6" dot={{ fill: GMR.blue, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
+            </LineChart>
+        </ResponsiveContainer>
+    );
+};
+
+const SmartChart = ({ data, hint, name }) => {
     if (!data || !data.length) {
         return (
             <div className="h-full flex items-center justify-center text-gray-300 text-sm italic">
@@ -330,7 +434,7 @@ const SmartChart = ({ data, hint }) => {
         );
     }
 
-    const variant = hint || detectVariant(data);
+    const variant = hint || detectVariant(data, name);
 
     return (
         <div className="h-full w-full font-sans">
@@ -340,9 +444,13 @@ const SmartChart = ({ data, hint }) => {
             {variant === 'donut' && <DonutVariant data={data} />}
             {variant === 'hbar' && <HBarVariant data={data} xLabel="Value" yLabel="Category" />}
             {variant === 'bar' && <BarVariant data={data} xLabel="Classification" yLabel="Total Count" />}
+            {variant === 'gauge' && <GaugeVariant data={data} />}
+            {variant === 'boxplot' && <BoxPlotVariant data={data} />}
+            {variant === 'funnel' && <FunnelVariant data={data} />}
+            {variant === 'pareto' && <ParetoVariant data={data} />}
+            {variant === 'dual-axis' && <DualAxisVariant data={data} />}
         </div>
     );
 };
 
 export default SmartChart;
-export { GMR, GMR_PALETTE, detectVariant };

@@ -4,7 +4,7 @@ export const executiveDummyData = {
         "totalIssues": 104,
         "critical": 35,
         "high": 51,
-        "departments": 5,
+        "departments": 6,
         "overallScore": 44
     },
     "businessAreas": {
@@ -36,6 +36,12 @@ export const executiveDummyData = {
             "health": 46,
             "issues": 17,
             "summary": "Advanced Analytics stability is concerning.",
+            "link": "/departments"
+        },
+        "business": {
+            "health": 78,
+            "issues": 4,
+            "summary": "Business performance is strong but needs focus on growth.",
             "link": "/departments"
         },
         "performanceTrend": {
@@ -1040,6 +1046,47 @@ export const executiveDummyData = {
                     "name": "Jun",
                     "value": 46
                 }
+            ]
+        },
+        {
+            "id": "dept_6",
+            "name": "Business",
+            "impactStatement": "Comprehensive monitoring across 8 operational modules.",
+            "kpis": 24,
+            "kpiList": [
+                { "id": "kpi_biz_1", "kpiName": "MI-Progress (Total & Category wise)", "status": "Stable", "trend": "stable", "value": "92%" },
+                { "id": "kpi_biz_2", "kpiName": "Defective Meters", "status": "Warning", "trend": "up", "value": "145" },
+                { "id": "kpi_biz_3", "kpiName": "Never / Non-comm Status", "status": "Critical", "trend": "down", "value": "1.2%" },
+                { "id": "kpi_biz_4", "kpiName": "O&M Ticket Closure Avg. Time", "status": "Warning", "trend": "stable", "value": "24h" },
+                { "id": "kpi_biz_5", "kpiName": "Revenue realized (Total & Category wise)", "status": "Stable", "trend": "up", "value": "₹520 Cr" },
+                { "id": "kpi_biz_6", "kpiName": "Revenue not realized ageing", "status": "Critical", "trend": "up", "value": "15d+" },
+                { "id": "kpi_biz_7", "kpiName": "Meters Journey Avg time", "status": "Warning", "trend": "stable", "value": "4.5d" },
+                { "id": "kpi_biz_8", "kpiName": "Inventory Utilization rate", "status": "Good", "trend": "up", "value": "88%" }
+            ],
+            "issues": {
+                "critical": 4,
+                "high": 6,
+                "medium": 3,
+                "low": 1
+            },
+            "needsAttention": [
+                "Never / Non-comm Status",
+                "Revenue not realized ageing",
+                "O&M Not closed ticket Ageing",
+                "Defective Meters"
+            ],
+            "workingWell": [
+                "MI-Progress",
+                "Inventory Utilization rate",
+                "O&M Ticket Closed Analysis"
+            ],
+            "trend": [
+                { "name": "Jan", "value": 72 },
+                { "name": "Feb", "value": 75 },
+                { "name": "Mar", "value": 78 },
+                { "name": "Apr", "value": 80 },
+                { "name": "May", "value": 79 },
+                { "name": "Jun", "value": 78 }
             ]
         }
     ]
