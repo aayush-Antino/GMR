@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { resolveKPIFetchers, transformAPIResponse } from '../services/smartMeterApi';
+import { resolveKPIFetchers } from '../services/smartMeterApi';
+import { transformAPIResponse } from '../services/smartMeterUtils';
 
 /**
  * useSmartMeterKPI
@@ -32,12 +33,29 @@ export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
         setError(null);
 
         try {
-            const [rawTrend, rawDist] = await Promise.all([
-                fetchers.fetchTrend(params),
-                fetchers.fetchDistribution(params),
-            ]);
+            let rawTrend, rawDist;
+            const signal = controller.signal;
 
-            const { trend, distribution } = transformAPIResponse(kpiName, rawTrend, rawDist);
+            if (fetchers.shared) {
+                // Single request for both trend and distribution
+                rawTrend = await fetchers.fetchTrend(params, signal);
+                rawDist = rawTrend;
+            } else {
+                // Separate requests - handle partial failures so one failing API doesn't kill the whole UI
+                const results = await Promise.allSettled([
+                    fetchers.fetchTrend(params, signal),
+                    fetchers.fetchDistribution(params, signal),
+                ]);
+                
+                rawTrend = results[0].status === 'fulfilled' ? results[0].value : null;
+                rawDist = results[1].status === 'fulfilled' ? results[1].value : null;
+
+                if (results[0].status === 'rejected' && results[1].status === 'rejected') {
+                    throw results[0].reason || results[1].reason || new Error('All API calls failed');
+                }
+            }
+
+            const { trend, distribution } = transformAPIResponse(kpiName, rawTrend, rawDist, params.period);
             setTrendData(trend);
             setDistData(distribution);
         } catch (err) {

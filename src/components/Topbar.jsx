@@ -13,7 +13,10 @@ const Topbar = () => {
     const navRef = useRef(null);
     const userRef = useRef(null);
 
-    const departments = executiveDummyData.departments;
+    const departmentsOrder = ["Business", "Finance", "Operations", "Technical", "Analytics", "Advanced Analytics"];
+    const departments = [...executiveDummyData.departments].sort((a, b) => {
+        return departmentsOrder.indexOf(a.name) - departmentsOrder.indexOf(b.name);
+    });
 
     useEffect(() => {
         const handleClick = (e) => {

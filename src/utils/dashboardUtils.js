@@ -1,16 +1,62 @@
 import { dashboardData } from '../data/dashboardData';
+import { 
+    Toolbox, 
+    Warehouse, 
+    Wrench, 
+    ClipboardCheck, 
+    FileText, 
+    IndianRupee, 
+    Navigation 
+} from 'lucide-react';
 
 export const dashboardMeta = {
-    dashboard1: { title: "Dashboard 1", description: "Executive Overview - High-level business summary." },
-    dashboard2: { title: "Dashboard 2", description: "Department KPIs - Detailed performance metrics." },
-    dashboard3: { title: "Dashboard 3", description: "Anomaly Monitoring - Real-time detection." },
-    dashboard4: { title: "Dashboard 4", description: "Data Gap Analysis - Missing/incomplete data." },
-    dashboard5: { title: "Dashboard 5", description: "Feasibility Tracking - KPI implementation status." },
-    dashboard6: { title: "Dashboard 6", description: "Priority Analysis - Critical alert items." },
-    dashboard7: { title: "Dashboard 7", description: "Source System Dependency - Data health." },
-    dashboard8: { title: "Dashboard 8", description: "Performance Trends - Historical analysis." },
-    dashboard9: { title: "Dashboard 9", description: "KPI Dictionary - Definitions and metadata." },
+    finance: { title: "Finance", description: "Financial performance and audits." },
+    operation_parameters: { title: "Operation Parameters", description: "Network reliability and outage metrics." },
+    power_quality: { title: "Power Qaulity", description: "Voltage, frequency, and power factor analysis." },
+    load_management: { title: "Load Management", description: "Transformer loading and violation tracking." },
+    theft_analysis: { title: "Theft Analysis", description: "Anomaly detection and revenue protection." },
+    operation_analytics: { title: "Operation Analytics", description: "Phase monitoring and flow analysis." },
+    advanced_analytics: { title: "Advanced Analytics", description: "Asset tracking and mapping accuracy." },
+    to_be_on_hold: { title: "To be on Hold", description: "Metrics currently under observation." },
     dashboard10: { title: "Smart Meter Operations Dashboard", description: "Real-time monitoring of smart meter operations." },
+};
+
+export const businessModules = {
+    'Meter-Installation': {
+        title: "Meter-Installation",
+        icon: Toolbox,
+        description: "Installation progress and team productivity tracking."
+    },
+    'Inventory': {
+        title: "Inventory",
+        icon: Warehouse,
+        description: "Material utilization and stock availability monitoring."
+    },
+    'O&M': {
+        title: "O&M",
+        icon: Wrench,
+        description: "Maintenance performance, ticket ageing, and communication status."
+    },
+    'SAT': {
+        title: "SAT",
+        icon: ClipboardCheck,
+        description: "Site acceptance testing progress and root cause analysis."
+    },
+    'Invoicing': {
+        title: "Invoicing",
+        icon: FileText,
+        description: "Installation to invoicing workflow tracking."
+    },
+    'Revenue': {
+        title: "Revenue",
+        icon: IndianRupee,
+        description: "Realized and pending revenue analysis with ageing."
+    },
+    'Meter Journey': {
+        title: "Meter Journey",
+        icon: Navigation,
+        description: "End-to-end tracking of meter lifecycle from install to revenue."
+    }
 };
 
 export const getDashboardsForDepartment = (deptName) => {

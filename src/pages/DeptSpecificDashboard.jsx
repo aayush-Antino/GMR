@@ -4,8 +4,8 @@ import Topbar from '../components/Topbar';
 import KPIDetailModal from '../components/KPIDetailModal';
 import { dashboardData } from '../data/dashboardData';
 import { executiveDummyData } from '../data/executiveDummyData';
-import { dashboardMeta } from '../utils/dashboardUtils';
-import { ArrowLeft, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { dashboardMeta, businessModules } from '../utils/dashboardUtils';
+import { ArrowLeft, Search, TrendingUp, TrendingDown, Minus, ChevronRight } from 'lucide-react';
 
 const STATUS_CFG = {
     Critical: { color: '#ef4444', light: '#fff1f1', border: '#fecaca', label: 'Critical', shadow: 'rgba(239, 68, 68, 0.15)' },
@@ -30,6 +30,26 @@ const Sparkline = ({ color }) => (
         />
     </svg>
 );
+
+const ModuleCard = ({ moduleKey, module, onClick }) => {
+    const Icon = module.icon;
+    return (
+        <div
+            onClick={onClick}
+            className="group bg-white rounded-xl p-5 cursor-pointer border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center gap-3"
+        >
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                <Icon size={24} />
+            </div>
+            <div>
+                <h3 className="text-[15px] font-bold text-gray-800 mb-0.5">{module.title}</h3>
+                <p className="text-[11px] text-gray-400 line-clamp-2 leading-tight">
+                    {module.description}
+                </p>
+            </div>
+        </div>
+    );
+};
 
 const KPICard = ({ kpi, idx, onClick }) => {
     const c = cfgOf(kpi.status);
@@ -106,7 +126,7 @@ const KPICard = ({ kpi, idx, onClick }) => {
 
 const DeptSpecificDashboard = () => {
     const params = useParams();
-    const { dashKey } = params;
+    const { dashKey, moduleName } = params;
     const kpiName = params['*'] || null;
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
@@ -129,17 +149,35 @@ const DeptSpecificDashboard = () => {
 
     const items = deptItems.filter(item =>
         (activeFilter === 'All' || item.status === activeFilter) &&
-        item.name.toLowerCase().includes(search.toLowerCase())
+        item.name.toLowerCase().includes(search.toLowerCase()) &&
+        (dashKey !== 'dashboard10' || !moduleName || item.module === moduleName)
+    );
+
+    const filteredModules = Object.keys(businessModules).filter(mKey => 
+        businessModules[mKey].title.toLowerCase().includes(search.toLowerCase()) ||
+        businessModules[mKey].description.toLowerCase().includes(search.toLowerCase())
     );
 
     const selectedKPI = kpiName ? deptItems.find(k => k.name.toLowerCase().trim() === kpiName.toLowerCase().trim()) : null;
 
     const handleKPIClick = (kpi) => {
-        navigate(`/dashboard/${dashKey}/kpi/${encodeURIComponent(kpi.name)}`);
+        if (moduleName) {
+            navigate(`/dashboard/${dashKey}/module/${encodeURIComponent(moduleName)}/kpi/${encodeURIComponent(kpi.name)}`);
+        } else {
+            navigate(`/dashboard/${dashKey}/kpi/${encodeURIComponent(kpi.name)}`);
+        }
+    };
+
+    const handleModuleClick = (mKey) => {
+        navigate(`/dashboard/${dashKey}/module/${encodeURIComponent(mKey)}`);
     };
 
     const handleCloseModal = () => {
-        navigate(`/dashboard/${dashKey}`);
+        if (moduleName) {
+            navigate(`/dashboard/${dashKey}/module/${encodeURIComponent(moduleName)}`);
+        } else {
+            navigate(`/dashboard/${dashKey}`);
+        }
     };
 
     if (!dept) return (
@@ -152,18 +190,18 @@ const DeptSpecificDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen font-sans pt-16" style={{ background: 'linear-gradient(135deg, #f0f4f8 0%, #e5eef9 50%, #f1f5f9 100%)' }}>
+        <div className="min-h-screen font-sans pt-14" style={{ background: 'linear-gradient(135deg, #f0f4f8 0%, #e5eef9 50%, #f1f5f9 100%)' }}>
             <Topbar />
 
             {/* ── Premium Header (Light Theme) ── */}
             <div className="sticky top-16 z-30 bg-white border-b" style={{ boxShadow: '0 4px 24px rgba(15,39,68,0.07)', borderBottomColor: '#e8edf4' }}>
                 {/* Top row */}
-                <div className="max-w-screen-2xl mx-auto px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="max-w-screen-2xl mx-auto px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         {/* Left accent bar */}
                         <div className="hidden sm:block w-1 self-stretch rounded-full" style={{ background: 'linear-gradient(180deg, #F4A300 0%, #0f2744 100%)', minHeight: '48px' }} />
                         <button
-                            onClick={() => navigate('/')}
+                            onClick={() => moduleName ? navigate(`/dashboard/${dashKey}`) : navigate('/')}
                             className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all flex-shrink-0"
                             style={{ borderColor: '#e2e8f0', color: '#64748b', background: '#f8fafc' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#0f2744'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#0f2744'; }}
@@ -172,8 +210,18 @@ const DeptSpecificDashboard = () => {
                             <ArrowLeft size={16} />
                         </button>
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.25em] mb-1" style={{ color: '#F4A300' }}>{dept?.name || departmentName}</p>
-                            <h1 className="text-2xl font-black leading-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0f2744] to-[#1e40af]">{meta.title}</h1>
+                            <div className="flex items-center gap-2 mb-1">
+                                <p className="text-[10px] font-black uppercase tracking-[0.25em]" style={{ color: '#F4A300' }}>{dept?.name || departmentName}</p>
+                                {moduleName && (
+                                    <>
+                                        <ChevronRight size={10} className="text-gray-400" />
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{moduleName}</p>
+                                    </>
+                                )}
+                            </div>
+                            <h1 className="text-[22px] font-black leading-tight bg-clip-text text-transparent bg-gradient-to-r from-[#0f2744] to-[#1e40af]">
+                                {moduleName ? businessModules[moduleName]?.title : meta.title}
+                            </h1>
                         </div>
                     </div>
 
@@ -194,13 +242,16 @@ const DeptSpecificDashboard = () => {
                 </div>
 
                 {/* Filter pills or Total Summary */}
-                <div className="max-w-screen-2xl mx-auto px-8 pb-4 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
+                <div className="max-w-screen-2xl mx-auto px-8 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
                     <div className="flex items-center gap-2 pt-3">
-                        {departmentName === 'Business' ? (
-                            // Simple Total Summary for Business
+                        {dashKey === 'dashboard10' ? (
+                            // Dynamic Summary for Business
                             <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full border border-gray-100 bg-gray-50/50 text-slate-500 whitespace-nowrap">
                                 <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                Total KPIs: {deptItems.length}
+                                {moduleName 
+                                    ? `Total KPIs in ${businessModules[moduleName]?.title || moduleName}: ${items.length}`
+                                    : `Total Modules: ${Object.keys(businessModules).length}`
+                                }
                             </div>
                         ) : (
                             // Interactive Filters for others
@@ -239,8 +290,35 @@ const DeptSpecificDashboard = () => {
             </div>
 
             {/* ── Dashboard Content ── */}
-            <div className="max-w-7xl mx-auto px-6 py-12">
-                {items.length > 0 ? (
+            <div className="max-w-7xl mx-auto px-6 py-8 transition-all duration-500">
+                {dashKey === 'dashboard10' && !moduleName ? (
+                    filteredModules.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {filteredModules.map(mKey => (
+                                <ModuleCard 
+                                    key={mKey}
+                                    moduleKey={mKey}
+                                    module={businessModules[mKey]}
+                                    onClick={() => handleModuleClick(mKey)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center py-24 bg-white rounded-3xl border border-dashed border-gray-200 shadow-sm">
+                            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+                                <Search size={32} className="text-gray-200" />
+                            </div>
+                            <p className="text-sm font-bold text-slate-500">No modules found matching your search</p>
+                            <p className="text-xs text-gray-400 mt-1">Try searching for Inventory, Revenue, etc.</p>
+                            <button
+                                onClick={() => setSearch('')}
+                                className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-primary transition-all shadow-sm"
+                            >
+                                Clear Search
+                            </button>
+                        </div>
+                    )
+                ) : items.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {items.map((kpi, idx) => (
                             <KPICard
@@ -268,7 +346,11 @@ const DeptSpecificDashboard = () => {
                 )}
             </div>
 
-            <KPIDetailModal isOpen={!!selectedKPI} onClose={handleCloseModal} kpi={selectedKPI} />
+            <KPIDetailModal 
+                isOpen={!!selectedKPI} 
+                onClose={handleCloseModal} 
+                kpi={selectedKPI} 
+            />
         </div>
     );
 };

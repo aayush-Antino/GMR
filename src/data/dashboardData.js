@@ -1,5 +1,5 @@
 export const dashboardData = {
-    "dashboard1": [
+    "finance": [
         {
             "name": "Feeder Loss (%)",
             "department": "Finance",
@@ -55,7 +55,7 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
-    "dashboard2": [
+    "operation_parameters": [
         {
             "name": "SAIDI",
             "department": "Operations",
@@ -215,7 +215,7 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
-    "dashboard3": [
+    "load_management": [
         {
             "name": "% DT Peak Loading",
             "department": "Technical",
@@ -289,7 +289,7 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
-    "dashboard4": [
+    "power_quality": [
         {
             "name": "Voltage Deviation (%)",
             "department": "Operations",
@@ -482,7 +482,7 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
-    "dashboard5": [
+    "to_be_on_hold": [
         {
             "name": "Total anomalies detected (by time period)",
             "department": "Analytics",
@@ -641,7 +641,7 @@ export const dashboardData = {
             }
         }
     ],
-    "dashboard6": [
+    "theft_analysis": [
         {
             "name": "Theft Suspect Flags",
             "department": "Analytics",
@@ -666,14 +666,9 @@ export const dashboardData = {
             "description": "Revenue focus",
             "status": "Stable"
         },
-        {
-            "name": "Revenue Recovery Improvement (%)",
-            "department": "Finance",
-            "description": "Impact tracking",
-            "status": "Stable"
-        }
+// Moved to theft_analysis
     ],
-    "dashboard7": [
+    "to_be_on_hold_extra": [
         {
             "name": "Communication health issues",
             "department": "Analytics",
@@ -833,7 +828,7 @@ export const dashboardData = {
             }
         }
     ],
-    "dashboard8": [
+    "advanced_analytics": [
         {
             "name": "Auto-indexing consumers and DTRs for correct mapping",
             "department": "Advanced Analytics",
@@ -1010,7 +1005,7 @@ export const dashboardData = {
             "status": "Stable"
         }
     ],
-    "dashboard9": [
+    "operation_analytics": [
         {
             "name": "Tamper sequence detection",
             "department": "Analytics",
@@ -1197,6 +1192,7 @@ export const dashboardData = {
     "dashboard10": [
         {
             "name": "MI-Progress (Total & Category wise)",
+            "module": "Meter-Installation",
             "department": "Business",
             "description": "Meter Installation progress tracking.",
             "status": "Stable",
@@ -1209,14 +1205,14 @@ export const dashboardData = {
             "chartData": {
                 "trendTitle": "MI Progress Trend",
                 "trend": [
-                    { "name": "Jan", "value": 4500 }, { "name": "Feb", "value": 5200 }, { "name": "Mar", "value": 6100 }
+                    { "name": "Jan", "count": 4500 }, { "name": "Feb", "count": 5200 }, { "name": "Mar", "count": 6100 }
                 ],
                 "distTitle": "MI By Category (Funnel)",
                 "distribution": [
-                    { "name": "Target", "value": 10000 },
-                    { "name": "Surveyed", "value": 8500 },
-                    { "name": "Installed", "value": 6100 },
-                    { "name": "SAT Done", "value": 5800 }
+                    { "name": "Target", "count": 10000 },
+                    { "name": "Surveyed", "count": 8500 },
+                    { "name": "Installed", "count": 6100 },
+                    { "name": "SAT Done", "count": 5800 }
                 ],
                 "allowedTrendTypes": ["line", "area", "bar"],
                 "allowedDistTypes": ["funnel", "bar", "donut"]
@@ -1224,6 +1220,7 @@ export const dashboardData = {
         },
         {
             "name": "MI-Productivity per team (Total & Category wise)",
+            "module": "Meter-Installation",
             "department": "Business",
             "description": "Output per installation team.",
             "status": "On Track",
@@ -1247,6 +1244,7 @@ export const dashboardData = {
         },
         {
             "name": "Monthly Productivity trend (Total & Category wise)",
+            "module": "Meter-Installation",
             "department": "Business",
             "description": "Productivity trends over time.",
             "status": "Stable",
@@ -1266,11 +1264,14 @@ export const dashboardData = {
                 ],
                 "allowedTrendTypes": ["bar", "area"],
                 "allowedDistTypes": ["donut", "bar"],
-                "allowedDurations": ["Monthly"]
+                "allowedDurations": ["Monthly"],
+                "isMonthlyOnly": true,
+                "isTimeSeries": false
             }
         },
         {
             "name": "Defective Meters",
+            "module": "Meter-Installation",
             "department": "Business",
             "description": "Meters found with technical defects.",
             "status": "Warning",
@@ -1297,6 +1298,7 @@ export const dashboardData = {
         },
         {
             "name": "Total & Category wise Inventory Utilization rate (Meters & Cable)",
+            "module": "Inventory",
             "department": "Business",
             "description": "Efficiency of material usage.",
             "status": "Good",
@@ -1321,6 +1323,7 @@ export const dashboardData = {
         },
         {
             "name": "MI pace Vs Stock availibility",
+            "module": "Inventory",
             "department": "Business",
             "description": "Installation speed relative to inventory.",
             "status": "Stable",
@@ -1347,6 +1350,7 @@ export const dashboardData = {
         },
         {
             "name": "Un-utilized stock ageing",
+            "module": "Inventory",
             "department": "Business",
             "description": "Duration of stock sitting in inventory.",
             "status": "Warning",
@@ -1374,6 +1378,7 @@ export const dashboardData = {
         },
         {
             "name": "Never / Non-comm Status",
+            "module": "O&M",
             "department": "Business",
             "description": "Meters that never communicated.",
             "status": "Critical",
@@ -1396,6 +1401,7 @@ export const dashboardData = {
         },
         {
             "name": "O&M-Productivity per team (Total & Category wise)",
+            "module": "O&M",
             "department": "Business",
             "description": "Output of maintenance teams.",
             "status": "On Track",
@@ -1419,6 +1425,7 @@ export const dashboardData = {
         },
         {
             "name": "O&M Productivity trend (Total & Category wise)",
+            "module": "O&M",
             "department": "Business",
             "description": "Historical O&M performance.",
             "status": "Stable",
@@ -1441,6 +1448,7 @@ export const dashboardData = {
         },
         {
             "name": "O&M Not closed ticket Ageing",
+            "module": "O&M",
             "department": "Business",
             "description": "Duration of open maintenance tickets.",
             "status": "Critical",
@@ -1466,6 +1474,7 @@ export const dashboardData = {
         },
         {
             "name": "O&M Ticket Closure Avg. Time",
+            "module": "O&M",
             "department": "Business",
             "description": "Average time taken to close tickets.",
             "status": "Warning",
@@ -1490,6 +1499,7 @@ export const dashboardData = {
         },
         {
             "name": "O&M Ticket Closed Analysis",
+            "module": "O&M",
             "department": "Business",
             "description": "Categorized view of resolved tickets.",
             "status": "Good",
@@ -1514,6 +1524,7 @@ export const dashboardData = {
         },
         {
             "name": "MI Vs SAT-Progress (Total & Category wise)",
+            "module": "SAT",
             "department": "Business",
             "description": "Sites installed vs sites verified.",
             "status": "On Track",
@@ -1522,22 +1533,24 @@ export const dashboardData = {
             ],
             "qualityDescription": "Tracks the lag between technical installation and formal acceptance testing.",
             "chartData": {
-                "trendTitle": "SAT Rate (%)",
+                "trendTitle": "SAT Phase Completion",
                 "trend": [
-                    { "name": "Jan", "value": 75 }, { "name": "Feb", "value": 78 }, { "name": "Mar", "value": 82 }
+                    { "name": "Phase 1", "value": 75 }, { "name": "Phase 2", "value": 78 }, { "name": "Phase 3", "value": 82 }
                 ],
                 "distTitle": "MI vs SAT Gap (Bar)",
                 "distribution": [
                     { "name": "Installed", "value": 6100 },
                     { "name": "Verified", "value": 4800 }
                 ],
-                "allowedTrendTypes": ["multi-line", "line"],
+                "allowedTrendTypes": ["bar", "hbar", "multi-line", "line"],
                 "allowedDistTypes": ["bar", "funnel"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedDurations": ["Daily"],
+                "isTimeSeries": false
             }
         },
         {
             "name": "Non-SAT ageing",
+            "module": "SAT",
             "department": "Business",
             "description": "Time since installation without SAT.",
             "status": "Warning",
@@ -1564,6 +1577,7 @@ export const dashboardData = {
         },
         {
             "name": "Non-SAT RCA",
+            "module": "SAT",
             "department": "Business",
             "description": "Root cause analysis for pending SAT.",
             "status": "Ready",
@@ -1590,6 +1604,7 @@ export const dashboardData = {
         },
         {
             "name": "MI Vs SAT Vs Invoice-Progress (Total & Category wise)",
+            "module": "Invoicing",
             "department": "Business",
             "description": "Installation to billing workflow progress.",
             "status": "Stable",
@@ -1608,13 +1623,15 @@ export const dashboardData = {
                     { "name": "SAT Done", "value": 4800 },
                     { "name": "Invoiced", "value": 3200 }
                 ],
-                "allowedTrendTypes": ["multi-line", "line"],
+                "allowedTrendTypes": ["bar", "multi-line", "line"],
                 "allowedDistTypes": ["funnel", "bar"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedDurations": ["Daily"],
+                "isTimeSeries": false
             }
         },
         {
             "name": "Cable Invoice-Progress",
+            "module": "Invoicing",
             "department": "Business",
             "description": "Invoicing status for cabling work.",
             "status": "Good",
@@ -1638,6 +1655,7 @@ export const dashboardData = {
         },
         {
             "name": "Revenue realized (Total & Category wise)",
+            "module": "Revenue",
             "department": "Business",
             "description": "Actual income collected.",
             "status": "Stable",
@@ -1662,6 +1680,7 @@ export const dashboardData = {
         },
         {
             "name": "Cable Revenue realized",
+            "module": "Revenue",
             "department": "Business",
             "description": "Revenue from cable-related activities.",
             "status": "Good",
@@ -1685,6 +1704,7 @@ export const dashboardData = {
         },
         {
             "name": "Revenue not realized ageing (Total & Category wise)",
+            "module": "Revenue",
             "department": "Business",
             "description": "Ageing of pending revenue.",
             "status": "Critical",
@@ -1711,6 +1731,7 @@ export const dashboardData = {
         },
         {
             "name": "Cable Revenue not realized ageing",
+            "module": "Revenue",
             "department": "Business",
             "description": "Ageing of pending cable revenue.",
             "status": "Critical",
@@ -1735,6 +1756,7 @@ export const dashboardData = {
         },
         {
             "name": "Meters Journey Avg time across the levels for Revenue realized (Total & Category wise)",
+            "module": "Meter Journey",
             "department": "Business",
             "description": "Average lead time to revenue realization.",
             "status": "Warning",
@@ -1760,6 +1782,7 @@ export const dashboardData = {
         },
         {
             "name": "Meters Current Stage for Revenue not realized (Total & Category wise)",
+            "module": "Meter Journey",
             "department": "Business",
             "description": "Tracking stage of non-realized revenue meters.",
             "status": "Stable",
@@ -1792,49 +1815,49 @@ export const dashboardData = {
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard2": {
+        "operation_parameters": {
             "totalKPIs": 23,
             "totalAnomalies": 19,
             "highPriority": 1,
             "notFeasible": 0
         },
-        "dashboard3": {
+        "load_management": {
             "totalKPIs": 12,
             "totalAnomalies": 12,
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard4": {
+        "power_quality": {
             "totalKPIs": 10,
             "totalAnomalies": 7,
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard5": {
+        "to_be_on_hold": {
             "totalKPIs": 11,
             "totalAnomalies": 15,
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard6": {
+        "theft_analysis": {
             "totalKPIs": 5,
             "totalAnomalies": 5,
             "highPriority": 1,
             "notFeasible": 0
         },
-        "dashboard7": {
+        "to_be_on_hold_extra": {
             "totalKPIs": 6,
             "totalAnomalies": 6,
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard8": {
+        "advanced_analytics": {
             "totalKPIs": 17,
             "totalAnomalies": 17,
             "highPriority": 0,
             "notFeasible": 0
         },
-        "dashboard9": {
+        "operation_analytics": {
             "totalKPIs": 13,
             "totalAnomalies": 17,
             "highPriority": 6,
@@ -1843,7 +1866,7 @@ export const dashboardData = {
         "dashboard10": { "totalKPIs": 24, "totalAnomalies": 3, "highPriority": 3, "notFeasible": 0 }
     },
     "chartData": {
-        "dashboard1": {
+        "finance": {
             "bar": [
                 {
                     "name": "Finance",
@@ -1895,7 +1918,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard2": {
+        "operation_parameters": {
             "bar": [
                 {
                     "name": "Operations",
@@ -1951,7 +1974,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard3": {
+        "load_management": {
             "bar": [
                 {
                     "name": "Technical",
@@ -1999,7 +2022,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard4": {
+        "power_quality": {
             "bar": [
                 {
                     "name": "Operations",
@@ -2047,7 +2070,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard5": {
+        "to_be_on_hold": {
             "bar": [
                 {
                     "name": "M-1023",
@@ -2118,7 +2141,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard6": {
+        "theft_analysis": {
             "bar": [
                 {
                     "name": "Finance",
@@ -2170,7 +2193,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard7": {
+        "to_be_on_hold_extra": {
             "bar": [
                 {
                     "name": "Technical",
@@ -2222,7 +2245,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard8": {
+        "advanced_analytics": {
             "bar": [
                 {
                     "name": "Advanced Analytics",
@@ -2270,7 +2293,7 @@ export const dashboardData = {
                 }
             ]
         },
-        "dashboard9": {
+        "operation_analytics": {
             "bar": [
                 {
                     "name": "Analytics",

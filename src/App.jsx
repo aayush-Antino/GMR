@@ -15,12 +15,14 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Protected Routes */}
-          <Route path="/" element={<Navigate to="/executive" replace />} />
+          <Route path="/" element={<Navigate to="/dashboard/dashboard10" replace />} />
           <Route path="/executive" element={<ProtectedRoute><Home /></ProtectedRoute>} />
 
           {/* New Dashboard Flow */}
           <Route path="/dashboard/:dashKey" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/:dashKey/module/:moduleName" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
           <Route path="/dashboard/:dashKey/kpi/*" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/:dashKey/module/:moduleName/kpi/*" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
 
         </Routes>
       </Router>

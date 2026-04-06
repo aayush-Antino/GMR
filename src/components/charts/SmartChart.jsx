@@ -69,8 +69,12 @@ const CustomLabel = ({ x, y, value, color, position = 'top' }) => (
     </g>
 );
 
-const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
-    const keys = isMulti ? Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color') : ['value'];
+const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) => {
+    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    
+    // Dynamic interval to keep labels readable
+    const interval = propInterval !== undefined ? propInterval : (data.length > 60 ? Math.floor(data.length / 6) : 'auto');
+
     return (
         <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 35, right: 20, left: 10, bottom: 20 }}>
@@ -83,7 +87,14 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
                     ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
-                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8} interval="auto">
+                <XAxis 
+                    dataKey="name" 
+                    tick={AXIS_STYLE} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dy={8} 
+                    interval={interval}
+                >
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
@@ -103,9 +114,9 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
                         type="monotone"
                         dataKey={key}
                         stroke={getColor(key, i)}
-                        strokeWidth={3}
+                        strokeWidth={data.length > 100 ? 1.5 : 3} // Thinner line for very high density
                         fill={`url(#grad-${key})`}
-                        dot={{ fill: getColor(key, i), r: 4, strokeWidth: 0 }}
+                        dot={data.length > 50 ? false : { fill: getColor(key, i), r: 4, strokeWidth: 0 }} // Hide dots for dense data
                         activeDot={{ r: 6, strokeWidth: 0 }}
                         animationDuration={1200}
                         isAnimationActive={true}
@@ -116,13 +127,14 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel }) => {
     );
 };
 
-const MultiLineVariant = ({ data, xLabel, yLabel }) => {
+const MultiLineVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const interval = propInterval !== undefined ? propInterval : 'auto';
     return (
         <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 35, right: 20, left: 10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
-                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8}>
+                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8} interval={interval}>
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
@@ -175,7 +187,7 @@ const DonutVariant = ({ data }) => {
                     innerRadius="45%"
                     outerRadius="75%"
                     paddingAngle={3}
-                    dataKey="value"
+                    dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'}
                     labelLine={false}
                     label={renderCustomizedLabel}
                 >
@@ -217,7 +229,7 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                     axisLine={false} 
                     tickLine={false} 
                     width={isDense ? 80 : 120}
-                    interval={isDense ? 'preserveStartEnd' : 0}
+                    interval={data.length > 50 ? Math.floor(data.length / 10) : (isDense ? 'preserveStartEnd' : 0)}
                 >
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
@@ -239,17 +251,15 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                         isAnimationActive={true}
                         animationDuration={1500}
                     >
-                        {!isDense && (
-                            <LabelList
-                                dataKey={key}
-                                position="right"
-                                fill={getColor(key, i)}
-                                fontSize={10}
-                                fontWeight={900}
-                                offset={8}
-                                formatter={formatValue}
-                            />
-                        )}
+                        <LabelList
+                            dataKey={key}
+                            position="insideRight"
+                            fill="#fff"
+                            fontSize={barSize < 6 ? 0 : 7}
+                            fontWeight={700}
+                            offset={8}
+                            formatter={formatValue}
+                        />
                     </Bar>
                 ))}
             </BarChart>
@@ -257,10 +267,11 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
     );
 };
 
-const BarVariant = ({ data, xLabel, yLabel }) => {
+const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
     const isDense = data.length > 10;
     const barSize = isDense ? Math.max(12, 300 / data.length) : 32;
+    const interval = propInterval !== undefined ? propInterval : (data.length > 30 ? Math.floor(data.length / 8) : (isDense ? 'preserveStartEnd' : 0));
 
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -274,7 +285,14 @@ const BarVariant = ({ data, xLabel, yLabel }) => {
                     ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
-                <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} dy={8} interval={isDense ? 'preserveStartEnd' : 0}>
+                <XAxis 
+                    dataKey="name" 
+                    tick={AXIS_STYLE} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    dy={8} 
+                    interval={interval}
+                >
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
                 </XAxis>
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
@@ -298,17 +316,15 @@ const BarVariant = ({ data, xLabel, yLabel }) => {
                         isAnimationActive={true}
                         animationDuration={1500}
                     >
-                        {!isDense && (
-                            <LabelList
-                                dataKey={key}
-                                position="top"
-                                fill={getColor(key, i)}
-                                fontSize={11}
-                                fontWeight={900}
-                                formatter={formatValue}
-                                offset={10}
-                            />
-                        )}
+                        <LabelList
+                            dataKey={key}
+                            position="insideTop"
+                            fill="#fff"
+                            fontSize={barSize < 8 ? 0 : 7}
+                            fontWeight={700}
+                            formatter={formatValue}
+                            offset={10}
+                        />
                     </Bar>
                 ))}
             </BarChart>
@@ -319,7 +335,7 @@ const BarVariant = ({ data, xLabel, yLabel }) => {
 const GaugeVariant = ({ data }) => {
     const val = data[0]?.value || 0;
     const gaugeData = [
-        { name: 'value', value: val, color: GMR.green },
+        { name: 'count', value: val, color: GMR.green },
         { name: 'remaining', value: Math.max(0, 100 - val), color: GMR.grid }
     ];
     return (
@@ -384,8 +400,8 @@ const FunnelVariant = ({ data }) => {
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" tick={AXIS_STYLE} axisLine={false} tickLine={false} width={100} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" fill={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
-                    <LabelList dataKey="value" position="right" style={{ fill: GMR.orange, fontWeight: 900, fontSize: 12 }} offset={10} />
+                <Bar dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} fill={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
+                    <LabelList dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} position="right" style={{ fill: GMR.orange, fontWeight: 900, fontSize: 12 }} offset={10} />
                 </Bar>
             </BarChart>
         </ResponsiveContainer>
@@ -401,7 +417,7 @@ const ParetoVariant = ({ data }) => {
                 <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar yAxisId="left" dataKey="value" fill={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
+                <Bar yAxisId="left" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative') || 'value'} fill={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
                 <Line yAxisId="right" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
             </BarChart>
         </ResponsiveContainer>
@@ -425,7 +441,7 @@ const DualAxisVariant = ({ data }) => {
     );
 };
 
-const SmartChart = ({ data, hint, name }) => {
+const SmartChart = ({ data, hint, name, isDetailed = false }) => {
     if (!data || !data.length) {
         return (
             <div className="h-full flex items-center justify-center text-gray-300 text-sm italic">
@@ -436,19 +452,43 @@ const SmartChart = ({ data, hint, name }) => {
 
     const variant = hint || detectVariant(data, name);
 
+    // Dynamic width calculation for horizontal scrolling on dense datasets
+    // Only enable scrolling if isDetailed is true
+    const isTrend = ['area', 'multi-area', 'multi-line', 'bar', 'dual-axis'].includes(variant);
+    const minWidth = (isDetailed && isTrend && data.length > 20) ? `${data.length * 35}px` : '100%';
+
+    // Helper to inject isDetailed into variants
+    const renderVariant = () => {
+        const commonProps = { 
+            data, 
+            xLabel: "Time Period", 
+            yLabel: "Value",
+            // In optimized mode, we show fewer labels. Recharts 'interval' handles this.
+            // If isDetailed is false, we set interval to show fewer ticks.
+            interval: isDetailed ? 0 : (data.length > 10 ? Math.floor(data.length / 5) : 'auto')
+        };
+
+        switch (variant) {
+            case 'area': return <AreaVariant {...commonProps} />;
+            case 'multi-area': return <AreaVariant {...commonProps} isMulti />;
+            case 'multi-line': return <MultiLineVariant {...commonProps} />;
+            case 'donut': return <DonutVariant data={data} />;
+            case 'hbar': return <HBarVariant data={data} xLabel="Count" yLabel="Category" />;
+            case 'bar': return <BarVariant {...commonProps} xLabel="Classification" yLabel="Total Count" />;
+            case 'gauge': return <GaugeVariant data={data} />;
+            case 'boxplot': return <BoxPlotVariant data={data} />;
+            case 'funnel': return <FunnelVariant data={data} />;
+            case 'pareto': return <ParetoVariant data={data} />;
+            case 'dual-axis': return <DualAxisVariant data={data} />;
+            default: return null;
+        }
+    };
+
     return (
-        <div className="h-full w-full font-sans">
-            {variant === 'area' && <AreaVariant data={data} xLabel="Time Period" yLabel="Value" />}
-            {variant === 'multi-area' && <AreaVariant data={data} isMulti xLabel="Time Period" yLabel="Volume" />}
-            {variant === 'multi-line' && <MultiLineVariant data={data} xLabel="Timeline" yLabel="Parameters" />}
-            {variant === 'donut' && <DonutVariant data={data} />}
-            {variant === 'hbar' && <HBarVariant data={data} xLabel="Value" yLabel="Category" />}
-            {variant === 'bar' && <BarVariant data={data} xLabel="Classification" yLabel="Total Count" />}
-            {variant === 'gauge' && <GaugeVariant data={data} />}
-            {variant === 'boxplot' && <BoxPlotVariant data={data} />}
-            {variant === 'funnel' && <FunnelVariant data={data} />}
-            {variant === 'pareto' && <ParetoVariant data={data} />}
-            {variant === 'dual-axis' && <DualAxisVariant data={data} />}
+        <div className={`h-full w-full font-sans ${isDetailed ? 'overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent' : 'overflow-hidden'}`}>
+            <div style={{ width: minWidth, height: '100%', minHeight: isDetailed ? '400px' : '300px' }}>
+                {renderVariant()}
+            </div>
         </div>
     );
 };

@@ -50,6 +50,14 @@ export const TOOLTIP_STYLE = {
     color: '#1e293b',
 };
 
+const isDate = (val) => {
+    if (typeof val !== 'string') return false;
+    // Basic date patterns: YYYY-MM-DD, DD-MM-YYYY, DD/MM/YYYY, Monthly/Daily formats
+    // Also handles week patterns like YYYY-W## or YYYY-Www
+    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}|\d{4}-W\d{1,2})$/i;
+    return dateRegex.test(val);
+};
+
 export const detectVariant = (data, name) => {
     if (!data || !data.length) return 'bar';
     const kpiName = (name || '').toLowerCase();
@@ -58,8 +66,15 @@ export const detectVariant = (data, name) => {
     if (kpiName.includes('ageing') || kpiName.includes('closure avg. time') || kpiName.includes('avg time')) return 'boxplot';
     if (kpiName.includes('rca') || kpiName.includes('pareto')) return 'pareto';
     if (kpiName.includes('funnel') || kpiName.includes('workflow')) return 'funnel';
-    if (kpiName.includes('utilization') || kpiName.includes('never / non-comm')) return 'gauge';
+    
+    // Utilization: gauge for single value summary, bar/area for trends/categories
+    if (kpiName.includes('utilization') || kpiName.includes('never / non-comm')) {
+        if (data.length > 1) return (isDate(data[0].name) ? (data.length > 25 ? 'area' : 'bar') : 'bar');
+        return 'gauge';
+    }
+
     if (kpiName.includes('pace vs stock') || kpiName.includes('vs stock')) return 'dual-axis';
+    if (kpiName.includes('productivity')) return 'bar';
 
     // 2. Data Shape detection
     const sample = data[0];
@@ -69,6 +84,12 @@ export const detectVariant = (data, name) => {
     if (keys.includes('cumulative')) return 'pareto';
     if (keys.includes('installations') && keys.includes('stock')) return 'dual-axis';
     if (data.length <= 4 && keys.includes('color')) return 'donut';
+    
+    // Time-series data (dates or weeks) - always vertical bar or area, never hbar
+    if (isDate(sample.name)) {
+        return data.length > 25 ? 'area' : 'bar';
+    }
+
     if (data.length > 8) return 'hbar';
 
     return 'bar';
