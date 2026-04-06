@@ -5,6 +5,7 @@ import DeptSpecificDashboard from './pages/DeptSpecificDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import CommandCenterDashboard from './sat-dash/CommandCenterDashboard';
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
           <Route path="/dashboard/:dashKey/module/:moduleName" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
           <Route path="/dashboard/:dashKey/kpi/*" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
           <Route path="/dashboard/:dashKey/module/:moduleName/kpi/*" element={<ProtectedRoute><DeptSpecificDashboard /></ProtectedRoute>} />
+
+          {/* SAT Dashboard */}
+          <Route path="/sat-dashboard" element={<ProtectedRoute><CommandCenterDashboard /></ProtectedRoute>} />
 
         </Routes>
       </Router>

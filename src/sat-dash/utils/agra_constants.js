@@ -1,0 +1,76 @@
+export const AGRA_RAW = [
+  { month: 'Jun-24', received: 8620, installed: 57, sat: { s1: 42, s2: 7, s3: 4, s4: 0, s5: 0, s6: 0, s7: 1, s8: 0 } },
+  { month: 'Jul-24', received: 40284, installed: 1924, sat: { s1: 1575, s2: 76, s3: 82, s4: 11, s5: 6, s6: 35, s7: 21, s8: 4 } },
+  { month: 'Aug-24', received: 33647, installed: 13703, sat: { s1: 12141, s2: 977, s3: 184, s4: 25, s5: 44, s6: 29, s7: 36, s8: 8 } },
+  { month: 'Sep-24', received: 24000, installed: 26369, sat: { s1: 23348, s2: 2045, s3: 369, s4: 66, s5: 36, s6: 58, s7: 48, s8: 28 } },
+  { month: 'Oct-24', received: 33757, installed: 24762, sat: { s1: 21950, s2: 1822, s3: 388, s4: 65, s5: 33, s6: 27, s7: 58, s8: 24 } },
+  { month: 'Nov-24', received: 22028, installed: 27255, sat: { s1: 24725, s2: 1626, s3: 302, s4: 54, s5: 54, s6: 35, s7: 48, s8: 25 } },
+  { month: 'Dec-24', received: 706, installed: 28078, sat: { s1: 25585, s2: 1651, s3: 382, s4: 40, s5: 35, s6: 29, s7: 53, s8: 26 } },
+  { month: 'Jan-25', received: 71180, installed: 48809, sat: { s1: 45304, s2: 2087, s3: 566, s4: 124, s5: 53, s6: 71, s7: 93, s8: 43 } },
+  { month: 'Feb-25', received: 42001, installed: 49846, sat: { s1: 43685, s2: 4495, s3: 691, s4: 178, s5: 98, s6: 111, s7: 126, s8: 49 } },
+  { month: 'Mar-25', received: 91860, installed: 43161, sat: { s1: 1, s2: 36021, s3: 4442, s4: 708, s5: 307, s6: 336, s7: 327, s8: 129 } },
+  { month: 'Apr-25', received: 35175, installed: 61057, sat: { s1: 0, s2: 49646, s3: 7151, s4: 1440, s5: 491, s6: 677, s7: 440, s8: 101 } },
+  { month: 'May-25', received: 58224, installed: 50443, sat: { s1: 0, s2: 0, s3: 41439, s4: 4487, s5: 1033, s6: 948, s7: 721, s8: 198 } },
+  { month: 'Jun-25', received: 35890, installed: 52161, sat: { s1: 0, s2: 0, s3: 37962, s4: 8263, s5: 1454, s6: 1542, s7: 1063, s8: 226 } },
+  { month: 'Jul-25', received: 69614, installed: 69546, sat: { s1: 0, s2: 0, s3: 8227, s4: 43475, s5: 8056, s6: 5125, s7: 2241, s8: 324 } },
+  { month: 'Aug-25', received: 58439, installed: 58552, sat: { s1: 0, s2: 0, s3: 0, s4: 6091, s5: 29557, s6: 15578, s7: 3926, s8: 700 } },
+  { month: 'Sep-25', received: 106318, installed: 104292, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 3368, s6: 77254, s7: 17542, s8: 1924 } },
+  { month: 'Oct-25', received: 126019, installed: 107200, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 19201, s7: 75435, s8: 5857 } },
+  { month: 'Nov-25', received: 139410, installed: 128138, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 0, s7: 34285, s8: 61122 } },
+  { month: 'Dec-25', received: 165060, installed: 145220, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 0, s7: 0, s8: 95066 } },
+  { month: 'Jan-26', received: 138660, installed: 155653, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 0, s7: 0, s8: 26293 } },
+  { month: 'Feb-26', received: 38062, installed: 46683, sat: { s1: 0, s2: 0, s3: 0, s4: 0, s5: 0, s6: 0, s7: 0, s8: 0 } }
+];
+
+export const AGRA_SAT_MILESTONES = {
+  s1: {
+    start: '11/14/2024',
+    lumpsumInv: '7/11/2025',
+    pmpInv: '7/11/2025',
+    lumpsumCol: '7/28/2025',
+    scCol: '7/28/2025',
+  },
+  s2: {
+    start: '7/13/2025',
+    lumpsumInv: '8/7/2025',
+    pmpInv: '8/7/2025',
+    lumpsumCol: '9/1/2025',
+    scCol: '9/1/2025',
+  },
+  s3: {
+    start: '8/13/2025',
+    lumpsumInv: '9/2/2025',
+    pmpInv: '9/6/2025',
+    lumpsumCol: '9/29/2025',
+    scCol: '9/29/2025',
+  },
+  s4: {
+    start: '9/13/2025',
+    lumpsumInv: '10/7/2025',
+    pmpInv: '10/10/2025',
+    lumpsumCol: '11/1/2025',
+    scCol: '11/1/2025',
+  },
+  s5: {
+    start: '10/14/2025',
+    lumpsumInv: '11/4/2025',
+    pmpInv: '11/7/2025',
+    lumpsumCol: null,
+    scCol: '12/10/2025',
+  },
+  s6: {
+    start: '11/12/2025',
+    lumpsumInv: '12/4/2025',
+    pmpInv: '12/5/2025',
+    lumpsumCol: null,
+    scCol: '1/6/2026',
+  },
+  s7: {
+    start: '12/15/2025',
+    lumpsumInv: '1/6/2026',
+    pmpInv: '1/6/2026',
+    lumpsumCol: null,
+    scCol: null,
+  },
+};
+

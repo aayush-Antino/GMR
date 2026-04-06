@@ -19,3 +19,26 @@ body {
   color: #1e293b;
   min-height: 100vh;
 }
+
+/* Scoped styles for the GMR Dashboard */
+.gmr-dashboard-scope {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.gmr-dashboard-scope .kpi-card-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.gmr-dashboard-scope .kpi-card-hover:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.05);
+}
+
+@keyframes v0-ping {
+  75%, 100% { transform: scale(2.5); opacity: 0; }
+}
+
+.gmr-dashboard-scope .v0-ping {
+  animation: v0-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}

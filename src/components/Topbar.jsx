@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, LogOut, Settings } from 'lucide-react';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { getDashboardsForDepartment } from '../utils/dashboardUtils';
@@ -7,11 +7,14 @@ import { useAuth } from '../context/AuthContext';
 
 const Topbar = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useAuth();
     const [activeDept, setActiveDept] = useState(null);
     const [isUserOpen, setIsUserOpen] = useState(false);
     const navRef = useRef(null);
     const userRef = useRef(null);
+
+    const isSatActive = location.pathname === '/sat-dashboard';
 
     const departmentsOrder = ["Business", "Finance", "Operations", "Technical", "Analytics", "Advanced Analytics"];
     const departments = [...executiveDummyData.departments].sort((a, b) => {
@@ -52,47 +55,68 @@ const Topbar = () => {
 
             {/* Department Nav */}
             <nav ref={navRef} className="flex items-center gap-1 flex-1">
-                {departments.map((dept) => {
-                    const dashboards = getDashboardsForDepartment(dept.name);
-                    const isOpen = activeDept === dept.id;
+                {(() => {
+                    const navItems = [...departments];
+                    // Insert SAT dummy item at index 1 (2nd position)
+                    navItems.splice(1, 0, { id: 'sat-dummy', name: 'SAT', isDummy: true });
 
-                    return (
-                        <div key={dept.id} className="relative flex-shrink-0">
-                            <button
-                                onClick={() => handleDeptClick(dept.id)}
-                                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOpen ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                                    }`}
-                            >
-                                {dept.name}
-                                <ChevronDown size={13} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'opacity-60'}`} />
-                            </button>
-
-                            {/* Dropdown */}
-                            {isOpen && dashboards.length > 0 && (
-                                <div className="absolute top-[calc(100%+8px)] left-0 w-60 rounded-xl overflow-hidden z-50"
-                                    style={{ background: '#0f2744', boxShadow: '0 16px 48px rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                    <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>{dept.name}</p>
-                                    </div>
-                                    <div className="py-1.5">
-                                        {dashboards.map((dash) => (
-                                            <button
-                                                key={dash.key}
-                                                onClick={() => handleDashboardClick(dept.id, dash.key)}
-                                                className="w-full text-left px-4 py-2.5 text-sm transition-all duration-150"
-                                                style={{ color: 'rgba(255,255,255,0.75)' }}
-                                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#F4A300'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
-                                            >
-                                                {dash.title}
-                                            </button>
-                                        ))}
-                                    </div>
+                    return navItems.map((item) => {
+                        if (item.isDummy) {
+                            return (
+                                <div key={item.id} className="relative flex-shrink-0">
+                                    <button
+                                        onClick={() => navigate('/sat-dashboard')}
+                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                            isSatActive ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                                        }`}
+                                    >
+                                        {item.name}
+                                    </button>
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
+                            );
+                        }
+
+                        const dashboards = getDashboardsForDepartment(item.name);
+                        const isOpen = activeDept === item.id;
+
+                        return (
+                            <div key={item.id} className="relative flex-shrink-0">
+                                <button
+                                    onClick={() => handleDeptClick(item.id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOpen ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                                        }`}
+                                >
+                                    {item.name}
+                                    <ChevronDown size={13} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'opacity-60'}`} />
+                                </button>
+
+                                {/* Dropdown */}
+                                {isOpen && dashboards.length > 0 && (
+                                    <div className="absolute top-[calc(100%+8px)] left-0 w-60 rounded-xl overflow-hidden z-50"
+                                        style={{ background: '#0f2744', boxShadow: '0 16px 48px rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>{item.name}</p>
+                                        </div>
+                                        <div className="py-1.5">
+                                            {dashboards.map((dash) => (
+                                                <button
+                                                    key={dash.key}
+                                                    onClick={() => handleDashboardClick(item.id, dash.key)}
+                                                    className="w-full text-left px-4 py-2.5 text-sm transition-all duration-150"
+                                                    style={{ color: 'rgba(255,255,255,0.75)' }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#F4A300'; }}
+                                                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; }}
+                                                >
+                                                    {dash.title}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    });
+                })()}
             </nav>
 
             {/* User Profile */}
