@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, LogOut, Settings } from 'lucide-react';
+import gmrLogo from '../assets/gmr_logo.png';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { getDashboardsForDepartment } from '../utils/dashboardUtils';
 import { useAuth } from '../context/AuthContext';
@@ -41,14 +42,14 @@ const Topbar = () => {
     };
 
     return (
-        <header className="w-full bg-primary text-white h-16 flex items-center px-6 shadow-md fixed top-0 left-0 right-0 z-50">
+        <header className="w-full h-12 flex items-center px-6 shadow-sm fixed top-0 left-0 right-0 z-50 border-b border-slate-200" style={{ backgroundColor: '#F1F5F9' }}>
             {/* Logo */}
             <div className="flex items-center mr-8 flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
-                <div className="bg-white py-1.5 px-3 rounded-lg">
+                <div className="px-3">
                     <img
-                        src="https://www.gmrgroup.in/src/images/home/gmr-logo.png"
+                        src={gmrLogo}
                         alt="GMR Logo"
-                        className="h-8 object-contain"
+                        className="h-12 object-contain"
                     />
                 </div>
             </div>
@@ -66,8 +67,8 @@ const Topbar = () => {
                                 <div key={item.id} className="relative flex-shrink-0">
                                     <button
                                         onClick={() => navigate('/sat-dashboard')}
-                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                            isSatActive ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                                            isSatActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                         }`}
                                     >
                                         {item.name}
@@ -83,11 +84,11 @@ const Topbar = () => {
                             <div key={item.id} className="relative flex-shrink-0">
                                 <button
                                     onClick={() => handleDeptClick(item.id)}
-                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOpen ? 'bg-white/15 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isOpen ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                         }`}
                                 >
                                     {item.name}
-                                    <ChevronDown size={13} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : 'opacity-60'}`} />
+                                    <ChevronDown size={13} className={`transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600' : 'opacity-40 text-slate-400'}`} />
                                 </button>
 
                                 {/* Dropdown */}
@@ -123,19 +124,19 @@ const Topbar = () => {
             <div className="relative flex items-center ml-4 flex-shrink-0" ref={userRef}>
                 <button
                     onClick={() => { setIsUserOpen(prev => !prev); setActiveDept(null); }}
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                     <div className="relative">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accentOrange to-orange-600 flex items-center justify-center text-white font-bold text-sm border border-white/20">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accentOrange to-orange-600 flex items-center justify-center text-white font-bold text-sm border border-white/20 shadow-sm">
                             {user?.initials || 'AD'}
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 w-2.5 h-2.5 rounded-full border-2 border-primary"></div>
+                        <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 w-2.5 h-2.5 rounded-full border-2 border-[#F1F5F9]"></div>
                     </div>
                     <div className="hidden sm:block text-left">
-                        <p className="text-sm font-semibold text-white leading-tight">{user?.username || 'Admin User'}</p>
-                        <p className="text-[11px] text-gray-400 leading-tight">{user?.role || 'System Administrator'}</p>
+                        <p className="text-sm font-bold text-slate-800 leading-tight">{user?.username || 'Admin User'}</p>
+                        <p className="text-[10px] text-slate-500 font-bold leading-tight uppercase tracking-wide">{user?.role || 'System Administrator'}</p>
                     </div>
-                    <ChevronDown size={14} className={`text-gray-400 transition-transform duration-200 ${isUserOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${isUserOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isUserOpen && (

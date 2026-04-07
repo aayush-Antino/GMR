@@ -39,8 +39,9 @@ import SatBlueDiagram from "./Charts/SatBlueDiagram";
 import QuarterAbsorptionChart from "./Charts/QuarterAbsorptionChart";
 import { satBlueData, aggregateQuarterlyData } from "./data/satAnalysis";
 import Topbar from "../components/Topbar";
+import gmrLogoAsset from "../assets/gmr_logo.png";
 
-const gmrLogo = "https://www.gmrgroup.in/src/images/home/gmr-logo.png";
+const gmrLogo = gmrLogoAsset;
 
 // Utility for Tailwind classes
 function cn(...inputs) {
@@ -997,7 +998,7 @@ export default function CommandCenterDashboard() {
         top: 0, 
         left: 0, 
         backgroundColor: "#f8fafc", 
-        paddingTop: "93px",
+        paddingTop: "69px",
         display: "flex",
         flexDirection: "column"
       }}>
@@ -1007,7 +1008,7 @@ export default function CommandCenterDashboard() {
           gap: "12px", 
           padding: "12px 12px 12px 12px", 
           boxSizing: "border-box",
-          height: "calc(100% - 93px)"
+          height: "calc(100% - 69px)"
         }}>
           {(selectedRegion === "All" || selectedRegion === "Kashi") && (
             <RegionColumn

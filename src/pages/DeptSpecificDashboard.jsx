@@ -31,19 +31,36 @@ const Sparkline = ({ color }) => (
     </svg>
 );
 
-const ModuleCard = ({ moduleKey, module, onClick }) => {
+const MODULE_CARD_COLORS = [
+    { bg: '#ffffff', border: '#cbd5e1', text: '#334155', accent: '#3b82f6' },
+    { bg: '#ffffff', border: '#a7f3d0', text: '#064e3b', accent: '#10b981' },
+    { bg: '#ffffff', border: '#fbcfe8', text: '#831843', accent: '#ec4899' },
+    { bg: '#ffffff', border: '#bfdbfe', text: '#1e3a8a', accent: '#3b82f6' },
+    { bg: '#ffffff', border: '#fed7aa', text: '#7c2d12', accent: '#f97316' },
+];
+
+const ModuleCard = ({ moduleKey, module, onClick, index }) => {
     const Icon = module.icon;
+    const cfg = MODULE_CARD_COLORS[index % MODULE_CARD_COLORS.length];
+    
     return (
         <div
             onClick={onClick}
-            className="group bg-white rounded-xl p-5 cursor-pointer border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center gap-3"
+            className="group rounded-xl p-5 cursor-pointer border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center gap-3"
+            style={{ 
+                backgroundColor: cfg.bg,
+                borderColor: cfg.border 
+            }}
         >
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+            <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:shadow-sm shadow-inner"
+                style={{ color: cfg.accent, backgroundColor: cfg.accent + '10' }}
+            >
                 <Icon size={24} />
             </div>
             <div>
-                <h3 className="text-[15px] font-bold text-gray-800 mb-0.5">{module.title}</h3>
-                <p className="text-[11px] text-gray-400 line-clamp-2 leading-tight">
+                <h3 className="text-[15px] font-bold mb-0.5" style={{ color: cfg.text }}>{module.title}</h3>
+                <p className="text-[11px] opacity-70 line-clamp-2 leading-tight" style={{ color: cfg.text }}>
                     {module.description}
                 </p>
             </div>
@@ -190,16 +207,16 @@ const DeptSpecificDashboard = () => {
     );
 
     return (
-        <div className="min-h-screen font-sans pt-14" style={{ background: 'linear-gradient(135deg, #f0f4f8 0%, #e5eef9 50%, #f1f5f9 100%)' }}>
+        <div className="min-h-screen font-sans pt-12" style={{ background: 'linear-gradient(135deg, #f0f4f8 0%, #e5eef9 50%, #f1f5f9 100%)' }}>
             <Topbar />
 
             {/* ── Premium Header (Light Theme) ── */}
-            <div className="sticky top-16 z-30 bg-white border-b" style={{ boxShadow: '0 4px 24px rgba(15,39,68,0.07)', borderBottomColor: '#e8edf4' }}>
+            <div className="sticky top-12 z-30 bg-white border-b" style={{ boxShadow: '0 4px 24px rgba(15,39,68,0.07)', borderBottomColor: '#e8edf4' }}>
                 {/* Top row */}
-                <div className="max-w-screen-2xl mx-auto px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="max-w-screen-2xl mx-auto px-8 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         {/* Left accent bar */}
-                        <div className="hidden sm:block w-1 self-stretch rounded-full" style={{ background: 'linear-gradient(180deg, #F4A300 0%, #0f2744 100%)', minHeight: '48px' }} />
+                        <div className="hidden sm:block w-1 self-stretch rounded-full" style={{ background: 'linear-gradient(180deg, #F4A300 0%, #0f2744 100%)', minHeight: '40px' }} />
                         <button
                             onClick={() => moduleName ? navigate(`/dashboard/${dashKey}`) : navigate('/')}
                             className="w-9 h-9 flex items-center justify-center rounded-xl border transition-all flex-shrink-0"
@@ -290,16 +307,17 @@ const DeptSpecificDashboard = () => {
             </div>
 
             {/* ── Dashboard Content ── */}
-            <div className="max-w-7xl mx-auto px-6 py-8 transition-all duration-500">
+            <div className="max-w-7xl mx-auto px-6 py-4 transition-all duration-500">
                 {dashKey === 'dashboard10' && !moduleName ? (
                     filteredModules.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {filteredModules.map(mKey => (
+                            {filteredModules.map((mKey, idx) => (
                                 <ModuleCard 
                                     key={mKey}
                                     moduleKey={mKey}
                                     module={businessModules[mKey]}
                                     onClick={() => handleModuleClick(mKey)}
+                                    index={idx}
                                 />
                             ))}
                         </div>

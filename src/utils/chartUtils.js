@@ -21,6 +21,7 @@ export const KEY_COLORS = {
     'high': '#dc2626',
     'medium': '#f59e0b',
     'low': '#10b981',
+    'count': GMR.blue,
 };
 
 export const getColor = (key, index) => {

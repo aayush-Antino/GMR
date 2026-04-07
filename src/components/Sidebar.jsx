@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { executiveDummyData } from '../data/executiveDummyData';
 import { useAuth } from '../context/AuthContext';
+import gmrLogo from '../assets/gmr_logo.png';
 import { getDashboardsForDepartment } from '../utils/dashboardUtils';
 
 const Sidebar = () => {
@@ -47,8 +48,8 @@ const Sidebar = () => {
         <div className="w-64 bg-primary text-white h-screen flex flex-col fixed left-0 top-0 shadow-lg z-50 transition-all duration-300">
             {/* Logo Section */}
             <div className="p-6 border-b border-white/10 flex items-center justify-center bg-black/10">
-                <div className="bg-white py-2 px-4 rounded-lg shadow-sm w-full flex justify-center">
-                    <img src="https://www.gmrgroup.in/src/images/home/gmr-logo.png" alt="GMR Logo" className="h-8 object-contain" />
+                <div className="bg-white py-1 px-4 rounded-lg shadow-sm w-full flex justify-center">
+                    <img src={gmrLogo} alt="GMR Logo" className="h-14 object-contain" />
                 </div>
             </div>
 

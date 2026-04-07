@@ -84,7 +84,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     // Params for the API – map UI state to API param names
     const levelToParam = (l) => ({
         Discom: 'discom', Zone: 'zone', Circle: 'circle',
-        Division: 'division', SubDivision: 'subdivision', SubStation: 'substation',
+        Division: 'division', SubDivision: 'subdivision',
     }[l] || 'discom');
 
     const apiParams = isBusiness ? {
@@ -332,7 +332,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                 </button>
                                                 {isLevelDropdownOpen && (
                                                     <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100 max-h-60 overflow-y-auto">
-                                                        {['Discom', 'Zone', 'Circle', 'Division', 'SubDivision', 'SubStation'].map(l => (
+                                                        {['Discom', 'Zone', 'Circle', 'Division', 'SubDivision'].map(l => (
                                                             <button
                                                                 key={l}
                                                                 onClick={() => { setLevel(l); setIsLevelDropdownOpen(false); }}
@@ -565,9 +565,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                         </div>
 
                         {/* 2. Info Cards Section: Now at the bottom in a clean grid */}
+                        {/* 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pb-3">
                             
-                            {/* Objective */}
+                            Objective
                             <div className="relative p-3 rounded-lg bg-white/60 backdrop-blur-md border border-white shadow-sm overflow-hidden group transition-all duration-300 hover:shadow-md">
                                 <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:scale-110 transition-transform duration-500">
                                     <Activity size={50} className="text-primary" />
@@ -580,7 +581,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 </div>
                             </div>
 
-                            {/* Detailed Analysis */}
+                            Detailed Analysis
                             {kpi.analysisItems && (
                                 <div className="bg-white/60 backdrop-blur-md p-3 rounded-lg border border-white shadow-sm">
                                     <h4 className="text-[8px] font-bold text-indigo-800 uppercase tracking-wider mb-1.5">Analysis</h4>
@@ -595,7 +596,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 </div>
                             )}
 
-                            {/* Calculation Logic */}
+                            Calculation Logic
                             {kpi.qualityDescription && (
                                 <div className="bg-white/60 backdrop-blur-md p-3 rounded-lg border border-white shadow-sm">
                                     <h4 className="text-[8px] font-bold text-purple-800 uppercase tracking-wider mb-1.5">{kpi.qualityHeader || 'Logic'}</h4>
@@ -605,7 +606,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 </div>
                             )}
 
-                            {/* Recommendation */}
+                            Recommendation
                             <div className="p-3 rounded-lg border border-amber-100 shadow-sm" style={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' }}>
                                 <h4 className="font-bold text-amber-800 mb-1 flex items-center gap-1 text-[8px] uppercase tracking-wider">
                                     <AlertTriangle size={10} /> Action
@@ -615,6 +616,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 </p>
                             </div>
                         </div>
+                        */}
                     </div>
                 </div>
             </div>
