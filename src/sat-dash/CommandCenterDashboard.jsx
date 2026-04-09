@@ -456,7 +456,7 @@ const RegionColumn = ({ data, name, isDarkMode }) => {
             isDarkMode={isDarkMode}
             accentColor={regionAccent.border}
             panelBg={regionAccent.kpiBg}
-            tooltip={data.name === "Agra" ? "Inventory as on 28/02/2026" : "Inventory as on 28/02/2026"}
+            tooltip={data.name === "Agra" ? "Inventory as on 10/02/2026" : "Inventory as on 10/02/2026"}
           />
 
           {/* 2. Installed */}
@@ -472,7 +472,7 @@ const RegionColumn = ({ data, name, isDarkMode }) => {
             isDarkMode={isDarkMode}
             accentColor={regionAccent.border}
             panelBg={regionAccent.kpiBg}
-            tooltip={data.name === "Agra" ? "Meters Installed as on 28/02/2026" : "Meters Installed as on 28/02/2026"}
+            tooltip={data.name === "Agra" ? "Meters Installed as on 10/02/2026" : "Meters Installed as on 10/02/2026"}
           />
 
           {/* 3. Total SAT */}
@@ -488,7 +488,7 @@ const RegionColumn = ({ data, name, isDarkMode }) => {
             isDarkMode={isDarkMode}
             accentColor={regionAccent.border}
             panelBg={regionAccent.kpiBg}
-            tooltip={data.name === "Agra" ? "Total SAT as on 28/02/2026" : "Total SAT as on 31/01/2026"}
+            tooltip={data.name === "Agra" ? "Total SAT as on 28/02/2026" : "Total SAT as on 28/02/2026"}
           />
 
           {/* 4. Total Invoice */}
@@ -506,7 +506,7 @@ const RegionColumn = ({ data, name, isDarkMode }) => {
             isDarkMode={isDarkMode}
             accentColor={regionAccent.border}
             panelBg={regionAccent.kpiBg}
-            tooltip={data.name === "Agra" ? "Total Invoice as on 04/03/2026" : "Total Invoice as on 05/02/2026"}
+            tooltip={data.name === "Agra" ? "Total Invoice as on 05/03/2026" : "Total Invoice as on 05/03/2026"}
           />
         </div>
       </div>
