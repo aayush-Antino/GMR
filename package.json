@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-athena": "^3.1029.0",
     "@remix-run/router": "^1.23.2",
+    "apexcharts": "^5.10.6",
     "clsx": "^2.1.1",
     "lucide-react": "^0.564.0",
     "react": "^19.2.0",
+    "react-apexcharts": "^2.1.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
     "recharts": "^3.7.0",

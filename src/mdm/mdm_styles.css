@@ -1,0 +1,174 @@
+/* Isolated Variables */
+/* strictly scoped styles for MDMS Dashboard */
+.mdm-dashboard-root {
+  --bg-primary: #f7fafc;
+  --bg-mesh-1: hsla(210, 100%, 98%, 1);
+  --bg-mesh-2: hsla(45, 100%, 97%, 1);
+  --accent-gold: #feae2c;
+  --accent-gold-dark: #F5A623;
+  --accent-blue: #3B82F6;
+  --accent-green: #10B981;
+  --accent-red: #EF4444;
+  --text-primary: #181c1e;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-subtle: rgba(255, 255, 255, 0.6);
+  --border-glow: rgba(254, 174, 44, 0.3);
+  --surface-dark: #101c2e;
+  
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.mdm-dashboard-root * {
+  box-sizing: border-box;
+}
+
+/* Clean whitish background - Linear gradient instead of mesh - Forced override */
+.mdm-dashboard-root.bg-mesh,
+.mdm-dashboard-root .bg-mesh {
+  background-color: #ffffff !important;
+  background-image: linear-gradient(180deg, #f1f5f9 0%, #ffffff 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Glass morphism effect - High elevation "Above the Screen" feel */
+.mdm-dashboard-root .glass-card {
+  background: #ffffff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px rgba(0, 0, 0, 0.02);
+}
+
+.mdm-dashboard-root .glass-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.1), 
+    0 0 25px rgba(254, 174, 44, 0.2); /* Amber glow from previous refinement */
+  border-color: rgba(254, 174, 44, 0.3);
+}
+
+/* KPI specific hover glow - Elevated floating feel */
+.mdm-dashboard-root .kpi-hover:hover {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    0 0 40px rgba(254, 174, 44, 0.25);
+  border-color: #feae2c;
+  background: #ffffff;
+}
+
+/* Material Symbols Outlined */
+.mdm-dashboard-root .material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Serif italic for headlines */
+.mdm-dashboard-root .font-serif {
+  font-family: 'Newsreader', Georgia, serif;
+  font-style: italic;
+}
+
+/* Scrollbar styling - Scoped to the container */
+.mdm-dashboard-root::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mdm-dashboard-root::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.mdm-dashboard-root::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.mdm-dashboard-root::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Animation keyframes */
+@keyframes mdm-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes mdm-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mdm-dashboard-root .animate-pulse {
+  animation: mdm-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.mdm-dashboard-root .animate-spin {
+  animation: mdm-spin 1s linear infinite;
+}
+
+/* ApexCharts customizations - Scoped */
+.mdm-dashboard-root .apexcharts-tooltip {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #181c1e !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mdm-dashboard-root .apexcharts-tooltip-title {
+  background: #f1f5f9 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #181c1e !important;
+}
+
+.mdm-dashboard-root .apexcharts-text {
+  fill: #64748b !important;
+}
+
+.mdm-dashboard-root .apexcharts-gridline {
+  stroke: #e2e8f0 !important;
+}
+
+.mdm-dashboard-root .apexcharts-legend-text {
+  color: #64748b !important;
+}
+
+/* Gradient text */
+.mdm-dashboard-root .gradient-text {
+  background: linear-gradient(135deg, #feae2c 0%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+  .mdm-dashboard-root .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .mdm-dashboard-root .col-span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .mdm-dashboard-root .grid-cols-4,
+  .mdm-dashboard-root .grid-cols-3,
+  .mdm-dashboard-root .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .mdm-dashboard-root .col-span-2,
+  .mdm-dashboard-root .col-span-1 {
+    grid-column: span 1;
+  }
+}

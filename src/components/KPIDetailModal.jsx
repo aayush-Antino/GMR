@@ -226,10 +226,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             Live
                                         </div>
                                     )}
-                                    <div className="px-1.5 py-0 rounded-full border bg-slate-900 text-white border-slate-800 text-[7px] font-black uppercase tracking-tighter shadow-md flex items-center gap-1">
+                                    {/* <div className="px-1.5 py-0 rounded-full border bg-slate-900 text-white border-slate-800 text-[7px] font-black uppercase tracking-tighter shadow-md flex items-center gap-1">
                                         <CheckCircle size={7} />
                                         Verified
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                             <h2 className="text-base font-black text-slate-900 leading-tight tracking-tight">{kpi.name}</h2>

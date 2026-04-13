@@ -16,6 +16,7 @@ const Topbar = () => {
     const userRef = useRef(null);
 
     const isSatActive = location.pathname === '/sat-dashboard';
+    const isMdmActive = location.pathname === '/mdm-dashboard-test';
 
     const departmentsOrder = ["Business", "Finance", "Operations", "Technical", "Analytics", "Advanced Analytics"];
     const departments = [...executiveDummyData.departments].sort((a, b) => {
@@ -36,39 +37,55 @@ const Topbar = () => {
         setIsUserOpen(false);
     };
 
-    const handleDashboardClick = (deptId, dashKey) => {
-        navigate(`/dashboard/${dashKey}`);
+    const handleDashboardClick = (deptId, dashKey, route) => {
+        if (route) {
+            navigate(route);
+        } else {
+            navigate(`/dashboard/${dashKey}`);
+        }
         setActiveDept(null);
     };
 
     return (
         <header className="w-full h-12 flex items-center px-6 shadow-sm fixed top-0 left-0 right-0 z-50 border-b border-slate-200" style={{ backgroundColor: '#F1F5F9' }}>
             {/* Logo */}
-            <div className="flex items-center mr-8 flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center mr-2 flex-shrink-0 cursor-pointer" onClick={() => navigate('/')}>
                 <div className="px-3">
                     <img
                         src={gmrLogo}
                         alt="GMR Logo"
-                        className="h-12 object-contain"
+                        className="h-16 object-contain"
                     />
                 </div>
             </div>
+
 
             {/* Department Nav */}
             <nav ref={navRef} className="flex items-center gap-1 flex-1">
                 {(() => {
                     const navItems = [...departments];
-                    // Insert SAT dummy item at index 1 (2nd position)
-                    navItems.splice(1, 0, { id: 'sat-dummy', name: 'SAT', isDummy: true });
+                    // Insert SAT and MDM as structured items with dashboards
+                    navItems.splice(1, 0, { 
+                        id: 'sat-node', 
+                        name: 'SAT', 
+                        dashboards: [{ key: 'sat-dash', title: 'SAT Dashboard', route: '/sat-dashboard' }], 
+                        active: isSatActive 
+                    });
+                    navItems.splice(2, 0, { 
+                        id: 'mdm-node', 
+                        name: 'MDM', 
+                        dashboards: [{ key: 'mdm-dash', title: 'MDMS Dashboard', route: '/mdm-dashboard-test' }], 
+                        active: isMdmActive 
+                    });
 
                     return navItems.map((item) => {
                         if (item.isDummy) {
                             return (
                                 <div key={item.id} className="relative flex-shrink-0">
                                     <button
-                                        onClick={() => navigate('/sat-dashboard')}
+                                        onClick={() => navigate(item.route)}
                                         className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-                                            isSatActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                            item.active ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                         }`}
                                     >
                                         {item.name}
@@ -77,7 +94,7 @@ const Topbar = () => {
                             );
                         }
 
-                        const dashboards = getDashboardsForDepartment(item.name);
+                        const dashboards = item.dashboards || getDashboardsForDepartment(item.name);
                         const isOpen = activeDept === item.id;
 
                         return (
@@ -102,7 +119,7 @@ const Topbar = () => {
                                             {dashboards.map((dash) => (
                                                 <button
                                                     key={dash.key}
-                                                    onClick={() => handleDashboardClick(item.id, dash.key)}
+                                                    onClick={() => handleDashboardClick(item.id, dash.key, dash.route)}
                                                     className="w-full text-left px-4 py-2.5 text-sm transition-all duration-150"
                                                     style={{ color: 'rgba(255,255,255,0.75)' }}
                                                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#F4A300'; }}
@@ -132,10 +149,10 @@ const Topbar = () => {
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 w-2.5 h-2.5 rounded-full border-2 border-[#F1F5F9]"></div>
                     </div>
-                    <div className="hidden sm:block text-left">
+                    {/* <div className="hidden sm:block text-left">
                         <p className="text-sm font-bold text-slate-800 leading-tight">{user?.username || 'Admin User'}</p>
                         <p className="text-[10px] text-slate-500 font-bold leading-tight uppercase tracking-wide">{user?.role || 'System Administrator'}</p>
-                    </div>
+                    </div> */}
                     <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${isUserOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -155,6 +172,11 @@ const Topbar = () => {
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Version Badge */}
+            <div className="ml-4 text-[10px] font-bold text-slate-400 bg-slate-200/50 px-1.5 py-0.5 rounded uppercase flex-shrink-0">
+                v0
             </div>
         </header>
     );

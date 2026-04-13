@@ -7,6 +7,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import CommandCenterDashboard from './sat-dash/CommandCenterDashboard';
 
+import MDMSDashboard from './mdm/MDMSDashboard';
+
 function App() {
   return (
     <AuthProvider>
@@ -14,6 +16,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/mdm-dashboard-test" element={<MDMSDashboard />} />
 
           {/* Protected Routes */}
           <Route path="/" element={<Navigate to="/dashboard/dashboard10" replace />} />
@@ -27,6 +30,9 @@ function App() {
 
           {/* SAT Dashboard */}
           <Route path="/sat-dashboard" element={<ProtectedRoute><CommandCenterDashboard /></ProtectedRoute>} />
+
+          {/* MDM Dashboard */}
+          <Route path="/mdm-dashboard" element={<ProtectedRoute><MDMSDashboard /></ProtectedRoute>} />
 
         </Routes>
       </Router>
