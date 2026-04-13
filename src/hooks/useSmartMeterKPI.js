@@ -55,7 +55,7 @@ export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
                 }
             }
 
-            const { trend, distribution } = transformAPIResponse(kpiName, rawTrend, rawDist, params.period);
+            const { trend, distribution } = transformAPIResponse(kpiName, rawTrend, rawDist, params);
             setTrendData(trend);
             setDistData(distribution);
         } catch (err) {

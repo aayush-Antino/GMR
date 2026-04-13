@@ -1,0 +1,32 @@
+{
+  "miProgressStacked": {
+    "trend": [
+      {
+        "name": "01-01-25",
+        "Consumer": 15,
+        "DT": 2,
+        "Feeder": 1
+      },
+      {
+        "name": "01-02-25",
+        "Consumer": 20,
+        "DT": 4,
+        "Feeder": 2
+      }
+    ],
+    "distribution": []
+  },
+  "miProgressDT": {
+    "trend": [
+      {
+        "name": "01-01-25",
+        "DT": 2
+      },
+      {
+        "name": "01-02-25",
+        "DT": 4
+      }
+    ],
+    "distribution": []
+  }
+}

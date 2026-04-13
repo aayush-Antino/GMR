@@ -12,7 +12,7 @@ export const GMR = {
 export const GMR_PALETTE = [GMR.blue, GMR.green, GMR.orange, GMR.purple, GMR.pink];
 
 export const KEY_COLORS = {
-    'inventory': GMR.blue,
+    'total monthly installations': GMR.blue,
     'total installed': GMR.green,
     'cumulative sat': GMR.orange,
     'critical': '#dc2626',
@@ -22,6 +22,29 @@ export const KEY_COLORS = {
     'medium': '#f59e0b',
     'low': '#10b981',
     'count': GMR.blue,
+    'value': GMR.blue,
+    'consumer': '#2563eb', // Blue
+    'dt': '#fbbf24',       // Yellow
+    'feeder': '#ef4444',   // Red
+    'mi installed': GMR.orange,
+    'sat done': GMR.green,
+    'invoiced': GMR.purple,
+    'burnt': '#ef4444',
+    'faulty': '#fbbf24',
+    'others': '#64748b',
+    'daily installations': GMR.blue,
+    'total installations': GMR.blue,
+    'installations': GMR.blue,
+    'closed tickets': GMR.green,
+    'open tickets': GMR.orange,
+    'closed': GMR.green,
+    'open': GMR.orange,
+    'pace': GMR.blue,
+    'revenue': GMR.purple,
+    'installed': GMR.green,
+    'remaining': '#94a3b8',
+    'inventory': GMR.blue,
+    'stock': GMR.blue,
 };
 
 export const getColor = (key, index) => {
@@ -55,7 +78,7 @@ const isDate = (val) => {
     if (typeof val !== 'string') return false;
     // Basic date patterns: YYYY-MM-DD, DD-MM-YYYY, DD/MM/YYYY, Monthly/Daily formats
     // Also handles week patterns like YYYY-W## or YYYY-Www
-    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}|\d{4}-W\d{1,2})$/i;
+    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}|\d{4}-W\d{1,2}|[a-zA-Z]{3}-\d{4}|[a-zA-Z]{3}-\d{2})$/i;
     return dateRegex.test(val);
 };
 
@@ -74,8 +97,15 @@ export const detectVariant = (data, name) => {
         return 'gauge';
     }
 
-    if (kpiName.includes('pace vs stock') || kpiName.includes('vs stock')) return 'dual-axis';
-    if (kpiName.includes('productivity')) return 'bar';
+    // Pace vs Stock and other vs trends
+    if (kpiName.includes('pace vs stock') || kpiName.includes('vs stock')) {
+        return isDate(data[0].name) ? (data.length > 25 ? 'area' : 'bar') : 'hbar';
+    }
+    
+    // Productivity: HBar for categories/teams, Bar/Area for trends
+    if (kpiName.includes('productivity')) {
+        return isDate(data[0].name) ? (data.length > 25 ? 'area' : 'bar') : 'hbar';
+    }
 
     // 2. Data Shape detection
     const sample = data[0];

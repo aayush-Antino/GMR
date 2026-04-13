@@ -69,6 +69,26 @@ const CustomLabel = ({ x, y, value, color, position = 'top' }) => (
     </g>
 );
 
+const renderCustomLegend = (props) => {
+    const { payload } = props;
+    if (!payload) return null;
+    return (
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 pt-2">
+            {payload.map((entry, index) => (
+                <li key={`item-${index}`} className="flex items-center gap-2 select-none">
+                    <span 
+                        className="h-2.5 w-2.5 rounded-full shadow-sm shadow-black/10" 
+                        style={{ backgroundColor: getColor(entry.value?.toString().trim()) || entry.color || GMR.blue }} 
+                    />
+                    <span className="text-[12px] font-extrabold text-slate-700 capitalize tracking-tight">
+                        {entry.value}
+                    </span>
+                </li>
+            ))}
+        </ul>
+    );
+};
+
 const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
     
@@ -101,18 +121,13 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) 
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend
-                    verticalAlign="top"
-                    align="center"
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ top: -20, paddingBottom: 30, fontSize: 12, fontWeight: 800 }}
-                />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
                 {keys.map((key, i) => (
                     <Area
                         key={key}
                         type="monotone"
                         dataKey={key}
+                        stackId="a"
                         stroke={getColor(key, i)}
                         strokeWidth={data.length > 100 ? 1.5 : 3} // Thinner line for very high density
                         fill={`url(#grad-${key})`}
@@ -141,13 +156,7 @@ const MultiLineVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend
-                    verticalAlign="top"
-                    align="center"
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ top: -20, paddingBottom: 30, fontSize: 12, fontWeight: 800 }}
-                />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
                 {keys.map((key, i) => (
                     <Line
                         key={key}
@@ -196,7 +205,7 @@ const DonutVariant = ({ data }) => {
                     ))}
                 </Pie>
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ paddingTop: 15, fontSize: 11, fontWeight: 600 }} />
+                <Legend content={renderCustomLegend} verticalAlign="bottom" />
             </PieChart>
         </ResponsiveContainer>
     );
@@ -228,25 +237,23 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                     tick={AXIS_STYLE} 
                     axisLine={false} 
                     tickLine={false} 
-                    width={isDense ? 80 : 120}
+                    width={isDense ? 100 : 150}
+                    tickFormatter={(v) => v.length > 20 ? v.substring(0, 18) + '…' : v}
                     interval={data.length > 50 ? Math.floor(data.length / 10) : (isDense ? 'preserveStartEnd' : 0)}
                 >
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
                 <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} content={<CustomTooltip />} />
-                <Legend
-                    verticalAlign="top"
-                    align="center"
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ top: -20, paddingBottom: 30, fontSize: 12, fontWeight: 800 }}
-                />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
                 {keys.map((key, i) => (
                     <Bar
                         key={key}
                         dataKey={key}
+                        stackId="a"
                         fill={`url(#hbar-grad-${key})`}
-                        radius={[0, 4, 4, 0]}
+                        stroke={getColor(key, i)}
+                        strokeWidth={1}
+                        radius={i === keys.length - 1 ? [0, 4, 4, 0] : [0, 0, 0, 0]}
                         barSize={barSize}
                         isAnimationActive={true}
                         animationDuration={1500}
@@ -275,7 +282,7 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
 
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 20 }} barGap={8}>
+            <BarChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 20 }}>
                 <defs>
                     {keys.map((key, i) => (
                         <linearGradient key={key} id={`bar-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
@@ -287,10 +294,11 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
                 <XAxis 
                     dataKey="name" 
-                    tick={AXIS_STYLE} 
+                    tick={{ ...AXIS_STYLE, angle: data.length > 6 ? -30 : 0, textAnchor: data.length > 6 ? 'end' : 'middle' }} 
                     axisLine={false} 
                     tickLine={false} 
-                    dy={8} 
+                    dy={data.length > 6 ? 10 : 8} 
+                    height={data.length > 6 ? 60 : 30}
                     interval={interval}
                 >
                     <Label value={xLabel} position="insideBottom" offset={-10} style={{ ...AXIS_STYLE, fontSize: 10 }} />
@@ -299,19 +307,16 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                     <Label value={yLabel} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
                 </YAxis>
                 <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.5)' }} content={<CustomTooltip />} />
-                <Legend
-                    verticalAlign="top"
-                    align="center"
-                    iconType="circle"
-                    iconSize={8}
-                    wrapperStyle={{ top: -20, paddingBottom: 30, fontSize: 12, fontWeight: 800 }}
-                />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
                 {keys.map((key, i) => (
                     <Bar
                         key={key}
                         dataKey={key}
+                        stackId="a"
                         fill={`url(#bar-grad-${key})`}
-                        radius={[6, 6, 0, 0]}
+                        stroke={getColor(key, i)}
+                        strokeWidth={1}
+                        radius={i === keys.length - 1 ? [6, 6, 0, 0] : [0, 0, 0, 0]} // Only top bar gets rounded corners
                         barSize={barSize}
                         isAnimationActive={true}
                         animationDuration={1500}
@@ -372,22 +377,38 @@ const GaugeVariant = ({ data }) => {
 };
 
 const BoxPlotVariant = ({ data }) => {
+    const keys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && typeof data[0][k] === 'number');
+    if (keys.length === 0) keys.push('value');
+
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+            <BarChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
                 <defs>
-                    <linearGradient id="boxplot-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={GMR.blue} stopOpacity={1} />
-                        <stop offset="100%" stopColor={GMR.blue} stopOpacity={0.6} />
-                    </linearGradient>
+                    {keys.map((key, i) => (
+                        <linearGradient key={key} id={`boxplot-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={1} />
+                            <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={0.6} />
+                        </linearGradient>
+                    ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
                 <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="avg" fill="url(#boxplot-grad)" radius={[6, 6, 6, 6]} barSize={32} isAnimationActive={true}>
-                    <LabelList dataKey="avg" position="top" style={{ fill: GMR.blue, fontWeight: 800, fontSize: 11 }} />
-                </Bar>
+                <Legend content={renderCustomLegend} verticalAlign="top" />
+                {keys.map((key, i) => (
+                    <Bar 
+                        key={key}
+                        dataKey={key} 
+                        fill={`url(#boxplot-grad-${key})`} 
+                        stroke={getColor(key, i)} 
+                        radius={[6, 6, 6, 6]} 
+                        barSize={32} 
+                        isAnimationActive={true}
+                    >
+                        <LabelList dataKey={key} position="top" style={{ fill: getColor(key, i), fontWeight: 800, fontSize: 11 }} formatter={formatValue} />
+                    </Bar>
+                ))}
             </BarChart>
         </ResponsiveContainer>
     );
@@ -400,7 +421,8 @@ const FunnelVariant = ({ data }) => {
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" tick={AXIS_STYLE} axisLine={false} tickLine={false} width={100} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} fill={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
+                <Legend content={renderCustomLegend} verticalAlign="top" />
+                <Bar dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} fill={GMR.orange} stroke={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
                     <LabelList dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} position="right" style={{ fill: GMR.orange, fontWeight: 900, fontSize: 12 }} offset={10} />
                 </Bar>
             </BarChart>
@@ -417,8 +439,9 @@ const ParetoVariant = ({ data }) => {
                 <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar yAxisId="left" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative') || 'value'} fill={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
-                <Line yAxisId="right" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
+                <Bar yAxisId="left" name="Value" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative') || 'value'} fill={GMR.blue} stroke={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
+                <Line yAxisId="right" name="Cumulative %" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
             </BarChart>
         </ResponsiveContainer>
     );
@@ -433,7 +456,7 @@ const DualAxisVariant = ({ data }) => {
                 <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="top" iconType="circle" wrapperStyle={{ top: -20, paddingBottom: 20 }} />
+                <Legend content={renderCustomLegend} verticalAlign="top" />
                 <Line yAxisId="left" dataKey="installations" stroke={GMR.green} strokeWidth={4} dot={{ fill: GMR.green, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
                 <Line yAxisId="right" dataKey="stock" stroke={GMR.blue} strokeWidth={4} strokeDasharray="6 6" dot={{ fill: GMR.blue, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
             </LineChart>

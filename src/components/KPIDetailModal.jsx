@@ -146,7 +146,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
             setLevel('Discom');
             setSelectedProject('All');
             setTrendType(kpi.chartData?.isTimeSeries === false ? 'bar' : null);
-            setDistType(null);
+            setDistType('hbar');
         }
     }, [kpi?.name, isOpen]); // Add isOpen so it resets when modal re-opens
 
@@ -505,7 +505,12 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     <div className="p-6 bg-white/60 backdrop-blur-md rounded-2xl border border-white shadow-[0_8px_32px_rgba(15,39,68,0.05)]">
                                         <div className="flex items-center justify-between mb-5">
                                             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                                                {activeChartData?.distTitle || 'Distribution'}
+                                                {isBusiness ? (
+                                                    selectedProject === 'All' ? 'Comparison by Cluster' :
+                                                    level === 'Discom' ? 'Comparison by Zone' :
+                                                    level === 'Zone' ? 'Comparison by Circle' :
+                                                    'Comparison by Level'
+                                                ) : (activeChartData?.distTitle || 'Distribution')}
                                             </h3>
 
                                             <div className="flex items-center gap-2">
