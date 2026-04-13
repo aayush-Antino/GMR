@@ -99,6 +99,23 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
     let trend = [];
     let distribution = [];
 
+    const getCategoryData = (obj, key) => {
+        if (!obj || typeof obj !== 'object') return null;
+        const sel = String(key).toUpperCase();
+        const match = Object.keys(obj).find(k => k.toUpperCase() === sel);
+        if (match) return obj[match];
+        if (sel === 'DT') {
+            const dtrMatch = Object.keys(obj).find(k => k.toUpperCase() === 'DTR');
+            return dtrMatch ? obj[dtrMatch] : null;
+        }
+        return null;
+    };
+
+    const sumDeep = (obj) => {
+        if (!obj || typeof obj !== 'object') return Number(obj) || 0;
+        return Object.values(obj).reduce((a, b) => a + (typeof b === 'object' ? sumDeep(b) : (Number(b) || 0)), 0);
+    };
+
     // MI Progress Summary
     if (n.includes('mi-progress') || n.includes('mi progress')) {
         const summary = trendData;
@@ -109,17 +126,22 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (cats.CONSUMER) point.Consumer = Object.values(cats.CONSUMER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    if (cats.DT) point.DT = Object.values(cats.DT).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    if (cats.FEEDER) point.Feeder = Object.values(cats.FEEDER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = sumDeep(conData);
+                    if (dtData) point.DT = sumDeep(dtData);
+                    if (fdData) point.Feeder = sumDeep(fdData);
+                    
                     flattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let total = 0;
-                    if (cats[sel]) {
-                        total = Object.values(cats[sel]).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    }
+                    const catData = getCategoryData(cats, sel);
+                    if (catData) total = sumDeep(catData);
+                    
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     flattened.push({ name: label, [keyName]: total });
                 }
@@ -192,20 +214,22 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (cats.CONSUMER) point.Consumer = Object.values(cats.CONSUMER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    if (cats.DT || cats.DTR) {
-                        const dtData = cats.DT || cats.DTR;
-                        point.DT = Object.values(dtData).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    }
-                    if (cats.FEEDER) point.Feeder = Object.values(cats.FEEDER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = sumDeep(conData);
+                    if (dtData) point.DT = sumDeep(dtData);
+                    if (fdData) point.Feeder = sumDeep(fdData);
+                    
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let total = 0;
-                    if (cats[sel]) {
-                        total = Object.values(cats[sel]).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    }
+                    const catData = getCategoryData(cats, sel);
+                    if (catData) total = sumDeep(catData);
+                    
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     pFlattened.push({ name: label, [keyName]: total });
                 }
@@ -235,21 +259,20 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    ['CONSUMER', 'DT', 'FEEDER'].forEach(c => {
-                        const key = c === 'CONSUMER' ? 'Consumer' : (c === 'DT' ? 'DT' : 'Feeder');
-                        // Treat DTR as DT
-                        const catData = cats[c] || (c === 'DT' ? cats.DTR : null);
-                        if (catData) {
-                            // Extract installed count from the 'total' object if present, else fallback
-                            const installed = catData.total?.installed ?? catData.installed ?? 0;
-                            if (installed > 0) point[key] = Number(installed);
-                        }
-                    });
-                    if (Object.keys(point).length > 1) flattened.push(point);
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = Number(conData.total?.installed ?? conData.installed ?? 0);
+                    if (dtData) point.DT = Number(dtData.total?.installed ?? dtData.installed ?? 0);
+                    if (fdData) point.Feeder = Number(fdData.total?.installed ?? fdData.installed ?? 0);
+                    
+                    if (point.Consumer || point.DT || point.Feeder) flattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
-                    const catData = cats[sel];
+                    const catData = getCategoryData(cats, sel);
                     const installed = catData?.total?.installed ?? catData?.installed ?? 0;
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     flattened.push({ name: label, [keyName]: Number(installed) });
@@ -308,24 +331,24 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, data]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    ['CONSUMER', 'DT', 'FEEDER'].forEach(c => {
-                        const key = c === 'CONSUMER' ? 'Consumer' : (c === 'DT' ? 'DT' : 'Feeder');
-                        // Treat DTR as DT
-                        const catData = data[c] || (c === 'DT' ? data.DTR : null);
-                        if (catData) {
-                            const installed = catData.total?.installed ?? catData.installed ?? 0;
-                            if (installed > 0) point[key] = Number(installed);
-                        }
-                    });
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    
+                    const conData = getCategoryData(data, 'CONSUMER');
+                    const dtData = getCategoryData(data, 'DT');
+                    const fdData = getCategoryData(data, 'FEEDER');
+
+                    if (conData) point.Consumer = Number(conData.total?.installed ?? conData.installed ?? 0);
+                    if (dtData) point.DT = Number(dtData.total?.installed ?? dtData.installed ?? 0);
+                    if (fdData) point.Feeder = Number(fdData.total?.installed ?? fdData.installed ?? 0);
+                    
                     // Fallback to total installed if no category points found
-                    if (Object.keys(point).length === 1 && data.total?.installed) {
+                    if (point.Consumer === 0 && point.DT === 0 && point.Feeder === 0 && data.total?.installed) {
                         point.Value = Number(data.total.installed);
                     }
                     if (Object.keys(point).length > 1) pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
-                    const catData = data[sel];
+                    const catData = getCategoryData(data, sel);
                     const installed = catData?.total?.installed ?? catData?.installed ?? 0;
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     pFlattened.push({ name: label, [keyName]: Number(installed) });
@@ -359,17 +382,24 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, data]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (data.CONSUMER?.total) point.Consumer = (Number(data.CONSUMER.total.age_0_30) || 0) + (Number(data.CONSUMER.total.age_31_60) || 0) + (Number(data.CONSUMER.total.age_61_90) || 0) + (Number(data.CONSUMER.total.age_90_plus) || 0);
-                    if (data.DT?.total) point.DT = (Number(data.DT.total.age_0_30) || 0) + (Number(data.DT.total.age_31_60) || 0) + (Number(data.DT.total.age_61_90) || 0) + (Number(data.DT.total.age_90_plus) || 0);
-                    if (data.FEEDER?.total) point.Feeder = (Number(data.FEEDER.total.age_0_30) || 0) + (Number(data.FEEDER.total.age_31_60) || 0) + (Number(data.FEEDER.total.age_61_90) || 0) + (Number(data.FEEDER.total.age_90_plus) || 0);
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    
+                    const conData = getCategoryData(data, 'CONSUMER');
+                    const dtData = getCategoryData(data, 'DT');
+                    const fdData = getCategoryData(data, 'FEEDER');
+
+                    if (conData?.total) point.Consumer = (Number(conData.total.age_0_30) || 0) + (Number(conData.total.age_31_60) || 0) + (Number(conData.total.age_61_90) || 0) + (Number(conData.total.age_90_plus) || 0);
+                    if (dtData?.total) point.DT = (Number(dtData.total.age_0_30) || 0) + (Number(dtData.total.age_31_60) || 0) + (Number(dtData.total.age_61_90) || 0) + (Number(dtData.total.age_90_plus) || 0);
+                    if (fdData?.total) point.Feeder = (Number(fdData.total.age_0_30) || 0) + (Number(fdData.total.age_31_60) || 0) + (Number(fdData.total.age_61_90) || 0) + (Number(fdData.total.age_90_plus) || 0);
+                    
                     flattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let total = 0;
-                    if (data[sel]?.total) {
-                        total = (Number(data[sel].total.age_0_30) || 0) + (Number(data[sel].total.age_31_60) || 0) + 
-                                (Number(data[sel].total.age_61_90) || 0) + (Number(data[sel].total.age_90_plus) || 0);
+                    const catData = getCategoryData(data, sel);
+                    if (catData?.total) {
+                        total = (Number(catData.total.age_0_30) || 0) + (Number(catData.total.age_31_60) || 0) + 
+                                (Number(catData.total.age_61_90) || 0) + (Number(catData.total.age_90_plus) || 0);
                     }
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     flattened.push({ name: label, [keyName]: total });
@@ -428,18 +458,24 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                     const label = formatLabel(period);
                     if (!params?.meter_category || params?.meter_category === 'Total') {
-                        const point = { name: label };
+                        const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
                         // Note: Here we are stacking SAT (Verified) counts
-                        if (cats.CONSUMER) point.Consumer = Object.values(cats.CONSUMER).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
-                        if (cats.DT) point.DT = Object.values(cats.DT).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
-                        if (cats.FEEDER) point.Feeder = Object.values(cats.FEEDER).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
+                        const conData = getCategoryData(cats, 'CONSUMER');
+                        const dtData = getCategoryData(cats, 'DT');
+                        const fdData = getCategoryData(cats, 'FEEDER');
+
+                        if (conData) point.Consumer = Object.values(conData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
+                        if (dtData) point.DT = Object.values(dtData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
+                        if (fdData) point.Feeder = Object.values(fdData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
+                        
                         pFlattened.push(point);
                     } else {
                         const sel = params.meter_category.toUpperCase();
                         let totalMI = 0;
                         let totalSAT = 0;
-                        if (cats[sel]) {
-                            Object.values(cats[sel]).forEach(m => {
+                        const catData = getCategoryData(cats, sel);
+                        if (catData) {
+                            Object.values(catData).forEach(m => {
                                 totalMI += (m.total_mi || 0);
                                 totalSAT += (m.total_sat || 0);
                             });
@@ -509,24 +545,24 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 const label = formatLabel(period);
                 
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (cats.CONSUMER) {
-                        point.Consumer = Object.values(cats.CONSUMER).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    }
-                    if (cats.DT) {
-                        point.DT = Object.values(cats.DT).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    }
-                    if (cats.FEEDER) {
-                        point.Feeder = Object.values(cats.FEEDER).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    }
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = Object.values(conData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
+                    if (dtData) point.DT = Object.values(dtData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
+                    if (fdData) point.Feeder = Object.values(fdData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
+                    
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let totalMI = 0;
                     let totalSAT = 0;
                     let totalInv = 0;
-                    if (cats[sel]) {
-                        Object.values(cats[sel]).forEach(m => {
+                    const catData = getCategoryData(cats, sel);
+                    if (catData) {
+                        Object.values(catData).forEach(m => {
                             totalMI += (m.total_mi || 0);
                             totalSAT += (m.total_sat || 0);
                             totalInv += (m.total_invoice || 0);
@@ -565,17 +601,22 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (cats.CONSUMER) point.Consumer = Object.values(cats.CONSUMER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    if (cats.DT) point.DT = Object.values(cats.DT).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    if (cats.FEEDER) point.Feeder = Object.values(cats.FEEDER).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = sumDeep(conData);
+                    if (dtData) point.DT = sumDeep(dtData);
+                    if (fdData) point.Feeder = sumDeep(fdData);
+                    
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let total = 0;
-                    if (cats[sel]) {
-                        total = Object.values(cats[sel]).reduce((a, b) => a + (typeof b === 'object' ? Object.values(b).reduce((x, y) => x + (Number(y) || 0), 0) : (Number(b) || 0)), 0);
-                    }
+                    const catData = getCategoryData(cats, sel);
+                    if (catData) total = sumDeep(catData);
+                    
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     pFlattened.push({ name: label, [keyName]: total });
                 }
@@ -617,25 +658,23 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    ['CONSUMER', 'DT', 'FEEDER'].forEach(c => {
-                        const key = c === 'CONSUMER' ? 'Consumer' : (c === 'DT' ? 'DT' : 'Feeder');
-                        if (cats[c]) {
-                            let total = 0;
-                            Object.values(cats[c]).forEach(metrics => {
-                                total += Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0);
-                            });
-                            point[key] = total;
-                        }
-                    });
+                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
+                    
+                    const conData = getCategoryData(cats, 'CONSUMER');
+                    const dtData = getCategoryData(cats, 'DT');
+                    const fdData = getCategoryData(cats, 'FEEDER');
+
+                    if (conData) point.Consumer = Object.values(conData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
+                    if (dtData) point.DT = Object.values(dtData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
+                    if (fdData) point.Feeder = Object.values(fdData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
+                    
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let total = 0;
-                    if (cats[sel]) {
-                        Object.values(cats[sel]).forEach(metrics => {
-                            total += Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0);
-                        });
+                    const catData = getCategoryData(cats, sel);
+                    if (catData) {
+                        total = Object.values(catData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
                     }
                     const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
                     pFlattened.push({ name: label, [keyName]: total });
@@ -685,26 +724,58 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 2. Trend: Aggregate
         if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
             const pFlattened = [];
+
             Object.entries(summary.period_breakdown).forEach(([period, data]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label };
-                    if (data.CONSUMER?.total) point.Consumer = (Number(data.CONSUMER.total.meter_burnt) || 0) + (Number(data.CONSUMER.total.meter_faulty) || 0) + (Number(data.CONSUMER.total.others) || 0);
-                    if (data.DT?.total) point.DT = (Number(data.DT.total.meter_burnt) || 0) + (Number(data.DT.total.meter_faulty) || 0) + (Number(data.DT.total.others) || 0);
-                    if (data.FEEDER?.total) point.Feeder = (Number(data.FEEDER.total.meter_burnt) || 0) + (Number(data.FEEDER.total.meter_faulty) || 0) + (Number(data.FEEDER.total.others) || 0);
+                    const point = { name: label, _rawDate: period, Consumer: 0, DT: 0, Feeder: 0 };
+                    
+                    const conData = getCategoryData(data, 'CONSUMER');
+                    if (conData?.total) {
+                        point.Consumer = (Number(conData.total.meter_burnt) || 0) + (Number(conData.total.meter_faulty) || 0) + (Number(conData.total.others) || 0);
+                    }
+                    
+                    const dtData = getCategoryData(data, 'DT');
+                    if (dtData?.total) {
+                        point.DT = (Number(dtData.total.meter_burnt) || 0) + (Number(dtData.total.meter_faulty) || 0) + (Number(dtData.total.others) || 0);
+                    }
+                    
+                    const fdData = getCategoryData(data, 'FEEDER');
+                    if (fdData?.total) {
+                        point.Feeder = (Number(fdData.total.meter_burnt) || 0) + (Number(fdData.total.meter_faulty) || 0) + (Number(fdData.total.others) || 0);
+                    }
+                    
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
                     let burnt = 0, faulty = 0, others = 0;
-                    if (data[sel]?.total) {
-                        burnt = Number(data[sel].total.meter_burnt) || 0;
-                        faulty = Number(data[sel].total.meter_faulty) || 0;
-                        others = Number(data[sel].total.others) || 0;
+                    
+                    const catData = getCategoryData(data, sel);
+                    if (catData?.total) {
+                        burnt = Number(catData.total.meter_burnt) || 0;
+                        faulty = Number(catData.total.meter_faulty) || 0;
+                        others = Number(catData.total.others) || 0;
                     }
-                    pFlattened.push({ name: label, Burnt: burnt, Faulty: faulty, Others: others });
+                    pFlattened.push({ name: label, _rawDate: period, Burnt: burnt, Faulty: faulty, Others: others });
                 }
             });
-            trend = pFlattened.sort((a,b) => a.name.localeCompare(b.name));
+            
+            // Chronological sorting for DD-MM-YY format
+            trend = pFlattened.sort((a, b) => {
+                if (a._rawDate === 'Unknown') return 1;
+                if (b._rawDate === 'Unknown') return -1;
+                
+                const parseDate = (d) => {
+                    const parts = d.split('-');
+                    if (parts.length !== 3) return new Date(0);
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const year = parseInt(parts[2], 10) + 2000;
+                    return new Date(year, month, day);
+                };
+                
+                return parseDate(a._rawDate) - parseDate(b._rawDate);
+            }).map(({ _rawDate, ...rest }) => rest);
         } else if (summary?.category_breakdown) {
 
         } else {

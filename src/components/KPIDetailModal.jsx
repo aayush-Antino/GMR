@@ -307,7 +307,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                 </button>
                                                 {isCategoryDropdownOpen && (
                                                     <div className="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                                                        {['Feeder', 'Dt', 'Consumer', 'Total'].map(c => (
+                                                        {['Feeder', 'DT', 'Consumer', 'Total'].map(c => (
                                                             <button
                                                                 key={c}
                                                                 onClick={() => { setCategory(c); setIsCategoryDropdownOpen(false); }}

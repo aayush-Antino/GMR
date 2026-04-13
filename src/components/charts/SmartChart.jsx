@@ -10,6 +10,8 @@ import {
 } from 'recharts';
 import { GMR, AXIS_STYLE, TOOLTIP_STYLE, detectVariant, getColor } from '../../utils/chartUtils';
 
+const slugify = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').trim();
+
 // ─── Sub-Variants ──────────────────────────────────────────────────────────
 
 const formatValue = (v) => {
@@ -89,8 +91,9 @@ const renderCustomLegend = (props) => {
     );
 };
 
-const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) => {
+const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, chartName }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const chartId = slugify(chartName || 'chart');
     
     // Dynamic interval to keep labels readable
     const interval = propInterval !== undefined ? propInterval : (data.length > 60 ? Math.floor(data.length / 6) : 'auto');
@@ -100,7 +103,7 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) 
             <AreaChart data={data} margin={{ top: 35, right: 20, left: 10, bottom: 20 }}>
                 <defs>
                     {keys.map((key, i) => (
-                        <linearGradient key={key} id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient key={`${chartId}-${key}`} id={`${chartId}-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={getColor(key, i)} stopOpacity={0.4} />
                             <stop offset="95%" stopColor={getColor(key, i)} stopOpacity={0.05} />
                         </linearGradient>
@@ -127,10 +130,9 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval }) 
                         key={key}
                         type="monotone"
                         dataKey={key}
-                        stackId="a"
                         stroke={getColor(key, i)}
                         strokeWidth={data.length > 100 ? 1.5 : 3} // Thinner line for very high density
-                        fill={`url(#grad-${key})`}
+                        fill={`url(#${chartId}-grad-${key})`}
                         dot={data.length > 50 ? false : { fill: getColor(key, i), r: 4, strokeWidth: 0 }} // Hide dots for dense data
                         activeDot={{ r: 6, strokeWidth: 0 }}
                         animationDuration={1200}
@@ -211,6 +213,26 @@ const DonutVariant = ({ data }) => {
     );
 };
 
+const CustomHBarLabel = (props) => {
+    const { x, y, width, height, value } = props;
+    // Don't render if the segment is too narrow to fit a label
+    if (width < 50) return null;
+    return (
+        <text 
+            x={x + width - 8} 
+            y={y + height / 2} 
+            fill="#fff" 
+            textAnchor="end" 
+            dominantBaseline="middle" 
+            fontSize={height < 10 ? 0 : 9} 
+            fontWeight={700}
+            pointerEvents="none"
+        >
+            {formatValue(value)}
+        </text>
+    );
+};
+
 const HBarVariant = ({ data, xLabel, yLabel }) => {
     const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
     const isDense = data.length > 15;
@@ -260,17 +282,32 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                     >
                         <LabelList
                             dataKey={key}
-                            position="insideRight"
-                            fill="#fff"
-                            fontSize={barSize < 6 ? 0 : 7}
-                            fontWeight={700}
-                            offset={8}
-                            formatter={formatValue}
+                            content={<CustomHBarLabel />}
                         />
                     </Bar>
                 ))}
             </BarChart>
         </ResponsiveContainer>
+    );
+};
+
+const CustomVBarLabel = (props) => {
+    const { x, y, width, height, value } = props;
+    // Don't render if the segment is too short to fit a label
+    if (height < 25) return null;
+    return (
+        <text 
+            x={x + width / 2} 
+            y={y + 12} 
+            fill="#fff" 
+            textAnchor="middle" 
+            dominantBaseline="middle" 
+            fontSize={width < 10 ? 0 : 9} 
+            fontWeight={700}
+            pointerEvents="none"
+        >
+            {formatValue(value)}
+        </text>
     );
 };
 
@@ -323,12 +360,7 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                     >
                         <LabelList
                             dataKey={key}
-                            position="insideTop"
-                            fill="#fff"
-                            fontSize={barSize < 8 ? 0 : 7}
-                            fontWeight={700}
-                            formatter={formatValue}
-                            offset={10}
+                            content={<CustomVBarLabel />}
                         />
                     </Bar>
                 ))}
@@ -486,6 +518,7 @@ const SmartChart = ({ data, hint, name, isDetailed = false }) => {
             data, 
             xLabel: "Time Period", 
             yLabel: "Value",
+            chartName: name, // Pass name to make gradient IDs unique
             // In optimized mode, we show fewer labels. Recharts 'interval' handles this.
             // If isDetailed is false, we set interval to show fewer ticks.
             interval: isDetailed ? 0 : (data.length > 10 ? Math.floor(data.length / 5) : 'auto')
