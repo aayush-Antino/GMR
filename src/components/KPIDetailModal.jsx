@@ -506,10 +506,12 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                         <div className="flex items-center justify-between mb-5">
                                             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
                                                 {isBusiness ? (
-                                                    selectedProject === 'All' ? 'Comparison by Cluster' :
-                                                    level === 'Discom' ? 'Comparison by Zone' :
-                                                    level === 'Zone' ? 'Comparison by Circle' :
-                                                    'Comparison by Level'
+                                                    selectedProject === 'All' && level === 'Discom' ? 'Comparison by Cluster (Agra / Kashi / Triveni)' :
+                                                    level === 'Discom' ? `Comparison by Discom (${selectedProject})` :
+                                                    level === 'Zone' ? `Comparison by Zone (${selectedProject})` :
+                                                    level === 'Circle' ? `Comparison by Circle (${selectedProject})` :
+                                                    level === 'Division' ? `Comparison by Division (${selectedProject})` :
+                                                    `Comparison by Subdivision (${selectedProject})`
                                                 ) : (activeChartData?.distTitle || 'Distribution')}
                                             </h3>
 

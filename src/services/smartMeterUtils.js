@@ -13,7 +13,19 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (!rawName || rawName === 'Unknown') return rawName;
         
         try {
-            const date = new Date(rawName);
+            let date;
+            // Robust parsing for DD-MM-YY or DD-MM-YYYY formats
+            if (typeof rawName === 'string' && /^\d{2}-\d{2}-\d{2}(\d{2})?$/.test(rawName)) {
+                const parts = rawName.split('-');
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                let year = parseInt(parts[2], 10);
+                if (year < 100) year += 2000;
+                date = new Date(year, month - 1, day);
+            } else {
+                date = new Date(rawName);
+            }
+
             if (isNaN(date.getTime())) return rawName;
 
             if (dur === 'weekly') {
@@ -116,55 +128,54 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         return Object.values(obj).reduce((a, b) => a + (typeof b === 'object' ? sumDeep(b) : (Number(b) || 0)), 0);
     };
 
-    // MI Progress Summary
+    // MI Progress (New Dashboard Endpoint)
     if (n.includes('mi-progress') || n.includes('mi progress')) {
-        const summary = trendData;
+        const dashboardData = trendData; // Since shared: true
         
-        // Trend Analysis (Summary)
-        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const flattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
-                const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    const conData = getCategoryData(cats, 'CONSUMER');
-                    const dtData = getCategoryData(cats, 'DT');
-                    const fdData = getCategoryData(cats, 'FEEDER');
-
-                    if (conData) point.Consumer = sumDeep(conData);
-                    if (dtData) point.DT = sumDeep(dtData);
-                    if (fdData) point.Feeder = sumDeep(fdData);
-                    
-                    flattened.push(point);
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
+            
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.period_value);
+                const point = { name: label };
+                
+                if (selCategory === 'TOTAL') {
+                    point.Consumer = node.CONSUMER || 0;
+                    point.Feeder = node.FEEDER || 0;
+                    point.DT = node.DT || 0;
                 } else {
-                    const sel = params.meter_category.toUpperCase();
-                    let total = 0;
-                    const catData = getCategoryData(cats, sel);
-                    if (catData) total = sumDeep(catData);
-                    
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    flattened.push({ name: label, [keyName]: total });
+                    // Only return the selected category series, others are 0 (as per requirement)
+                    point.Consumer = selCategory === 'CONSUMER' ? node.CONSUMER || 0 : 0;
+                    point.Feeder = selCategory === 'FEEDER' ? node.FEEDER || 0 : 0;
+                    point.DT = selCategory === 'DT' || selCategory === 'DTR' ? (node.DT || node.DTR || 0) : 0;
                 }
+                return point;
             });
-            trend = flattened;
-        } else {
-            trend = aggregateData(summary?.period_breakdown || [], 'period_value', 'count');
         }
         
-        // Geographical Comparison (Detailed List)
-        if (Array.isArray(distData) && distData.length > 0) {
-            distribution = aggregateGeographically(distData, 'total_meters_installed');
-        } else {
-            const catBreakdown = distData?.category_breakdown || {};
-            if (catBreakdown && !Array.isArray(catBreakdown) && typeof Object.values(catBreakdown)[0] === 'object') {
-                distribution = flattenNestedBreakdown(catBreakdown).map(d => ({
-                    name: d.name,
-                    value: typeof d.value === 'number' ? d.value : (Object.values(d).find(v => typeof v === 'number') || 0)
-                }));
-            } else {
-                distribution = Object.entries(catBreakdown).map(([name, val]) => ({ name, value: val }));
-            }
+        // 2. Comparison (Geographical/Cluster)
+        if (Array.isArray(dashboardData?.comparison)) {
+            const project = (params?.project || 'all').toLowerCase();
+            const level = (params?.level_by || params?.level || 'discom').toLowerCase();
+            
+            distribution = dashboardData.comparison.map(node => {
+                let label = node.label || 'Unknown';
+                
+                // Behavior Note: Prefix labels if project=all and level is more granular than discom
+                if (project === 'all' && level !== 'discom' && node.project_prefix) {
+                    label = `${node.project_prefix} | ${label}`;
+                }
+
+                return {
+                    name: label,
+                    Consumer: node.CONSUMER || 0,
+                    Feeder: node.FEEDER || 0,
+                    DT: node.DT || 0
+                };
+            });
         }
+        
         return { trend, distribution };
     }
 

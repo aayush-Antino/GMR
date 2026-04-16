@@ -1198,24 +1198,22 @@ export const dashboardData = {
             "status": "Stable",
             "analysisItems": [
                 { "label": "Formula", "value": "COUNT(newMeterNumber)" },
-                { "label": "Frequency", "value": "Daily / Weekly / Monthly" }
+                { "label": "Categories", "value": "CONSUMER / FEEDER / DT" },
+                { "label": "Comparison", "value": "By Cluster / Project" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Total count of new meter numbers installed, segmented by category (Domestic, Commercial, Industrial).",
+            "qualityDescription": "Total count of new meter numbers installed, segmented by category (CONSUMER, FEEDER, DT) and geographical clusters.",
             "chartData": {
                 "trendTitle": "MI Progress Trend",
                 "trend": [
-                    { "name": "Jan", "count": 4500 }, { "name": "Feb", "count": 5200 }, { "name": "Mar", "count": 6100 }
+                    { "name": "Trend Start", "Consumer": 0, "Feeder": 0, "DT": 0 }
                 ],
-                "distTitle": "MI By Category (Funnel)",
+                "distTitle": "Comparison by Cluster/Project",
                 "distribution": [
-                    { "name": "Target", "count": 10000 },
-                    { "name": "Surveyed", "count": 8500 },
-                    { "name": "Installed", "count": 6100 },
-                    { "name": "SAT Done", "count": 5800 }
+                    { "name": "Sample Label", "value": 0 }
                 ],
                 "allowedTrendTypes": ["line", "area", "bar"],
-                "allowedDistTypes": ["funnel", "bar", "donut"]
+                "allowedDistTypes": ["bar", "hbar", "donut", "funnel"]
             }
         },
         {

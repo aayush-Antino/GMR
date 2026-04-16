@@ -59,6 +59,28 @@ export async function fetchMIProgress(params = {}, signal = null) {
     return apiFetch('/api/mi/progress', params, signal);
 }
 
+export async function fetchMIProgressDashboard(params = {}, signal = null) {
+    // Map internal parameter names to exact names required by the new dashboard endpoint
+    const mappedParams = {
+        duration: params.period || 'daily',
+        category: params.meter_category || 'total',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params // preserve any other geo-filters or standard params
+    };
+
+    // Remove internal redundant keys to match the exact format requested
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.meter_category;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+
+    return apiFetch('/api/mi/progress/dashboard', mappedParams, signal);
+}
+
 // ──────────────────────────────────────────────
 // KPI 2 – MI Productivity
 // Response: [{ technician, period_value, daily_installations, discom }]
@@ -258,9 +280,9 @@ export function resolveKPIFetchers(kpiName) {
 
     if (n.includes('mi-progress') || n.includes('mi progress')) {
         return {
-            fetchTrend: (p, s) => fetchMIProgressSummary(p, s),
-            fetchDistribution: (p, s) => fetchMIProgress(p, s),
-            shared: false,
+            fetchTrend: (p, s) => fetchMIProgressDashboard(p, s),
+            fetchDistribution: (p, s) => fetchMIProgressDashboard(p, s),
+            shared: true,
         };
     }
     if (n.includes('productivity per team') && !n.includes('o&m') && !n.includes('o\\&m')) {
