@@ -1619,7 +1619,7 @@ export const dashboardData = {
                 ],
                 "distTitle": "Workflow Funnel",
                 "distribution": [
-                    { "name": "Installed", "value": 6100 },
+                    { "name": "MI Installed", "value": 6100 },
                     { "name": "SAT Done", "value": 4800 },
                     { "name": "Invoiced", "value": 3200 }
                 ],
@@ -1719,10 +1719,10 @@ export const dashboardData = {
                 ],
                 "distTitle": "Revenue Ageing (BoxPlot)",
                 "distribution": [
-                    { "name": "0-15 days", "avg": 8 },
-                    { "name": "16-30 days", "avg": 22 },
-                    { "name": "31-60 days", "avg": 45 },
-                    { "name": "> 60 days", "avg": 90 }
+                    { "name": "0-30 Days", "avg": 8 },
+                    { "name": "31-60 Days", "avg": 22 },
+                    { "name": "61-90 Days", "avg": 45 },
+                    { "name": "90+ Days", "avg": 90 }
                 ],
                 "allowedTrendTypes": ["bar"],
                 "allowedDistTypes": ["boxplot", "hbar"],
@@ -1765,19 +1765,24 @@ export const dashboardData = {
             ],
             "qualityDescription": "Measures the total cycle time from physical install to cash realization.",
             "chartData": {
-                "trendTitle": "Cycle Time (Days)",
+                "trendTitle": "Avg Cycle Time by Project",
                 "trend": [
-                    { "name": "Jan", "value": 45 }, { "name": "Feb", "value": 42 }, { "name": "Mar", "value": 38 }
+                    { "name": "AGRA", "Consumer": 260, "Feeder": 335, "DT": 290 },
+                    { "name": "KASHI", "Consumer": 245, "Feeder": 310, "DT": 280 },
+                    { "name": "TRIVENI", "Consumer": 270, "Feeder": 350, "DT": 300 }
                 ],
-                "distTitle": "Stage Latency (BoxPlot)",
+                "distTitle": "Average Latency by Stage (Days)",
                 "distribution": [
-                    { "name": "MI -> SAT", "avg": 12 },
-                    { "name": "SAT -> Inv", "avg": 8 },
-                    { "name": "Inv -> Cash", "avg": 25 }
+                    { "name": "DI → GMR", "value": 5.2 },
+                    { "name": "GMR → Agency", "value": 3.1 },
+                    { "name": "Agency → Sup", "value": 2.0 },
+                    { "name": "Sup → Install", "value": 4.5 },
+                    { "name": "Install → SAT", "value": 12.3 },
+                    { "name": "SAT → Revenue", "value": 8.7 }
                 ],
-                "allowedTrendTypes": ["line", "area"],
-                "allowedDistTypes": ["bar", "hbar", "boxplot"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["funnel", "hbar", "bar"],
+                "allowedDurations": ["Total Journey"]
             }
         },
         {
@@ -1791,20 +1796,22 @@ export const dashboardData = {
             ],
             "qualityDescription": "Visibility into where meters are 'stuck' in the revenue realization pipeline.",
             "chartData": {
-                "trendTitle": "Meters in Pipe",
+                "trendTitle": "Meter Count by Project",
                 "trend": [
-                    { "name": "Jan", "value": 12000 }, { "name": "Feb", "value": 11500 }, { "name": "Mar", "value": 10800 }
+                    { "name": "AGRA", "Consumer": 45000, "Feeder": 1200, "DT": 2500 },
+                    { "name": "KASHI", "Consumer": 38000, "Feeder": 950, "DT": 2100 },
+                    { "name": "TRIVENI", "Consumer": 42000, "Feeder": 1100, "DT": 2300 }
                 ],
                 "distTitle": "Current Pipeline Mix (Donut)",
                 "distribution": [
-                    { "name": "At Survey", "value": 35, "color": "#3b82f6" },
-                    { "name": "At Install", "value": 45, "color": "#10b981" },
-                    { "name": "At SAT", "value": 15, "color": "#f59e0b" },
-                    { "name": "At Invoice", "value": 5, "color": "#ef4444" }
+                    { "name": "Installed", "value": 45 },
+                    { "name": "SAT Done", "value": 22 },
+                    { "name": "Invoiced", "value": 15 },
+                    { "name": "Realized", "value": 18 }
                 ],
-                "allowedTrendTypes": ["line"],
-                "allowedDistTypes": ["funnel", "bar", "donut"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["donut", "bar", "pie"],
+                "allowedDurations": ["Current State"]
             }
         }
     ],

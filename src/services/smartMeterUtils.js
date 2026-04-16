@@ -537,64 +537,184 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
     // MI vs SAT vs Invoice Funnel
     if (n.includes('mi vs sat vs invoice') || n.includes('funnel')) {
-        const summary = trendData;
+        const summary = distData || trendData;
+        const detailRows = Array.isArray(trendData) ? trendData : (trendData?.rows || []);
+
+        // Helper to extract metrics from a potentially nested object (e.g., handles root total_mi OR nested total.mi)
+        const getMetrics = (obj) => {
+            if (!obj) return { mi: 0, sat: 0, inv: 0 };
+            const m = obj.total || obj; // Use 'total' sub-object if present
+            return {
+                mi: Number(m.mi || m.total_mi || 0),
+                sat: Number(m.sat || m.total_sat || 0),
+                inv: Number(m.invoice || m.total_invoice || 0)
+            };
+        };
+
+        // 1. Distribution: Funnel (Summary)
+        let totals = getMetrics(summary);
+
+        // Apply category filter to summary if needed
+        if (params.meter_category && params.meter_category !== 'Total' && summary?.category_breakdown) {
+            const catData = getCategoryData(summary.category_breakdown, params.meter_category);
+            if (catData) {
+                totals = getMetrics(catData);
+            }
+        }
+
+        distribution = [
+            { name: 'MI Installed', value: totals.mi },
+            { name: 'SAT Done', value: totals.sat },
+            { name: 'Invoiced', value: totals.inv },
+        ];
+
+        // 2. Trend: Historical progress
+        const periodMap = new Map();
         
         if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const pFlattened = [];
             Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
                 const label = formatLabel(period);
-                
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    const conData = getCategoryData(cats, 'CONSUMER');
-                    const dtData = getCategoryData(cats, 'DT');
-                    const fdData = getCategoryData(cats, 'FEEDER');
+                if (!periodMap.has(label)) periodMap.set(label, { name: label });
+                const pObj = periodMap.get(label);
 
-                    if (conData) point.Consumer = Object.values(conData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    if (dtData) point.DT = Object.values(dtData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    if (fdData) point.Feeder = Object.values(fdData).reduce((a, b) => a + (Number(b.total_invoice) || 0), 0);
-                    
-                    pFlattened.push(point);
+                if (!params.meter_category || params.meter_category === 'Total') {
+                    const pTotals = getMetrics(cats);
+                    pObj['MI'] = (pObj['MI'] || 0) + pTotals.mi;
+                    pObj['SAT'] = (pObj['SAT'] || 0) + pTotals.sat;
+                    pObj['Invoice'] = (pObj['Invoice'] || 0) + pTotals.inv;
                 } else {
-                    const sel = params.meter_category.toUpperCase();
-                    let totalMI = 0;
-                    let totalSAT = 0;
-                    let totalInv = 0;
-                    const catData = getCategoryData(cats, sel);
+                    const catData = getCategoryData(cats, params.meter_category);
                     if (catData) {
-                        Object.values(catData).forEach(m => {
-                            totalMI += (m.total_mi || 0);
-                            totalSAT += (m.total_sat || 0);
-                            totalInv += (m.total_invoice || 0);
-                        });
+                        const cTotals = getMetrics(catData);
+                        pObj['MI'] = (pObj['MI'] || 0) + cTotals.mi;
+                        pObj['SAT'] = (pObj['SAT'] || 0) + cTotals.sat;
+                        pObj['Invoice'] = (pObj['Invoice'] || 0) + cTotals.inv;
                     }
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    pFlattened.push({ name: label, [keyName]: totalInv, 'MI Installed': totalMI, 'SAT Done': totalSAT });
                 }
             });
-            trend = pFlattened;
         } else {
-            trend = [
-                { name: 'MI Installed', value: summary?.total_mi || 0 },
-                { name: 'SAT Done', value: summary?.total_sat || 0 },
-                { name: 'Invoiced', value: summary?.total_invoice || 0 },
-            ];
+            detailRows.forEach(r => {
+                const label = formatLabel(r.period_value || r.date || 'Unknown');
+                if (!periodMap.has(label)) periodMap.set(label, { name: label });
+                const pObj = periodMap.get(label);
+                
+                pObj['MI'] = (pObj['MI'] || 0) + Number(r.mi || r.total_mi || 0);
+                pObj['SAT'] = (pObj['SAT'] || 0) + Number(r.sat || r.total_sat || 0);
+                pObj['Invoice'] = (pObj['Invoice'] || 0) + Number(r.invoice || r.total_invoice || 0);
+            });
+        }
+        trend = Array.from(periodMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+        return { trend, distribution };
+    }
+
+
+    // Revenue Ageing
+    if (n.includes('revenue') && n.includes('ageing')) {
+        const summary = distData || trendData;
+        const buckets = ['age_0_30', 'age_31_60', 'age_61_90', 'age_90_plus'];
+        const bucketLabels = {
+            'age_0_30': '0-30 Days',
+            'age_31_60': '31-60 Days',
+            'age_61_90': '61-90 Days',
+            'age_90_plus': '90+ Days'
+        };
+
+        const sumAgeingBuckets = (obj) => {
+            const result = { age_0_30: 0, age_31_60: 0, age_61_90: 0, age_90_plus: 0 };
+            if (!obj) return result;
+
+            // Prioritize 'total' key at this level if it exists to avoid double-counting categories
+            if (obj.total && typeof obj.total === 'object' && !Array.isArray(obj.total)) {
+                buckets.forEach(b => {
+                    result[b] += Number(obj.total[b] || 0);
+                });
+                return result;
+            }
+
+            // Otherwise recurse to find these keys in children
+            const traverse = (item) => {
+                if (typeof item !== 'object' || item === null) return;
+                
+                // If a child has a 'total' child, use that and stop
+                if (item.total && typeof item.total === 'object') {
+                    buckets.forEach(b => { result[b] += Number(item.total[b] || 0); });
+                    return;
+                }
+
+                let foundBucket = false;
+                buckets.forEach(b => {
+                    if (item[b] !== undefined && typeof item[b] !== 'object') {
+                        result[b] += Number(item[b] || 0);
+                        foundBucket = true;
+                    }
+                });
+                if (!foundBucket) {
+                    Object.values(item).forEach(traverse);
+                }
+            };
+            traverse(obj);
+            return result;
+        };
+
+        // 1. Distribution: Ageing Buckets
+        let distStats;
+        if (!params.meter_category || params.meter_category === 'Total') {
+            distStats = sumAgeingBuckets(summary?.category_breakdown);
+        } else {
+            const catData = getCategoryData(summary?.category_breakdown, params.meter_category);
+            distStats = sumAgeingBuckets(catData);
         }
 
-        if (Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'total_invoice');
+        distribution = buckets.map(b => ({
+            name: bucketLabels[b],
+            value: distStats[b],
+            avg: distStats[b] // For BoxPlot
+        }));
+
+        // 2. Trend: Historical Ageing
+        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
+            trend = Object.entries(summary.period_breakdown).map(([period, cats]) => {
+                const label = formatLabel(period);
+                
+                if (!params.meter_category || params.meter_category === 'Total') {
+                    // Use category-specific keys for the trend chart to allow stacking/independence
+                    const point = { name: label };
+                    let grandTotal = 0;
+                    ['CONSUMER', 'DT', 'FEEDER'].forEach(c => {
+                        const cData = getCategoryData(cats, c);
+                        const cStats = sumAgeingBuckets(cData);
+                        const cTotal = Object.values(cStats).reduce((sum, val) => sum + val, 0);
+                        point[c === 'CONSUMER' ? 'Consumer' : (c === 'DT' ? 'DT' : 'Feeder')] = cTotal;
+                        grandTotal += cTotal;
+                    });
+                    // Fallback if no specific categories matched but there's a top-level total
+                    if (grandTotal === 0 && cats.total) {
+                        const tStats = sumAgeingBuckets(cats.total);
+                        point.value = Object.values(tStats).reduce((sum, val) => sum + val, 0);
+                    }
+                    return point;
+                } else {
+                    const catData = getCategoryData(cats, params.meter_category);
+                    const cStats = sumAgeingBuckets(catData);
+                    const total = Object.values(cStats).reduce((sum, val) => sum + val, 0);
+                    return { name: label, value: total };
+                }
+            }).sort((a, b) => {
+                const dateA = new Date(a.name);
+                const dateB = new Date(b.name);
+                if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) return dateA - dateB;
+                return a.name.localeCompare(b.name);
+            });
         } else {
-            distribution = [
-                { name: 'MI Installed', value: summary?.total_mi || 0 },
-                { name: 'SAT Done', value: summary?.total_sat || 0 },
-                { name: 'Invoiced', value: summary?.total_invoice || 0 },
-            ];
+            trend = distribution; 
         }
+
         return { trend, distribution };
     }
 
     // Revenue Realized
-    if (n.includes('revenue realized')) {
+    if (n.includes('revenue realized') && !n.includes('ageing')) {
         const summary = trendData;
         if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
             const pFlattened = [];
@@ -633,62 +753,6 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 name: d.name,
                 value: Object.values(d).find(v => typeof v === 'number') || 0
             }));
-        }
-        return { trend, distribution };
-    }
-
-    // Revenue Ageing
-    if (n.includes('revenue ageing')) {
-        const summary = trendData;
-        const buckets = { '0–30': 0, '31–60': 0, '61–90': 0, '90+': 0 };
-        
-        if (summary?.category_breakdown && !Array.isArray(summary.category_breakdown)) {
-            const flattened = flattenNestedBreakdown(summary.category_breakdown);
-            flattened.forEach(d => {
-                buckets['0–30'] += (d.age_0_30 || 0);
-                buckets['31–60'] += (d.age_31_60 || 0);
-                buckets['61–90'] += (d.age_61_90 || 0);
-                buckets['90+'] += (d.age_90_plus || 0);
-            });
-        }
-        const bDist = Object.entries(buckets).map(([name, value]) => ({ name: name + ' days', value }));
-        
-        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const pFlattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
-                const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    
-                    const conData = getCategoryData(cats, 'CONSUMER');
-                    const dtData = getCategoryData(cats, 'DT');
-                    const fdData = getCategoryData(cats, 'FEEDER');
-
-                    if (conData) point.Consumer = Object.values(conData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
-                    if (dtData) point.DT = Object.values(dtData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
-                    if (fdData) point.Feeder = Object.values(fdData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
-                    
-                    pFlattened.push(point);
-                } else {
-                    const sel = params.meter_category.toUpperCase();
-                    let total = 0;
-                    const catData = getCategoryData(cats, sel);
-                    if (catData) {
-                        total = Object.values(catData).reduce((sum, metrics) => sum + Object.values(metrics).reduce((a, b) => a + (Number(b) || 0), 0), 0);
-                    }
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    pFlattened.push({ name: label, [keyName]: total });
-                }
-            });
-            trend = pFlattened;
-        } else {
-            trend = bDist; 
-        }
-
-        if (Array.isArray(distData) && distData.length > 0) {
-            distribution = aggregateGeographically(distData, 'total_due');
-        } else {
-            distribution = bDist;
         }
         return { trend, distribution };
     }
@@ -801,36 +865,111 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
     }
 
     // Meter Journey
-    if (n.includes('meter journey')) {
+    if (n.includes('meter journey') || n.includes('meters journey')) {
         const rows = Array.isArray(trendData) ? trendData : [];
-        trend = rows.map(r => ({ name: r.project || 'Total', value: r.total_journey }));
-        distribution = [
-            { name: 'DI to GMR', value: rows[0]?.di_to_gmr || 0 },
-            { name: 'GMR to Agency', value: rows[0]?.gmr_to_agency || 0 },
-            { name: 'Agency to Sup', value: rows[0]?.agency_to_sup || 0 },
-            { name: 'Sup to Install', value: rows[0]?.sup_to_install || 0 },
-            { name: 'Install to SAT', value: rows[0]?.install_to_sat || 0 },
-            { name: 'SAT to Revenue', value: rows[0]?.sat_to_revenue || 0 },
-        ];
-        
-        // If we have detailed distribution data, aggregate geographically
-        if (distData && Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'total_journey');
+        if (rows.length === 0) return { trend: [], distribution: [] };
+
+        // 1. Trend: Group by project and show category-wise journey times
+        const projectMap = new Map();
+        rows.forEach(r => {
+            const p = r.project || 'Total';
+            if (!projectMap.has(p)) projectMap.set(p, { name: p, _counts: {} });
+            const pObj = projectMap.get(p);
+            
+            const rawCat = r.meter_category || 'Total';
+            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : (rawCat.toUpperCase().includes('DT') ? 'DT' : rawCat));
+            
+            const val = Number(r.total_journey || 0);
+            if (pObj[cat] !== undefined) {
+                const count = pObj._counts[cat] || 1;
+                pObj[cat] = (pObj[cat] * count + val) / (count + 1);
+                pObj._counts[cat] = count + 1;
+            } else {
+                pObj[cat] = val;
+                pObj._counts[cat] = 1;
+            }
+        });
+        trend = Array.from(projectMap.values()).map(p => {
+            const { _counts, ...rest } = p;
+            return rest;
+        });
+
+        // 2. Distribution: Average time across specific levels
+        let targetRow;
+        if (params.meter_category && params.meter_category !== 'Total') {
+            const matches = rows.filter(r => (r.meter_category || '').toUpperCase() === params.meter_category.toUpperCase());
+            if (matches.length > 0) {
+                targetRow = {
+                    di_to_gmr: matches.reduce((s, r) => s + (r.di_to_gmr || 0), 0) / matches.length,
+                    gmr_to_agency: matches.reduce((s, r) => s + (r.gmr_to_agency || 0), 0) / matches.length,
+                    agency_to_sup: matches.reduce((s, r) => s + (r.agency_to_sup || 0), 0) / matches.length,
+                    sup_to_install: matches.reduce((s, r) => s + (r.sup_to_install || 0), 0) / matches.length,
+                    install_to_sat: matches.reduce((s, r) => s + (r.install_to_sat || 0), 0) / matches.length,
+                    sat_to_revenue: matches.reduce((s, r) => s + (r.sat_to_revenue || 0), 0) / matches.length,
+                };
+            }
         }
+        
+        if (!targetRow) {
+            const count = rows.length;
+            targetRow = {
+                di_to_gmr: rows.reduce((s, r) => s + (r.di_to_gmr || 0), 0) / count,
+                gmr_to_agency: rows.reduce((s, r) => s + (r.gmr_to_agency || 0), 0) / count,
+                agency_to_sup: rows.reduce((s, r) => s + (r.agency_to_sup || 0), 0) / count,
+                sup_to_install: rows.reduce((s, r) => s + (r.sup_to_install || 0), 0) / count,
+                install_to_sat: rows.reduce((s, r) => s + (r.install_to_sat || 0), 0) / count,
+                sat_to_revenue: rows.reduce((s, r) => s + (r.sat_to_revenue || 0), 0) / count,
+            };
+        }
+
+        distribution = [
+            { name: 'DI → GMR', value: Number(targetRow.di_to_gmr?.toFixed(1) || 0) },
+            { name: 'GMR → Agency', value: Number(targetRow.gmr_to_agency?.toFixed(1) || 0) },
+            { name: 'Agency → Sup', value: Number(targetRow.agency_to_sup?.toFixed(1) || 0) },
+            { name: 'Sup → Install', value: Number(targetRow.sup_to_install?.toFixed(1) || 0) },
+            { name: 'Install → SAT', value: Number(targetRow.install_to_sat?.toFixed(1) || 0) },
+            { name: 'SAT → Revenue', value: Number(targetRow.sat_to_revenue?.toFixed(1) || 0) },
+        ];
         
         return { trend, distribution };
     }
 
     // Meter Stage
-    if (n.includes('meter stage') || n.includes('meter current stage')) {
+    if (n.includes('meter stage') || n.includes('meters stage') || n.includes('meter current stage') || n.includes('meters current stage')) {
         const rows = Array.isArray(trendData) ? trendData : [];
-        distribution = rows.map(r => ({ name: r.current_stage, value: r.meter_count }));
-        trend = [...distribution];
+        if (rows.length === 0) return { trend: [], distribution: [] };
 
-        // If we have detailed distribution data, aggregate geographically
-        if (distData && Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'meter_count');
-        }
+        // 1. Distribution: Aggregate by current_stage
+        const stageMap = new Map();
+        rows.forEach(r => {
+            let stage = (r.current_stage || 'Unknown').replace(/_/g, ' ').trim();
+            // Capitalize
+            stage = stage.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+            
+            const count = Number(r.meter_count || 0);
+            
+            // Filter by category if requested
+            if (!params.meter_category || params.meter_category === 'Total' || (r.meter_category || '').toUpperCase() === params.meter_category.toUpperCase()) {
+                stageMap.set(stage, (stageMap.get(stage) || 0) + count);
+            }
+        });
+        distribution = Array.from(stageMap.entries())
+            .map(([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value);
+
+        // 2. Trend: Group by project and show category-wise totals
+        const projectMap = new Map();
+        rows.forEach(r => {
+            const p = r.project || 'Total';
+            if (!projectMap.has(p)) projectMap.set(p, { name: p });
+            const pObj = projectMap.get(p);
+            
+            const rawCat = r.meter_category || 'Total';
+            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : (rawCat.toUpperCase().includes('DT') ? 'DT' : rawCat));
+            
+            pObj[cat] = (pObj[cat] || 0) + Number(r.meter_count || 0);
+        });
+        trend = Array.from(projectMap.values());
 
         return { trend, distribution };
     }

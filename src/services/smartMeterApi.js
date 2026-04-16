@@ -298,6 +298,13 @@ export function resolveKPIFetchers(kpiName) {
             shared: false,
         };
     }
+    if (n.includes('mi vs sat vs invoice') || n.includes('funnel')) {
+        return {
+            fetchTrend: (p, s) => fetchMIvsSATvsInvoiceSummary(p, s),
+            fetchDistribution: (p, s) => fetchMIvsSATvsInvoiceSummary(p, s),
+            shared: true,
+        };
+    }
     if (n.includes('mi vs sat') || n.includes('mi vs. sat')) {
         return {
             fetchTrend: (p, s) => fetchMIvsSATSummary(p, s),
@@ -312,27 +319,21 @@ export function resolveKPIFetchers(kpiName) {
             shared: true,
         };
     }
-    if (n.includes('meter journey')) {
+    if (n.includes('meter journey') || n.includes('meters journey')) {
         return {
             fetchTrend: (p, s) => fetchMeterJourney(p, s),
             fetchDistribution: (p, s) => fetchMeterJourney(p, s),
             shared: false,
         };
     }
-    if (n.includes('meter stage') || n.includes('meter current stage')) {
+    if (n.includes('meter stage') || n.includes('meters stage') || n.includes('meter current stage') || n.includes('meters current stage')) {
         return {
             fetchTrend: (p, s) => fetchMeterStage(p, s),
             fetchDistribution: (p, s) => fetchMeterStage(p, s),
-            shared: false,
+            shared: true,
         };
     }
-    if (n.includes('mi vs sat vs invoice') || n.includes('funnel')) {
-        return {
-            fetchTrend: (p, s) => fetchMIvsSATvsInvoiceSummary(p, s),
-            fetchDistribution: (p, s) => fetchMIvsSATvsInvoice(p, s),
-            shared: false,
-        };
-    }
+    // Moved up
     if (n.includes('revenue realized')) {
         return {
             fetchTrend: (p, s) => fetchRevenueRealizedSummary(p, s),
@@ -340,11 +341,11 @@ export function resolveKPIFetchers(kpiName) {
             shared: false,
         };
     }
-    if (n.includes('revenue ageing')) {
+    if (n.includes('revenue') && n.includes('ageing')) {
         return {
             fetchTrend: (p, s) => fetchRevenueAgeingSummary(p, s),
-            fetchDistribution: (p, s) => fetchRevenueAgeing(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchRevenueAgeingSummary(p, s),
+            shared: true,
         };
     }
     if (n.includes('defective meters')) {
