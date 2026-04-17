@@ -1220,51 +1220,52 @@ export const dashboardData = {
             "name": "MI-Productivity per team (Total & Category wise)",
             "module": "Meter-Installation",
             "department": "Business",
-            "description": "Output per installation team.",
+            "description": "Output per installation team (agency).",
             "status": "On Track",
             "analysisItems": [
-                { "label": "Formula", "value": "COUNT(*) GROUP BY Technician, Date" },
-                { "label": "Frequency", "value": "Daily / Weekly / Monthly" }
+                { "label": "Formula", "value": "Verified Installations / (Agencies × Days)" },
+                { "label": "Frequency", "value": "Daily / Weekly / Monthly" },
+                { "label": "Categories", "value": "CONSUMER / FEEDER / DT" }
             ],
-            "qualityDescription": "Average installations completed per technician or agency team per active working day.",
+            "qualityDescription": "Average verified installations completed per agency team per working day. Formula: Productivity = Total Verified / (Active Agencies × Active Days).",
             "chartData": {
-                "trendTitle": "Daily Performance",
+                "trendTitle": "Daily Performance (Productivity per Team)",
                 "trend": [
-                    { "name": "Mon", "value": 8 }, { "name": "Tue", "value": 12 }, { "name": "Wed", "value": 10 }
+                    { "name": "Trend Start", "Productivity": 0, "Installations": 0, "Agencies": 0 }
                 ],
-                "distTitle": "Team Comparison (Bar)",
+                "distTitle": "Comparison by Cluster/Project (Productivity)",
                 "distribution": [
-                    { "name": "Team A", "value": 45 }, { "name": "Team B", "value": 38 }, { "name": "Team C", "value": 52 }
+                    { "name": "Sample Label", "value": 0 }
                 ],
-                "allowedTrendTypes": ["bar", "line"],
-                "allowedDistTypes": ["hbar", "bar"]
+                "allowedTrendTypes": ["bar", "line", "area"],
+                "allowedDistTypes": ["bar", "hbar"]
             }
         },
         {
             "name": "Monthly Productivity trend (Total & Category wise)",
             "module": "Meter-Installation",
             "department": "Business",
-            "description": "Productivity trends over time.",
+            "description": "Monthly view of installation productivity.",
             "status": "Stable",
             "analysisItems": [
-                { "label": "Formula", "value": "COUNT(*) GROUP BY DATE_TRUNC('month', installationDate)" },
-                { "label": "Frequency", "value": "Monthly" }
+                { "label": "Formula", "value": "Total Installations / Active Days" },
+                { "label": "Frequency", "value": "Monthly" },
+                { "label": "Comparison", "value": "By Project / Geographically" }
             ],
-            "qualityDescription": "Month-over-month growth in installation volume and team efficiency.",
+            "qualityDescription": "Average installations completed per calendar day of the month. Formula: Productivity = Total Installations / Calendar Days (e.g., 31 for Jan, 28 for Feb).",
             "chartData": {
-                "trendTitle": "Monthly Growth",
+                "trendTitle": "Monthly Performance Trend",
                 "trend": [
-                    { "name": "Jan", "value": 1200 }, { "name": "Feb", "value": 1500 }, { "name": "Mar", "value": 1800 }
+                    { "name": "Trend Start", "Productivity": 0, "Installations": 0, "Active Days": 0 }
                 ],
-                "distTitle": "Category Mix",
+                "distTitle": "Comparison by Cluster/Project",
                 "distribution": [
-                    { "name": "1-Phase", "value": 70, "color": "#3b82f6" }, { "name": "3-Phase", "value": 30, "color": "#10b981" }
+                    { "name": "Sample Label", "Productivity": 0, "Installations": 0 }
                 ],
-                "allowedTrendTypes": ["bar", "area"],
-                "allowedDistTypes": ["donut", "bar"],
+                "allowedTrendTypes": ["bar", "line", "area"],
+                "allowedDistTypes": ["bar", "hbar"],
                 "allowedDurations": ["Monthly"],
-                "isMonthlyOnly": true,
-                "isTimeSeries": false
+                "isMonthlyOnly": true
             }
         },
         {

@@ -34,14 +34,15 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 const month = monthNames[date.getMonth()];
                 return `week${week}-${month}`;
             } else if (dur === 'monthly') {
-                if (n.includes('monthly productivity')) {
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    return `${year}-${month}`;
-                }
-                const month = monthNames[date.getMonth()].charAt(0).toUpperCase() + monthNames[date.getMonth()].slice(1);
                 const year = date.getFullYear();
+                const month = monthNames[date.getMonth()].charAt(0).toUpperCase() + monthNames[date.getMonth()].slice(1);
                 return `${month} ${year}`;
+            } else {
+                // Default / Daily: Standardize to YYYY-MM-DD to align with fillDateGaps utility
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
             }
         } catch (e) {
             return rawName;
@@ -179,85 +180,72 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         return { trend, distribution };
     }
 
-    // MI Productivity
+    // MI Productivity per Team (New Dashboard Endpoint)
     if (n.includes('productivity per team') && !n.includes('o&m') && !n.includes('o\\&m')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        const byPeriod = rows.reduce((acc, r) => {
-            const key = formatLabel(r.period_value || 'Unknown');
-            if (!acc[key]) acc[key] = { name: key };
-            
-            const rawCat = r.meter_category || 'Other';
-            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : ((rawCat.toUpperCase() === 'DT' || rawCat.toUpperCase() === 'DTR') ? 'DT' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : rawCat));
-            
-            acc[key][cat] = (acc[key][cat] || 0) + (r.daily_installations || 0);
-            return acc;
-        }, {});
-        trend = Array.from(Object.values(byPeriod)).sort((a,b) => a.name.localeCompare(b.name));
+        const dashboardData = trendData; // Since shared: true
+        const project = (params?.project || 'all').toLowerCase();
+        const level = (params?.level_by || params?.level || 'discom').toLowerCase();
 
-        const byTech = rows.reduce((acc, r) => {
-            acc[r.technician] = (acc[r.technician] || 0) + (r.daily_installations || 0);
-            return acc;
-        }, {});
-        
-        // Default distribution: Technician breakdown
-        distribution = Object.entries(byTech)
-            .map(([name, value]) => ({
-                name: name.length > 20 ? name.substring(0, 18) + '…' : name,
-                value
-            }))
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 20);
-
-        // If we have detailed distribution data, aggregate geographically
-        if (distData && Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'daily_installations');
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.date || node.period_value);
+                
+                return {
+                    name: label,
+                    Productivity: node.productivity_per_agency_per_day || 0,
+                    Installations: node.total_installations || 0,
+                    Agencies: node.active_agencies || 0
+                };
+            });
         }
 
-        return { trend, distribution };
+        // 2. Comparison (Geographical/Cluster)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => {
+                let label = node.label || 'Unknown';
+                
+                // Behavior Note: Prefix labels if project=all and level is more granular than project/discom
+                if (project === 'all' && level !== 'project' && level !== 'discom' && node.project_prefix) {
+                    label = `${node.project_prefix} | ${label}`;
+                }
+
+                return {
+                    name: label,
+                    Productivity: node.productivity_per_agency_per_day || 0,
+                    Installations: node.total_installations || 0,
+                    Teams: node.active_agencies || 0
+                };
+            });
+        }
+
+        return { trend, distribution, summary: dashboardData?.summary, insights: dashboardData?.insights };
     }
 
-    // Monthly Productivity
+    // Monthly Productivity Trend (New Dashboard Endpoint)
     if (n.includes('monthly productivity')) {
-        const summary = trendData && !Array.isArray(trendData) ? trendData : null;
+        const dashboardData = trendData; // Since shared: true
         
-        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const pFlattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
-                const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    const conData = getCategoryData(cats, 'CONSUMER');
-                    const dtData = getCategoryData(cats, 'DT');
-                    const fdData = getCategoryData(cats, 'FEEDER');
-
-                    if (conData) point.Consumer = sumDeep(conData);
-                    if (dtData) point.DT = sumDeep(dtData);
-                    if (fdData) point.Feeder = sumDeep(fdData);
-                    
-                    pFlattened.push(point);
-                } else {
-                    const sel = params.meter_category.toUpperCase();
-                    let total = 0;
-                    const catData = getCategoryData(cats, sel);
-                    if (catData) total = sumDeep(catData);
-                    
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    pFlattened.push({ name: label, [keyName]: total });
-                }
-            });
-            trend = pFlattened;
-        } else {
-            trend = aggregateData(trendData, 'period_value', 'total_monthly_installations');
-        }
-
-        if (Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'total_monthly_installations');
-        } else {
-            distribution = flattenNestedBreakdown(distData?.category_breakdown).map(d => ({
-                name: d.name,
-                value: Object.values(d).find(v => typeof v === 'number') || 0
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.monthly_productivity_trend)) {
+            trend = dashboardData.monthly_productivity_trend.map(node => ({
+                name: formatLabel(node.month),
+                Productivity: node.productivity_per_day || 0,
+                Installations: node.total_installations || 0,
+                'Active Days': node.active_days || 0
             }));
         }
+        
+        // 2. Comparison
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                Productivity: node.productivity_per_day || 0,
+                Installations: node.total_installations || 0,
+                'Active Days': node.active_days || 0
+            }));
+        }
+        
         return { trend, distribution };
     }
 

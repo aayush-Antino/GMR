@@ -7,9 +7,11 @@ export const GMR = {
     slate: '#1e293b',   // Darker Text
     grid: '#f1f5f9',    // Soft Grid
     bg: 'rgba(255, 255, 255, 0.8)',
+    yellow: '#fbbf24',  // Amber/Yellow
+    red: '#ef4444',     // Red
 };
 
-export const GMR_PALETTE = [GMR.blue, GMR.green, GMR.orange, GMR.purple, GMR.pink];
+export const GMR_PALETTE = [GMR.blue, GMR.green, GMR.orange, GMR.purple, GMR.pink, GMR.yellow, GMR.red];
 
 export const KEY_COLORS = {
     'total monthly installations': GMR.blue,
@@ -45,6 +47,11 @@ export const KEY_COLORS = {
     'remaining': '#94a3b8',
     'inventory': GMR.blue,
     'stock': GMR.blue,
+    'productivity': GMR.yellow,
+    'agencies': GMR.red,
+    'teams': GMR.red,
+    'active days': GMR.red,
+    'active_days': GMR.red,
 };
 
 export const getColor = (key, index) => {
@@ -78,7 +85,7 @@ const isDate = (val) => {
     if (typeof val !== 'string') return false;
     // Basic date patterns: YYYY-MM-DD, DD-MM-YYYY, DD/MM/YYYY, Monthly/Daily formats
     // Also handles week patterns like YYYY-W## or YYYY-Www
-    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}|\d{4}-W\d{1,2}|[a-zA-Z]{3}-\d{4}|[a-zA-Z]{3}-\d{2})$/i;
+    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}|\d{4}-W\d{1,2}|[a-zA-Z]{3}[-\s]\d{2,4})$/i;
     return dateRegex.test(val);
 };
 
@@ -113,7 +120,8 @@ export const detectVariant = (data, name) => {
 
     if (keys.includes('avg')) return 'boxplot';
     if (keys.includes('cumulative')) return 'pareto';
-    if (keys.includes('installations') && keys.includes('stock')) return 'dual-axis';
+    const lowerKeys = keys.map(k => k.toLowerCase());
+    if (lowerKeys.includes('installations') && (lowerKeys.includes('stock') || lowerKeys.includes('productivity'))) return 'dual-axis';
     if (data.length <= 4 && keys.includes('color')) return 'donut';
     
     // Time-series data (dates or weeks) - always vertical bar or area, never hbar

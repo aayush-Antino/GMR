@@ -89,6 +89,24 @@ export async function fetchMIProductivity(params = {}, signal = null) {
     return apiFetch('/api/mi/productivity', params, signal);
 }
 
+export async function fetchMIProductivityTeamDashboard(params = {}, signal = null) {
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+
+    return apiFetch('/api/mi/productivity/team/dashboard', mappedParams, signal);
+}
+
 // ──────────────────────────────────────────────
 // KPI 3 – Monthly Productivity
 // Requires: period_value (YYYY-MM)
@@ -108,6 +126,24 @@ export async function fetchMonthlyProductivity(params = {}, signal = null) {
         params.period_value = new Date().toISOString().slice(0, 7);
     }
     return apiFetch('/api/mi/monthly-productivity', params, signal);
+}
+
+export async function fetchMonthlyProductivityTrendDashboard(params = {}, signal = null) {
+    const mappedParams = {
+        duration: params.period || 'monthly',
+        level: params.level_by || 'zone',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+
+    return apiFetch('/api/mi/productivity/trend/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -287,16 +323,16 @@ export function resolveKPIFetchers(kpiName) {
     }
     if (n.includes('productivity per team') && !n.includes('o&m') && !n.includes('o\\&m')) {
         return {
-            fetchTrend: (p, s) => fetchMIProductivity(p, s),
-            fetchDistribution: (p, s) => fetchMIProductivity(p, s),
-            shared: false,
+            fetchTrend: (p, s) => fetchMIProductivityTeamDashboard(p, s),
+            fetchDistribution: (p, s) => fetchMIProductivityTeamDashboard(p, s),
+            shared: true,
         };
     }
     if (n.includes('monthly productivity')) {
         return {
-            fetchTrend: (p, s) => fetchMonthlyProductivitySummary(p, s),
-            fetchDistribution: (p, s) => fetchMonthlyProductivity(p, s),
-            shared: false,
+            fetchTrend: (p, s) => fetchMonthlyProductivityTrendDashboard(p, s),
+            fetchDistribution: (p, s) => fetchMonthlyProductivityTrendDashboard(p, s),
+            shared: true,
         };
     }
     if (n.includes('inventory utilization')) {

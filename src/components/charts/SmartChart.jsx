@@ -3,6 +3,7 @@ import {
     AreaChart, Area,
     LineChart, Line,
     BarChart, Bar,
+    ComposedChart,
     PieChart, Pie, Cell,
     RadarChart, PolarGrid, PolarAngleAxis, Radar,
     XAxis, YAxis, CartesianGrid, Label, LabelList,
@@ -70,23 +71,29 @@ const CustomLabel = ({ x, y, value, color, position = 'top' }) => (
         </text>
     </g>
 );
-
 const renderCustomLegend = (props) => {
     const { payload } = props;
     if (!payload) return null;
     return (
         <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 pt-2">
-            {payload.map((entry, index) => (
-                <li key={`item-${index}`} className="flex items-center gap-2 select-none">
-                    <span 
-                        className="h-2.5 w-2.5 rounded-full shadow-sm shadow-black/10" 
-                        style={{ backgroundColor: getColor(entry.value?.toString().trim()) || entry.color || GMR.blue }} 
-                    />
-                    <span className="text-[12px] font-extrabold text-slate-700 capitalize tracking-tight">
-                        {entry.value}
-                    </span>
-                </li>
-            ))}
+            {payload.map((entry, index) => {
+                const isUrl = entry.color && entry.color.includes('url');
+                const backgroundColor = isUrl 
+                    ? getColor(entry.value?.toString().trim())
+                    : (entry.color || getColor(entry.value?.toString().trim()) || GMR.blue);
+
+                return (
+                    <li key={`item-${index}`} className="flex items-center gap-2 select-none">
+                        <span 
+                            className="h-2.5 w-2.5 rounded-full shadow-sm shadow-black/10" 
+                            style={{ backgroundColor }} 
+                        />
+                        <span className="text-[12px] font-extrabold text-slate-700 capitalize tracking-tight">
+                            {entry.value}
+                        </span>
+                    </li>
+                );
+            })}
         </ul>
     );
 };
@@ -214,9 +221,20 @@ const DonutVariant = ({ data }) => {
 };
 
 const CustomHBarLabel = (props) => {
-    const { x, y, width, height, value } = props;
-    // Don't render if the segment is too narrow to fit a label
-    if (width < 50) return null;
+    const { x, y, width, height, value, index, parentData } = props;
+    const formatted = formatValue(value);
+    
+    // Density check: hide labels if there are too many bars
+    if (parentData && parentData.length > 30) return null;
+
+    // Dynamic font size calculation
+    const baseFontSize = height < 12 ? 8 : 9;
+    const textWidth = typeof formatted === 'string' ? formatted.length * 6 : 10;
+    const fontSize = textWidth > width - 10 ? Math.max(6, Math.floor((width - 10) / formatted.length * 1.5)) : baseFontSize;
+
+    // Don't render if the segment or font is too small or too thin
+    if (width < 40 || fontSize < 7) return null;
+    
     return (
         <text 
             x={x + width - 8} 
@@ -224,11 +242,11 @@ const CustomHBarLabel = (props) => {
             fill="#fff" 
             textAnchor="end" 
             dominantBaseline="middle" 
-            fontSize={height < 10 ? 0 : 9} 
+            fontSize={fontSize} 
             fontWeight={700}
             pointerEvents="none"
         >
-            {formatValue(value)}
+            {formatted}
         </text>
     );
 };
@@ -282,7 +300,7 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                     >
                         <LabelList
                             dataKey={key}
-                            content={<CustomHBarLabel />}
+                            content={<CustomHBarLabel parentData={data} />}
                         />
                     </Bar>
                 ))}
@@ -292,9 +310,20 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
 };
 
 const CustomVBarLabel = (props) => {
-    const { x, y, width, height, value } = props;
-    // Don't render if the segment is too short to fit a label
-    if (height < 25) return null;
+    const { x, y, width, height, value, parentData } = props;
+    const formatted = formatValue(value);
+    
+    // Density check: hide labels if there are too many bars
+    if (parentData && parentData.length > 30) return null;
+
+    // Dynamic font size calculation
+    const baseFontSize = width < 20 ? 8 : 9;
+    const textWidth = typeof formatted === 'string' ? formatted.length * 6 : 10;
+    const fontSize = textWidth > width - 4 ? Math.max(6, Math.floor((width - 4) / formatted.length * 1.5)) : baseFontSize;
+
+    // Don't render if the segment or font is too small or too thin
+    if (height < 25 || width < 30 || fontSize < 7) return null;
+
     return (
         <text 
             x={x + width / 2} 
@@ -302,11 +331,11 @@ const CustomVBarLabel = (props) => {
             fill="#fff" 
             textAnchor="middle" 
             dominantBaseline="middle" 
-            fontSize={width < 10 ? 0 : 9} 
+            fontSize={fontSize} 
             fontWeight={700}
             pointerEvents="none"
         >
-            {formatValue(value)}
+            {formatted}
         </text>
     );
 };
@@ -360,7 +389,7 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                     >
                         <LabelList
                             dataKey={key}
-                            content={<CustomVBarLabel />}
+                            content={<CustomVBarLabel parentData={data} />}
                         />
                     </Bar>
                 ))}
@@ -479,19 +508,67 @@ const ParetoVariant = ({ data }) => {
     );
 };
 
-const DualAxisVariant = ({ data }) => {
+const DualAxisVariant = ({ data, chartName }) => {
+    const keys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    const chartId = slugify(chartName || 'dual-axis');
+    
+    // Auto-detect left vs right axis based on keywords
+    const leftMetric = keys.find(k => k.toLowerCase().includes('installation')) || keys[0];
+    const rightMetric = keys.find(k => k !== leftMetric && (k.toLowerCase().includes('productivity') || k.toLowerCase().includes('stock') || k.toLowerCase().includes('agency') || k.toLowerCase().includes('team'))) || keys[1];
+
+    if (!leftMetric || !rightMetric) return <BarVariant data={data} />;
+
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
+            <ComposedChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GMR.grid} />
                 <XAxis dataKey="name" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="left" tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
+                    <Label value={leftMetric} angle={-90} position="insideLeft" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
+                </YAxis>
+                <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} tickFormatter={formatValue}>
+                    <Label value={rightMetric} angle={90} position="insideRight" style={{ ...AXIS_STYLE, fontSize: 10, textAnchor: 'middle' }} offset={10} />
+                </YAxis>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend content={renderCustomLegend} verticalAlign="top" />
-                <Line yAxisId="left" dataKey="installations" stroke={GMR.green} strokeWidth={4} dot={{ fill: GMR.green, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
-                <Line yAxisId="right" dataKey="stock" stroke={GMR.blue} strokeWidth={4} strokeDasharray="6 6" dot={{ fill: GMR.blue, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
-            </LineChart>
+                
+                {/* Metric 1: Volume (Bar) */}
+                <Bar 
+                    yAxisId="left" 
+                    dataKey={leftMetric} 
+                    fill={getColor(leftMetric, 0)} 
+                    fillOpacity={0.8}
+                    radius={[4, 4, 0, 0]} 
+                    barSize={32}
+                    animationDuration={1500}
+                />
+                
+                {/* Metric 2: Efficiency/Ratio (Line) */}
+                <Line 
+                    yAxisId="right" 
+                    type="monotone"
+                    dataKey={rightMetric} 
+                    stroke={getColor(rightMetric, 1)} 
+                    strokeWidth={4} 
+                    dot={{ fill: getColor(rightMetric, 1), r: 6, strokeWidth: 0 }} 
+                    isAnimationActive={true}
+                    animationDuration={2000}
+                />
+
+                {/* Additional metrics (if any) go to right axis as simple lines */}
+                {keys.filter(k => k !== leftMetric && k !== rightMetric).map((key, i) => (
+                    <Line 
+                        key={key}
+                        yAxisId="right" 
+                        type="monotone"
+                        dataKey={key}
+                        stroke={getColor(key, i + 2)}
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={true}
+                    />
+                ))}
+            </ComposedChart>
         </ResponsiveContainer>
     );
 };

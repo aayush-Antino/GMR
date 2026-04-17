@@ -91,8 +91,8 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         period: isCustomDate ? getPeriodFromRange(fromDate, toDate) : duration.toLowerCase(),
         level_by: levelToParam(level),
         ...(category !== 'Total' ? { meter_category: category.toLowerCase() } : {}),
-        ...(isCustomDate && fromDate ? { from_date: fromDate } : {}),
-        ...(isCustomDate && toDate ? { to_date: toDate } : {}),
+        ...(fromDate ? { from_date: fromDate } : {}),
+        ...(toDate ? { to_date: toDate } : {}),
         ...(selectedProject !== 'All' ? { project: selectedProject } : {}),
     } : {};
 
@@ -146,7 +146,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
             setLevel('Discom');
             setSelectedProject('All');
             setTrendType(kpi.chartData?.isTimeSeries === false ? 'bar' : null);
-            setDistType('hbar');
+            setDistType(null);
         }
     }, [kpi?.name, isOpen]); // Add isOpen so it resets when modal re-opens
 
