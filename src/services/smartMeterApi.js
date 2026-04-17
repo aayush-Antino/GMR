@@ -151,11 +151,28 @@ export async function fetchMonthlyProductivityTrendDashboard(params = {}, signal
 // Summary Response: { total_inventory, total_installed, utilization_rate_pct, remaining_stock }
 // ──────────────────────────────────────────────
 export async function fetchInventoryUtilizationSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/inventory-utilization/summary', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/mi/inventory-utilization/summary', mappedParams, signal);
 }
 
+// Deprecated: new dashboard endpoint provides both trend and comparison
 export async function fetchInventoryUtilization(params = {}, signal = null) {
-    return apiFetch('/api/mi/inventory-utilization', params, signal);
+    return fetchInventoryUtilizationSummary(params, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -163,11 +180,28 @@ export async function fetchInventoryUtilization(params = {}, signal = null) {
 // Summary Response: { total_inventory, total_installed, utilization_rate_pct, remaining_stock }
 // ──────────────────────────────────────────────
 export async function fetchPaceVsStockSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/pace-vs-stock/summary', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/mi/pace-vs-stock/summary', mappedParams, signal);
 }
 
+// Deprecated: new dashboard endpoint provides both trend and comparison
 export async function fetchPaceVsStockDetail(params = {}, signal = null) {
-    return apiFetch('/api/mi/pace-vs-stock', params, signal);
+    return fetchPaceVsStockSummary(params, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -180,6 +214,27 @@ export async function fetchStockAgeing(params = {}, signal = null) {
 
 export async function fetchStockAgeingSummary(params = {}, signal = null) {
     return apiFetch('/api/mi/stock-ageing/summary', params, signal);
+}
+
+export async function fetchStockAgeingDashboard(params = {}, signal = null) {
+    const mappedParams = {
+        duration: params.period || 'monthly',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params,
+        category: (params.category || params.meter_category || 'total').toLowerCase()
+    };
+
+    delete mappedParams.meter_category;
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+
+    return apiFetch('/api/mi/stock-ageing/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -252,11 +307,28 @@ export async function fetchRevenueAgeing(params = {}, signal = null) {
 // KPI 14 – Defective Meters
 // ──────────────────────────────────────────────
 export async function fetchDefectiveMetersSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/defective-meters/summary', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params,
+        category: (params.meter_category || 'total').toLowerCase()
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/mi/defective-meters/summary', mappedParams, signal);
 }
 
+// Deprecated: new dashboard endpoint provides both trend and comparison
 export async function fetchDefectiveMeters(params = {}, signal = null) {
-    return apiFetch('/api/mi/defective-meters', params, signal);
+    return fetchDefectiveMetersSummary(params, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -338,22 +410,22 @@ export function resolveKPIFetchers(kpiName) {
     if (n.includes('inventory utilization')) {
         return {
             fetchTrend: (p, s) => fetchInventoryUtilizationSummary(p, s),
-            fetchDistribution: (p, s) => fetchInventoryUtilization(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchInventoryUtilizationSummary(p, s),
+            shared: true,
         };
     }
     if (n.includes('pace') && n.includes('stock')) {
         return {
             fetchTrend: (p, s) => fetchPaceVsStockSummary(p, s),
-            fetchDistribution: (p, s) => fetchPaceVsStockDetail(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchPaceVsStockSummary(p, s),
+            shared: true,
         };
     }
     if (n.includes('stock ageing') || n.includes('un-utilized stock ageing')) {
         return {
-            fetchTrend: (p, s) => fetchStockAgeing(p, s),
-            fetchDistribution: (p, s) => fetchStockAgeingSummary(p, s),
-            shared: false,
+            fetchTrend: (p, s) => fetchStockAgeingDashboard(p, s),
+            fetchDistribution: (p, s) => fetchStockAgeingDashboard(p, s),
+            shared: true,
         };
     }
     if (n.includes('mi vs sat vs invoice') || n.includes('funnel')) {
@@ -409,8 +481,8 @@ export function resolveKPIFetchers(kpiName) {
     if (n.includes('defective meters')) {
         return {
             fetchTrend: (p, s) => fetchDefectiveMetersSummary(p, s),
-            fetchDistribution: (p, s) => fetchDefectiveMeters(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchDefectiveMetersSummary(p, s),
+            shared: true,
         };
     }
     // O&M KPIs

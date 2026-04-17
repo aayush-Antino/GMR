@@ -99,7 +99,8 @@ const renderCustomLegend = (props) => {
 };
 
 const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, chartName }) => {
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const chartId = slugify(chartName || 'chart');
     
     // Dynamic interval to keep labels readable
@@ -110,7 +111,7 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, ch
             <AreaChart data={data} margin={{ top: 35, right: 20, left: 10, bottom: 20 }}>
                 <defs>
                     {keys.map((key, i) => (
-                        <linearGradient key={`${chartId}-${key}`} id={`${chartId}-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient key={`${chartId}-${slugify(key)}`} id={`${chartId}-grad-${slugify(key)}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={getColor(key, i)} stopOpacity={0.4} />
                             <stop offset="95%" stopColor={getColor(key, i)} stopOpacity={0.05} />
                         </linearGradient>
@@ -139,7 +140,7 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, ch
                         dataKey={key}
                         stroke={getColor(key, i)}
                         strokeWidth={data.length > 100 ? 1.5 : 3} // Thinner line for very high density
-                        fill={`url(#${chartId}-grad-${key})`}
+                        fill={`url(#${chartId}-grad-${slugify(key)})`}
                         dot={data.length > 50 ? false : { fill: getColor(key, i), r: 4, strokeWidth: 0 }} // Hide dots for dense data
                         activeDot={{ r: 6, strokeWidth: 0 }}
                         animationDuration={1200}
@@ -252,7 +253,8 @@ const CustomHBarLabel = (props) => {
 };
 
 const HBarVariant = ({ data, xLabel, yLabel }) => {
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 15;
     const barSize = isDense ? Math.max(6, Math.min(12, 400 / data.length)) : 16;
 
@@ -261,7 +263,7 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
             <BarChart data={data} layout="vertical" margin={{ top: 35, right: 80, left: 20, bottom: 20 }} barGap={2}>
                 <defs>
                     {keys.map((key, i) => (
-                        <linearGradient key={key} id={`hbar-grad-${key}`} x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient key={key} id={`hbar-grad-${slugify(key)}`} x1="0" y1="0" x2="1" y2="0">
                             <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={0.8} />
                             <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={1} />
                         </linearGradient>
@@ -290,7 +292,7 @@ const HBarVariant = ({ data, xLabel, yLabel }) => {
                         key={key}
                         dataKey={key}
                         stackId="a"
-                        fill={`url(#hbar-grad-${key})`}
+                        fill={`url(#hbar-grad-${slugify(key)})`}
                         stroke={getColor(key, i)}
                         strokeWidth={1}
                         radius={i === keys.length - 1 ? [0, 4, 4, 0] : [0, 0, 0, 0]}
@@ -341,7 +343,8 @@ const CustomVBarLabel = (props) => {
 };
 
 const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 10;
     const barSize = isDense ? Math.max(12, 300 / data.length) : 32;
     const interval = propInterval !== undefined ? propInterval : (data.length > 30 ? Math.floor(data.length / 8) : (isDense ? 'preserveStartEnd' : 0));
@@ -351,7 +354,7 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
             <BarChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 20 }}>
                 <defs>
                     {keys.map((key, i) => (
-                        <linearGradient key={key} id={`bar-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient key={key} id={`bar-grad-${slugify(key)}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={1} />
                             <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={0.7} />
                         </linearGradient>
@@ -379,7 +382,7 @@ const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
                         key={key}
                         dataKey={key}
                         stackId="a"
-                        fill={`url(#bar-grad-${key})`}
+                        fill={`url(#bar-grad-${slugify(key)})`}
                         stroke={getColor(key, i)}
                         strokeWidth={1}
                         radius={i === keys.length - 1 ? [6, 6, 0, 0] : [0, 0, 0, 0]} // Only top bar gets rounded corners
@@ -438,15 +441,17 @@ const GaugeVariant = ({ data }) => {
 };
 
 const BoxPlotVariant = ({ data }) => {
-    const keys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && typeof data[0][k] === 'number');
-    if (keys.length === 0) keys.push('value');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && typeof data[0][k] === 'number');
+    const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
+    if (keys.length === 0 && !rawKeys.includes('value')) keys.push('value');
+    if (keys.length === 0 && rawKeys.includes('value')) keys.push('value');
 
     return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 35, right: 30, left: 20, bottom: 20 }}>
                 <defs>
                     {keys.map((key, i) => (
-                        <linearGradient key={key} id={`boxplot-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                        <linearGradient key={key} id={`boxplot-grad-${slugify(key)}`} x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor={getColor(key, i)} stopOpacity={1} />
                             <stop offset="100%" stopColor={getColor(key, i)} stopOpacity={0.6} />
                         </linearGradient>
@@ -461,7 +466,7 @@ const BoxPlotVariant = ({ data }) => {
                     <Bar 
                         key={key}
                         dataKey={key} 
-                        fill={`url(#boxplot-grad-${key})`} 
+                        fill={`url(#boxplot-grad-${slugify(key)})`} 
                         stroke={getColor(key, i)} 
                         radius={[6, 6, 6, 6]} 
                         barSize={32} 
@@ -501,7 +506,7 @@ const ParetoVariant = ({ data }) => {
                 <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend content={renderCustomLegend} verticalAlign="top" />
-                <Bar yAxisId="left" name="Value" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative') || 'value'} fill={GMR.blue} stroke={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
+                <Bar yAxisId="left" name="Value" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative' && k !== 'value') || 'value'} fill={GMR.blue} stroke={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
                 <Line yAxisId="right" name="Cumulative %" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
             </BarChart>
         </ResponsiveContainer>
@@ -509,7 +514,8 @@ const ParetoVariant = ({ data }) => {
 };
 
 const DualAxisVariant = ({ data, chartName }) => {
-    const keys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const chartId = slugify(chartName || 'dual-axis');
     
     // Auto-detect left vs right axis based on keywords

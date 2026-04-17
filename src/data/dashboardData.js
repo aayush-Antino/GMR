@@ -1272,107 +1272,97 @@ export const dashboardData = {
             "name": "Defective Meters",
             "module": "Meter-Installation",
             "department": "Business",
-            "description": "Meters found with technical defects.",
+            "description": "Tracks defective meters based on replacement data.",
             "status": "Warning",
             "analysisItems": [
-                { "label": "Metric", "value": "Count of Failures" },
-                { "label": "Focus", "value": "Tech/Commercial" }
+                { "label": "Formula", "value": "COUNT(complaints WHERE old_sn AND new_sn)" },
+                { "label": "Defect Types", "value": "Meter Burnt / Meter Faulty / Others" }
             ],
-            "qualityDescription": "Meters rejected during installation or pre-installation check due to manufacturing flaws or damage.",
+            "qualityDescription": "Tracks defective meters identified through complaints where both old and new smart meter numbers are recorded, indicating a replacement has occurred. Categorized into Burnt, Faulty, and Others.",
             "chartData": {
-                "trendTitle": "Defect Rate (%)",
+                "trendTitle": "Defective View Trend",
                 "trend": [
-                    { "name": "W1", "value": 1.2 }, { "name": "W2", "value": 0.8 }, { "name": "W3", "value": 2.1 }
+                    { "name": "Trend Start", "Burnt": 0, "Faulty": 0, "Others": 0 }
                 ],
-                "distTitle": "RCA Defect Types (Pareto)",
+                "distTitle": "Defective Comparison by Cluster",
                 "distribution": [
-                    { "name": "Display", "value": 45, "cumulative": 45 },
-                    { "name": "Comm Module", "value": 30, "cumulative": 75 },
-                    { "name": "Accuracy", "value": 15, "cumulative": 90 },
-                    { "name": "Physical", "value": 10, "cumulative": 100 }
+                    { "name": "Sample Label", "Burnt": 0, "Faulty": 0, "Others": 0, "total_defective": 0 }
                 ],
-                "allowedTrendTypes": ["line", "multi-line"],
-                "allowedDistTypes": ["pareto", "bar"]
+                "allowedTrendTypes": ["line", "multi-line", "bar"],
+                "allowedDistTypes": ["bar", "hbar"]
             }
         },
         {
             "name": "Total & Category wise Inventory Utilization rate (Meters & Cable)",
             "module": "Inventory",
             "department": "Business",
-            "description": "Efficiency of material usage.",
+            "description": "Efficiency of material usage (Installed vs Total Stock).",
             "status": "Good",
             "analysisItems": [
-                { "label": "Formula", "value": "(Installed / Total Inventory) * 100" },
-                { "label": "Frequency", "value": "Weekly / Monthly" }
+                { "label": "Formula", "value": "(Total Installed / Total Inventory) * 100" },
+                { "label": "Categories", "value": "CONSUMER / FEEDER / DT" }
             ],
-            "qualityDescription": "Percentage of total stock issued that has been successfully installed and mapped.",
+            "qualityDescription": "Percentage of total stock issued that has been successfully installed and mapped. Tracks utilization trends over time and geographical areas.",
             "chartData": {
-                "trendTitle": "Utilization Trend",
+                "trendTitle": "Inventory Utilization Trend",
                 "trend": [
-                    { "name": "Jan", "value": 65 }, { "name": "Feb", "value": 78 }, { "name": "Mar", "value": 88 }
+                    { "name": "Trend Start", "Inventory": 0, "Installed": 0, "Utilization Rate": 0 }
                 ],
-                "distTitle": "Current Rate (Gauge)",
+                "distTitle": "Geographical Utilization Comparison",
                 "distribution": [
-                    { "name": "Utilization", "value": 88 }
+                    { "name": "Sample Label", "Inventory": 0, "Installed": 0, "Utilization Rate": 0 }
                 ],
-                "allowedTrendTypes": ["area", "line"],
-                "allowedDistTypes": ["gauge", "bar"],
-                "allowedDurations": ["Weekly", "Monthly"]
+                "allowedTrendTypes": ["bar", "area", "line"],
+                "allowedDistTypes": ["bar", "hbar"]
             }
         },
         {
             "name": "MI pace Vs Stock availibility",
             "module": "Inventory",
             "department": "Business",
-            "description": "Installation speed relative to inventory.",
-            "status": "Stable",
+            "description": "Inventory availability vs installation rate.",
+            "status": "Good",
             "analysisItems": [
-                { "label": "Metric", "value": "Daily Install vs Stock" },
-                { "label": "Frequency", "value": "Daily" }
+                { "label": "Formula", "value": "Total Inventory - Total Installed" },
+                { "label": "Key Metric", "value": "Remaining Stock" }
             ],
-            "qualityDescription": "Monitors if the current installation rate will exceed available stock, leading to team downtime.",
+            "qualityDescription": "Tracks remaining stock levels across different geographical areas and categories. Compares the pace of installation with available material reserves.",
             "chartData": {
-                "trendTitle": "Pace vs Availability (Dual Axis)",
+                "trendTitle": "Installation Pace Trend",
                 "trend": [
-                    { "name": "D1", "installations": 120, "stock": 5000 },
-                    { "name": "D2", "installations": 150, "stock": 4850 },
-                    { "name": "D3", "installations": 180, "stock": 4670 }
+                    { "name": "Trend Start", "Total Inventory": 0, "Total Installed": 0, "Remaining Stock": 0 }
                 ],
-                "distTitle": "Stock Coverage (Days)",
+                "distTitle": "Geographical Stock Availability",
                 "distribution": [
-                    { "name": "Meters", "value": 45 }, { "name": "Cable", "value": 12 }
+                    { "name": "Sample Label", "Total Installed": 0, "Total Inventory": 0, "Remaining Stock": 0 }
                 ],
-                "allowedTrendTypes": ["dual-axis", "multi-line"],
-                "allowedDistTypes": ["bar"],
-                "allowedDurations": ["Daily"]
+                "allowedTrendTypes": ["bar", "area", "line"],
+                "allowedDistTypes": ["bar", "hbar"]
             }
         },
         {
             "name": "Un-utilized stock ageing",
             "module": "Inventory",
             "department": "Business",
-            "description": "Duration of stock sitting in inventory.",
+            "description": "Duration in days since stock intake (DIDate) for uninstalled items.",
             "status": "Warning",
             "analysisItems": [
-                { "label": "Formula", "value": "CURRENT_DATE - DIDate WHERE InstalledTS IS NULL" },
-                { "label": "Frequency", "value": "As on date" }
+                { "label": "Formula", "value": "CURRENT_DATE - DI_DATE" },
+                { "label": "Aging Buckets", "value": "0-30 / 31-60 / 61-90 / 90+" }
             ],
-            "qualityDescription": "Identifies slow-moving or obsolete inventory items that have been in stock for extended periods.",
+            "qualityDescription": "Tracks aging of un-utilized stock across discoms and categories. Helps identify aging inventory that requires prioritized installation.",
             "chartData": {
-                "trendTitle": "Stock Intake (90 Days)",
+                "trendTitle": "Stock Ageing Trend",
                 "trend": [
-                    { "name": "M1", "value": 200 }, { "name": "M2", "value": 150 }, { "name": "M3", "value": 100 }
+                    { "name": "Trend Start", "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 }
                 ],
-                "distTitle": "Ageing Buckets (BoxPlot)",
+                "distTitle": "Geographical Ageing Comparison",
                 "distribution": [
-                    { "name": "0-30 days", "avg": 12 },
-                    { "name": "31-60 days", "avg": 45 },
-                    { "name": "61-90 days", "avg": 78 },
-                    { "name": "90+ days", "avg": 120 }
+                    { "name": "Sample Label", "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 }
                 ],
-                "allowedTrendTypes": ["bar", "area"],
-                "allowedDistTypes": ["boxplot", "hbar"],
-                "allowedDurations": ["As on date"]
+                "allowedTrendTypes": ["area", "bar", "line"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["Daily", "Weekly", "Monthly"]
             }
         },
         {

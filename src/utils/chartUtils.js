@@ -46,12 +46,19 @@ export const KEY_COLORS = {
     'installed': GMR.green,
     'remaining': '#94a3b8',
     'inventory': GMR.blue,
+    'total inventory': GMR.blue,
+    'remaining stock': GMR.orange,
+    'utilization rate': GMR.purple,
     'stock': GMR.blue,
     'productivity': GMR.yellow,
     'agencies': GMR.red,
     'teams': GMR.red,
     'active days': GMR.red,
     'active_days': GMR.red,
+    '0-30 days': GMR.green,
+    '31-60 days': GMR.yellow,
+    '61-90 days': GMR.orange,
+    '90+ days': GMR.red,
 };
 
 export const getColor = (key, index) => {

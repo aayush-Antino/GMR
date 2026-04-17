@@ -249,190 +249,221 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         return { trend, distribution };
     }
 
-    // Inventory Utilization
-    if (n.includes('inventory utilization')) {
-        const summary = trendData && !Array.isArray(trendData) ? trendData : null;
+    // Defective Meters (Revamped Dashboard)
+    if (n.includes('defective meters')) {
+        const dashboardData = trendData; // shared: true
         
-        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const flattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
-                const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    
-                    const conData = getCategoryData(cats, 'CONSUMER');
-                    const dtData = getCategoryData(cats, 'DT');
-                    const fdData = getCategoryData(cats, 'FEEDER');
-
-                    if (conData) point.Consumer = Number(conData.total?.installed ?? conData.installed ?? 0);
-                    if (dtData) point.DT = Number(dtData.total?.installed ?? dtData.installed ?? 0);
-                    if (fdData) point.Feeder = Number(fdData.total?.installed ?? fdData.installed ?? 0);
-                    
-                    if (point.Consumer || point.DT || point.Feeder) flattened.push(point);
-                } else {
-                    const sel = params.meter_category.toUpperCase();
-                    const catData = getCategoryData(cats, sel);
-                    const installed = catData?.total?.installed ?? catData?.installed ?? 0;
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    flattened.push({ name: label, [keyName]: Number(installed) });
-                }
-            });
-            trend = flattened;
-        } else if (summary?.period_breakdown?.length > 0) {
-            const map = new Map();
-            summary.period_breakdown.forEach(p => {
-                const label = formatLabel(p.period_value || p.name);
-                map.set(label, (map.get(label) || 0) + Number(p.installed || p.total_installed || 0));
-            });
-            trend = Array.from(map.entries()).map(([name, val]) => ({
-                name,
-                value: val
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.period_value),
+                Burnt: node.burnt || 0,
+                Faulty: node.faulty || 0,
+                Others: node.others || 0
+            }));
+        }
+        
+        // 2. Comparison
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                Burnt: node.burnt || 0,
+                Faulty: node.faulty || 0,
+                Others: node.others || 0,
+                value: node.total_defective || 0
             }));
         }
 
-        // Geographical Comparison
-        if (Array.isArray(distData)) {
-            distribution = aggregateGeographically(distData, 'utilization_rate_pct');
-        } else if (summary?.category_breakdown && !Array.isArray(summary.category_breakdown)) {
-            const catBreakdown = summary.category_breakdown;
-            // Detect if it's deeply nested (cat -> technology -> metrics) or simple (cat -> metrics)
-            const isDeep = typeof Object.values(catBreakdown)[0] === 'object' && !('utilization_rate_pct' in Object.values(catBreakdown)[0]);
-            
-            if (isDeep) {
-                distribution = flattenNestedBreakdown(catBreakdown).map(d => ({
-                    name: d.name,
-                    value: d.installed ?? d.utilization_rate_pct ?? (typeof d.value === 'number' ? d.value : (Object.values(d).find(v => typeof v === 'number') || 0))
-                }));
-            } else {
-                distribution = Object.entries(catBreakdown).map(([name, val]) => {
-                    const label = name.toUpperCase() === 'CONSUMER' ? 'Consumer' : (name.toUpperCase() === 'DT' ? 'DT' : (name.toUpperCase() === 'FEEDER' ? 'Feeder' : name));
-                    const value = typeof val === 'object' ? (val.total?.installed ?? val.installed ?? val.utilization_rate_pct ?? val.value ?? 0) : val;
-                    return { name: label, value: Number(value) || 0 };
-                });
-            }
-        } else if (summary) {
-            distribution = [
-                { name: 'Installed', value: Number(summary.total_installed) || 0 },
-                { name: 'Remaining', value: Number(summary.remaining_stock) || 0 },
-            ];
-        }
-        
-        return { trend, distribution };
+        return { 
+            trend, 
+            distribution, 
+            summary: {
+                'Total Defective': dashboardData.total_defective,
+                'Meter Burnt': dashboardData.total_burnt,
+                'Meter Faulty': dashboardData.total_faulty,
+                'Others': dashboardData.total_others
+            },
+            category_breakdown: dashboardData.category_breakdown
+        };
     }
 
-    // MI Pace vs Stock
+    // Inventory Utilization (Revamped Dashboard)
+    if (n.includes('inventory utilization')) {
+        const dashboardData = trendData; // shared: true
+        const selCategory = (params?.meter_category || 'Total').toUpperCase();
+
+        // 1. Trend Analysis (Period Breakdown)
+        if (dashboardData?.period_breakdown && typeof dashboardData.period_breakdown === 'object') {
+            trend = Object.entries(dashboardData.period_breakdown).map(([period, categories]) => {
+                const label = formatLabel(period);
+                const point = { name: label };
+                
+                let inventory = 0;
+                let installed = 0;
+
+                if (selCategory === 'TOTAL') {
+                    // 1. Check if there's a top-level 'total' node for the period
+                    if (categories.total) {
+                        inventory = categories.total.inventory ?? categories.total.total_inventory ?? 0;
+                        installed = categories.total.installed ?? categories.total.total_installed ?? 0;
+                    } else {
+                        // 2. Fallback: Aggregate across major categories
+                        ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
+                            const catData = categories[cat];
+                            if (catData) {
+                                const cTotal = catData.total || catData;
+                                inventory += cTotal.inventory ?? cTotal.total_inventory ?? Object.values(catData).reduce((sum, tech) => sum + (tech.inventory || tech.total_inventory || 0), 0);
+                                installed += cTotal.installed ?? cTotal.total_installed ?? Object.values(catData).reduce((sum, tech) => sum + (tech.installed || tech.total_installed || 0), 0);
+                            }
+                        });
+                    }
+                } else {
+                    const catData = categories[selCategory];
+                    if (catData) {
+                        const cTotal = catData.total || catData;
+                        inventory = cTotal.inventory ?? cTotal.total_inventory ?? Object.values(catData).reduce((sum, tech) => sum + (tech.inventory || tech.total_inventory || 0), 0);
+                        installed = cTotal.installed ?? cTotal.total_installed ?? Object.values(catData).reduce((sum, tech) => sum + (tech.installed || tech.total_installed || 0), 0);
+                    }
+                }
+
+                point['Inventory'] = Number(inventory);
+                point['Installed'] = Number(installed);
+                point['Utilization Rate'] = inventory > 0 ? Number(((installed / inventory) * 100).toFixed(2)) : 0;
+                
+                return point;
+            });
+        }
+
+        // 2. Comparison (Geographical)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                'Inventory': node.total_inventory || node.inventory || 0,
+                'Installed': node.total_installed || node.installed || 0,
+                'Utilization Rate': node.utilization_rate_pct || 0
+            }));
+        }
+
+        return { 
+            trend, 
+            distribution,
+            summary: {
+                'Total Inventory': dashboardData.total_inventory,
+                'Total Installed': dashboardData.total_installed,
+                'Utilization Rate': dashboardData.utilization_rate_pct,
+                'Remaining Stock': dashboardData.remaining_stock
+            },
+            category_breakdown: dashboardData.category_breakdown
+        };
+    }
+
+    // MI Pace vs Stock (Revamped Dashboard)
     if (n.includes('pace') && n.includes('stock')) {
-        const summary = trendData;
-        
-        // 1. Trend: Parse period_breakdown
-        if (summary?.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-            const pFlattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, data]) => {
+        const dashboardData = trendData; // shared: true
+        const selCategory = (params?.meter_category || 'Total').toUpperCase();
+
+        // 1. Trend Analysis (Period Breakdown)
+        if (dashboardData?.period_breakdown && typeof dashboardData.period_breakdown === 'object') {
+            trend = Object.entries(dashboardData.period_breakdown).map(([period, categories]) => {
                 const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    
-                    const conData = getCategoryData(data, 'CONSUMER');
-                    const dtData = getCategoryData(data, 'DT');
-                    const fdData = getCategoryData(data, 'FEEDER');
+                const point = { name: label };
+                
+                let inventory = 0;
+                let installed = 0;
 
-                    if (conData) point.Consumer = Number(conData.total?.installed ?? conData.installed ?? 0);
-                    if (dtData) point.DT = Number(dtData.total?.installed ?? dtData.installed ?? 0);
-                    if (fdData) point.Feeder = Number(fdData.total?.installed ?? fdData.installed ?? 0);
-                    
-                    // Fallback to total installed if no category points found
-                    if (point.Consumer === 0 && point.DT === 0 && point.Feeder === 0 && data.total?.installed) {
-                        point.Value = Number(data.total.installed);
+                if (selCategory === 'TOTAL') {
+                    if (categories.total) {
+                        inventory = categories.total.inventory ?? categories.total.total_inventory ?? 0;
+                        installed = categories.total.installed ?? categories.total.total_installed ?? 0;
+                    } else {
+                        ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
+                            const catData = categories[cat];
+                            if (catData) {
+                                const cTotal = catData.total || catData;
+                                inventory += (cTotal.inventory ?? cTotal.total_inventory ?? 0);
+                                installed += (cTotal.installed ?? cTotal.total_installed ?? 0);
+                            }
+                        });
                     }
-                    if (Object.keys(point).length > 1) pFlattened.push(point);
                 } else {
-                    const sel = params.meter_category.toUpperCase();
-                    const catData = getCategoryData(data, sel);
-                    const installed = catData?.total?.installed ?? catData?.installed ?? 0;
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    pFlattened.push({ name: label, [keyName]: Number(installed) });
+                    const catData = categories[selCategory];
+                    if (catData) {
+                        const cTotal = catData.total || catData;
+                        inventory = cTotal.inventory ?? cTotal.total_inventory ?? 0;
+                        installed = cTotal.installed ?? cTotal.total_installed ?? 0;
+                    }
                 }
+
+                point['Total Inventory'] = Number(inventory);
+                point['Total Installed'] = Number(installed);
+                point['Remaining Stock'] = Number(inventory - installed);
+                
+                return point;
             });
-            trend = pFlattened.sort((a,b) => a.name.localeCompare(b.name));
-        } else {
-            trend = [];
         }
 
-        // 2. Distribution (Geographical or Standard)
-        if (Array.isArray(distData) && distData.length > 0) {
-            distribution = aggregateGeographically(distData, 'total_installed');
-        } else {
-            distribution = [
-                { name: 'Installed', value: Number(summary?.total_installed) || 0 },
-                { name: 'Remaining', value: Number(summary?.remaining_stock) || 0 },
-            ];
+        // 2. Comparison (Geographical - Focused on Stock)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                'Total Inventory': node.total_inventory || node.inventory || 0,
+                'Total Installed': node.total_installed || node.installed || 0,
+                'Remaining Stock': node.remaining_stock || (node.total_inventory - node.total_installed) || 0
+            }));
         }
-        
-        return { trend, distribution };
+
+        return { 
+            trend, 
+            distribution,
+            summary: {
+                'Total Inventory': dashboardData.total_inventory,
+                'Total Installed': dashboardData.total_installed,
+                'Utilization Rate': dashboardData.utilization_rate_pct,
+                'Remaining Stock': dashboardData.remaining_stock
+            },
+            category_breakdown: dashboardData.category_breakdown
+        };
     }
 
-    // Un-utilized Stock Ageing
+    // Un-utilized Stock Ageing (New Consolidated Dashboard)
     if (n.includes('stock ageing') || n.includes('un-utilized stock ageing')) {
-        const summary = trendData && !Array.isArray(trendData) ? trendData : (distData && !Array.isArray(distData) ? distData : null);
-        
-        // 1. Trend (or Category Chart if no trend)
-        if (summary?.period_breakdown) {
-            const flattened = [];
-            Object.entries(summary.period_breakdown).forEach(([period, data]) => {
-                const label = formatLabel(period);
-                if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                    
-                    const conData = getCategoryData(data, 'CONSUMER');
-                    const dtData = getCategoryData(data, 'DT');
-                    const fdData = getCategoryData(data, 'FEEDER');
+        const dashboardData = trendData; // shared: true
+        const selCategory = (params?.meter_category || 'Total').toUpperCase();
 
-                    if (conData?.total) point.Consumer = (Number(conData.total.age_0_30) || 0) + (Number(conData.total.age_31_60) || 0) + (Number(conData.total.age_61_90) || 0) + (Number(conData.total.age_90_plus) || 0);
-                    if (dtData?.total) point.DT = (Number(dtData.total.age_0_30) || 0) + (Number(dtData.total.age_31_60) || 0) + (Number(dtData.total.age_61_90) || 0) + (Number(dtData.total.age_90_plus) || 0);
-                    if (fdData?.total) point.Feeder = (Number(fdData.total.age_0_30) || 0) + (Number(fdData.total.age_31_60) || 0) + (Number(fdData.total.age_61_90) || 0) + (Number(fdData.total.age_90_plus) || 0);
-                    
-                    flattened.push(point);
-                } else {
-                    const sel = params.meter_category.toUpperCase();
-                    let total = 0;
-                    const catData = getCategoryData(data, sel);
-                    if (catData?.total) {
-                        total = (Number(catData.total.age_0_30) || 0) + (Number(catData.total.age_31_60) || 0) + 
-                                (Number(catData.total.age_61_90) || 0) + (Number(catData.total.age_90_plus) || 0);
-                    }
-                    const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                    flattened.push({ name: label, [keyName]: total });
-                }
-            });
-            trend = flattened.sort((a,b) => a.name.localeCompare(b.name));
-        } else if (summary?.category_breakdown) {
-            // Show categories (Consumer, Feeder, etc)
-            trend = Object.entries(summary.category_breakdown).map(([name, data]) => {
-                const total = data.total ? 
-                    (Number(data.total.age_0_30) || 0) + (Number(data.total.age_31_60) || 0) + 
-                    (Number(data.total.age_61_90) || 0) + (Number(data.total.age_90_plus) || 0) : 0;
-                return { name, value: total };
-            });
+        // 1. Trend Analysis (Period Breakdown)
+        if (Array.isArray(dashboardData?.period_breakdown)) {
+            trend = dashboardData.period_breakdown.map(node => ({
+                name: formatLabel(node.period_value),
+                '0-30 Days': Number(node.age_0_30 || 0),
+                '31-60 Days': Number(node.age_31_60 || 0),
+                '61-90 Days': Number(node.age_61_90 || 0),
+                '90+ Days': Number(node.age_90_plus || 0)
+            }));
         }
 
-        // 2. Distribution (Ageing Buckets or Geographical Comparison)
-        if (Array.isArray(distData) && distData.length > 0) {
-            // Use ageing_days for geographical aggregation
-            distribution = aggregateGeographically(distData, 'ageing_days');
-        } else if (summary?.category_breakdown) {
-            const buckets = { '0-30 days': 0, '31-60 days': 0, '61-90 days': 0, '90+ days': 0 };
-            Object.values(summary.category_breakdown).forEach(cat => {
-                if (cat.total) {
-                    buckets['0-30 days'] += (Number(cat.total.age_0_30) || 0);
-                    buckets['31-60 days'] += (Number(cat.total.age_31_60) || 0);
-                    buckets['61-90 days'] += (Number(cat.total.age_61_90) || 0);
-                    buckets['90+ days'] += (Number(cat.total.age_90_plus) || 0);
-                }
-            });
-            distribution = Object.entries(buckets).map(([name, value]) => ({ name, value }));
+        // 2. Comparison (Geographical / Comparison Array)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                '0-30 Days': Number(node.age_0_30 || 0),
+                '31-60 Days': Number(node.age_31_60 || 0),
+                '61-90 Days': Number(node.age_61_90 || 0),
+                '90+ Days': Number(node.age_90_plus || 0)
+            }));
         }
 
-        return { trend, distribution };
+        return { 
+            trend, 
+            distribution,
+            summary: {
+                'Total Stock': dashboardData.total_stock || 0,
+                '0-30 Days': dashboardData.age_0_30 || 0,
+                '31-60 Days': dashboardData.age_31_60 || 0,
+                '61-90 Days': dashboardData.age_61_90 || 0,
+                '90+ Days': dashboardData.age_90_plus || 0
+            },
+            category_breakdown: dashboardData.category_breakdown
+        };
     }
 
     // MI vs SAT
