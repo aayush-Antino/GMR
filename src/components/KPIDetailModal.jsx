@@ -374,30 +374,32 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             </div>
 
                                             {/* Date Range Filter */}
-                                            <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm transition-all duration-200">
-                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Range:</span>
-                                                <input 
-                                                    type={kpi.chartData?.isMonthlyOnly ? "month" : "date"} 
-                                                    value={kpi.chartData?.isMonthlyOnly ? fromDate.slice(0, 7) : fromDate}
-                                                    onChange={e => {
-                                                        const val = e.target.value;
-                                                        setFromDate(kpi.chartData?.isMonthlyOnly ? `${val}-01` : val);
-                                                        setIsCustomDate(true);
-                                                    }}
-                                                    className="text-[11px] font-bold text-slate-800 focus:outline-none bg-transparent w-auto"
-                                                />
-                                                <span className="text-gray-300">-</span>
-                                                <input 
-                                                    type={kpi.chartData?.isMonthlyOnly ? "month" : "date"} 
-                                                    value={kpi.chartData?.isMonthlyOnly ? toDate.slice(0, 7) : toDate}
-                                                    onChange={e => {
-                                                        const val = e.target.value;
-                                                        setToDate(kpi.chartData?.isMonthlyOnly ? `${val}-01` : val);
-                                                        setIsCustomDate(true);
-                                                    }}
-                                                    className="text-[11px] font-bold text-slate-800 focus:outline-none bg-transparent w-auto"
-                                                />
-                                            </div>
+                                            {kpi.chartData?.isTimeSeries !== false && (
+                                                <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm transition-all duration-200">
+                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Range:</span>
+                                                    <input 
+                                                        type={kpi.chartData?.isMonthlyOnly ? "month" : "date"} 
+                                                        value={kpi.chartData?.isMonthlyOnly ? fromDate.slice(0, 7) : fromDate}
+                                                        onChange={e => {
+                                                            const val = e.target.value;
+                                                            setFromDate(kpi.chartData?.isMonthlyOnly ? `${val}-01` : val);
+                                                            setIsCustomDate(true);
+                                                        }}
+                                                        className="text-[11px] font-bold text-slate-800 focus:outline-none bg-transparent w-auto"
+                                                    />
+                                                    <span className="text-gray-300">-</span>
+                                                    <input 
+                                                        type={kpi.chartData?.isMonthlyOnly ? "month" : "date"} 
+                                                        value={kpi.chartData?.isMonthlyOnly ? toDate.slice(0, 7) : toDate}
+                                                        onChange={e => {
+                                                            const val = e.target.value;
+                                                            setToDate(kpi.chartData?.isMonthlyOnly ? `${val}-01` : val);
+                                                            setIsCustomDate(true);
+                                                        }}
+                                                        className="text-[11px] font-bold text-slate-800 focus:outline-none bg-transparent w-auto"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         /* Default Region Filter for other departments */

@@ -1352,17 +1352,20 @@ export const dashboardData = {
             ],
             "qualityDescription": "Tracks aging of un-utilized stock across discoms and categories. Helps identify aging inventory that requires prioritized installation.",
             "chartData": {
+                "shared": true,
                 "trendTitle": "Stock Ageing Trend",
                 "trend": [
-                    { "name": "Trend Start", "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 }
+                    { "name": "Trend Start", "0-30 days": 0, "31-60 days": 0, "61-90 days": 0, "90+ days": 0 }
                 ],
                 "distTitle": "Geographical Ageing Comparison",
                 "distribution": [
-                    { "name": "Sample Label", "0-30 Days": 0, "31-60 Days": 0, "61-90 Days": 0, "90+ Days": 0 }
+                    { "name": "Sample Label", "0-30 days": 0, "31-60 days": 0, "61-90 days": 0, "90+ days": 0 }
                 ],
                 "allowedTrendTypes": ["area", "bar", "line"],
                 "allowedDistTypes": ["bar", "hbar"],
-                "allowedDurations": ["Daily", "Weekly", "Monthly"]
+                "allowedDurations": ["As on date"],
+                "hasDateFilter": false,
+                "isTimeSeries": false
             }
         },
         {
@@ -1534,7 +1537,7 @@ export const dashboardData = {
                 ],
                 "allowedTrendTypes": ["bar", "hbar"],
                 "allowedDistTypes": ["bar", "hbar"],
-                "allowedDurations": ["Daily", "Weekly", "Monthly"],
+                "allowedDurations": ["As on latest SAT"],
                 "isTimeSeries": false
             }
         },
@@ -1542,27 +1545,31 @@ export const dashboardData = {
             "name": "Non-SAT ageing",
             "module": "SAT",
             "department": "Business",
-            "description": "Time since installation without SAT.",
+            "description": "Consolidated Non-SAT tracking by installation period and ageing buckets.",
             "status": "Warning",
             "analysisItems": [
-                { "label": "Formula", "value": "CURRENT_DATE - InstalledTS WHERE SATTS IS NULL" }
+                { "label": "Formula", "value": "CURRENT_DATE - InstalledTS (WHERE SAT_Date IS NULL)" },
+                { "label": "Buckets", "value": "0-30 / 31-60 / 61-90 / 91-120 / 120+" }
             ],
-            "qualityDescription": "Identifies sites that are installed but idling without verification, affecting billing cycles.",
+            "qualityDescription": "Identifies sites that are installed but idling without verification, affecting billing cycles. Provides granularity by installation period and hierarchical aging distribution.",
             "chartData": {
-                "trendTitle": "Non-SAT Count",
                 "trend": [
-                    { "name": "W1", "value": 450 }, { "name": "W2", "value": 420 }, { "name": "W3", "value": 380 }
+                    { "name": "age 0-30", "Consumer": 450, "DT": 120, "Feeder": 30 },
+                    { "name": "age 31-60", "Consumer": 380, "DT": 95, "Feeder": 25 },
+                    { "name": "age 61-90", "Consumer": 290, "DT": 70, "Feeder": 20 },
+                    { "name": "age 91-120", "Consumer": 150, "DT": 45, "Feeder": 15 },
+                    { "name": "age 120+", "Consumer": 800, "DT": 350, "Feeder": 40 }
                 ],
-                "distTitle": "Non-SAT Ageing (BoxPlot)",
+                "distTitle": "Hierarchical Non-SAT Comparison",
                 "distribution": [
-                    { "name": "0-7 days", "avg": 4 },
-                    { "name": "8-15 days", "avg": 12 },
-                    { "name": "16-30 days", "avg": 25 },
-                    { "name": "> 30 days", "avg": 45 }
+                    { "name": "Agra", "age 0-30": 100, "age 31-60": 80, "age 61-90": 60, "age 91-120": 40, "age 120+": 120 },
+                    { "name": "Kashi", "age 0-30": 90, "age 31-60": 70, "age 61-90": 50, "age 91-120": 30, "age 120+": 110 },
+                    { "name": "Triveni", "age 0-30": 80, "age 31-60": 60, "age 61-90": 40, "age 91-120": 20, "age 120+": 100 }
                 ],
-                "allowedTrendTypes": ["bar"],
-                "allowedDistTypes": ["boxplot", "hbar"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedTrendTypes": ["area", "bar", "line"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
+                "isTimeSeries": false
             }
         },
         {
@@ -1593,7 +1600,7 @@ export const dashboardData = {
             }
         },
         {
-            "name": "MI Vs SAT Vs Invoice-Progress (Total & Category wise)",
+            "name": "MI vs SAT vs Invoice Funnel",
             "module": "Invoicing",
             "department": "Business",
             "description": "Installation to billing workflow progress.",
@@ -1603,19 +1610,19 @@ export const dashboardData = {
             ],
             "qualityDescription": "Full lifecycle tracking from physical installation to revenue recognition.",
             "chartData": {
-                "trendTitle": "Pipeline Throughput",
+                "trendTitle": "MI to Invoice Funnel Stages",
                 "trend": [
-                    { "name": "Jan", "value": 4500 }, { "name": "Feb", "value": 4200 }, { "name": "Mar", "value": 4800 }
+                    { "name": "mi", "value": 4500 }, { "name": "sat", "value": 4200 }, { "name": "lumpsum_invoice", "value": 3800 }, { "name": "pmpm_invoice", "value": 3800 }
                 ],
-                "distTitle": "Workflow Funnel",
+                "distTitle": "Geographical Comparison",
                 "distribution": [
-                    { "name": "MI Installed", "value": 6100 },
-                    { "name": "SAT Done", "value": 4800 },
-                    { "name": "Invoiced", "value": 3200 }
+                    { "name": "AGRA", "total_mi": 1200, "total_sat": 1000, "total_lumpsum_invoice": 800, "total_pmpm_invoice": 800 },
+                    { "name": "KASHI", "total_mi": 1000, "total_sat": 800, "total_lumpsum_invoice": 600, "total_pmpm_invoice": 600 },
+                    { "name": "TRIVENI", "total_mi": 800, "total_sat": 600, "total_lumpsum_invoice": 400, "total_pmpm_invoice": 400 }
                 ],
-                "allowedTrendTypes": ["bar", "multi-line", "line"],
-                "allowedDistTypes": ["funnel", "bar"],
-                "allowedDurations": ["Daily"],
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
                 "isTimeSeries": false
             }
         },
@@ -1644,7 +1651,7 @@ export const dashboardData = {
             }
         },
         {
-            "name": "Revenue realized (Total & Category wise)",
+            "name": "Invoice vs Revenue Released",
             "module": "Revenue",
             "department": "Business",
             "description": "Actual income collected.",
@@ -1654,18 +1661,21 @@ export const dashboardData = {
             ],
             "qualityDescription": "Total revenue that has been successfully collected and verified against invoices.",
             "chartData": {
-                "trendTitle": "Monthly Realization",
+                "trendTitle": "Revenue Realization Stages",
                 "trend": [
-                    { "name": "Jan", "value": 8.5 }, { "name": "Feb", "value": 9.2 }, { "name": "Mar", "value": 10.5 }
+                    { "name": "Lumpsum Invoice", "Consumer": 0, "DT": 0, "Feeder": 0 },
+                    { "name": "PMPM Invoice", "Consumer": 0, "DT": 0, "Feeder": 0 },
+                    { "name": "Lumpsum Collection", "Consumer": 0, "DT": 0, "Feeder": 0 },
+                    { "name": "PMPM Collection", "Consumer": 0, "DT": 0, "Feeder": 0 }
                 ],
-                "distTitle": "By Category (Donut)",
+                "distTitle": "Geographical Realization Comparison",
                 "distribution": [
-                    { "name": "Domestic", "value": 65, "color": "#3b82f6" },
-                    { "name": "Commercial", "value": 25, "color": "#10b981" },
-                    { "name": "Industrial", "value": 10, "color": "#f59e0b" }
+                    { "name": "Sample Label", "Realized": 0 }
                 ],
-                "allowedTrendTypes": ["multi-area", "area"],
-                "allowedDistTypes": ["gauge", "bar", "donut"]
+                "allowedTrendTypes": ["bar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
+                "isTimeSeries": false
             }
         },
         {
@@ -1703,20 +1713,21 @@ export const dashboardData = {
             ],
             "qualityDescription": "Ageing buckets for revenue that is yet to be collected, highlighting risk areas.",
             "chartData": {
-                "trendTitle": "Unpaid Volume",
+                "trendTitle": "Revenue Ageing Breakdown",
                 "trend": [
-                    { "name": "Jan", "value": 4.5 }, { "name": "Feb", "value": 5.2 }, { "name": "Mar", "value": 6.1 }
+                    { "name": "age 0-30", "Value": 0 },
+                    { "name": "age 30-60", "Value": 0 },
+                    { "name": "age 61-90", "Value": 0 },
+                    { "name": "age 90+", "Value": 0 }
                 ],
-                "distTitle": "Revenue Ageing (BoxPlot)",
+                "distTitle": "Geographical Ageing Comparison",
                 "distribution": [
-                    { "name": "0-30 Days", "avg": 8 },
-                    { "name": "31-60 Days", "avg": 22 },
-                    { "name": "61-90 Days", "avg": 45 },
-                    { "name": "90+ Days", "avg": 90 }
+                    { "name": "Sample Label", "0-30 days": 0, "31-60 days": 0, "61-90 days": 0, "90+ days": 0, "Total": 0 }
                 ],
-                "allowedTrendTypes": ["bar"],
-                "allowedDistTypes": ["boxplot", "hbar"],
-                "allowedDurations": ["As on latest SAT"]
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
+                "isTimeSeries": false
             }
         },
         {
@@ -1748,60 +1759,55 @@ export const dashboardData = {
             "name": "Meters Journey Avg time across the levels for Revenue realized (Total & Category wise)",
             "module": "Meter Journey",
             "department": "Business",
-            "description": "Average lead time to revenue realization.",
+            "description": "Consolidated cycle time analysis from PO/Inventory to Cash Realization.",
             "status": "Warning",
             "analysisItems": [
-                { "label": "Formula", "value": "AVG(RealizedTS - InstalledTS)" }
+                { "label": "Workflow", "value": "Store -> Agency -> Install -> SAT -> Invoice -> Revenue" },
+                { "label": "Metric", "value": "Avg Lead Time (Days)" }
             ],
-            "qualityDescription": "Measures the total cycle time from physical install to cash realization.",
+            "qualityDescription": "Measures the operational efficiency of the entire meter lifecycle. Identifies bottlenecks in the workflow to optimize revenue realization cycles.",
             "chartData": {
-                "trendTitle": "Avg Cycle Time by Project",
+                "trendTitle": "Workflow Lead Time Trend",
                 "trend": [
-                    { "name": "AGRA", "Consumer": 260, "Feeder": 335, "DT": 290 },
-                    { "name": "KASHI", "Consumer": 245, "Feeder": 310, "DT": 280 },
-                    { "name": "TRIVENI", "Consumer": 270, "Feeder": 350, "DT": 300 }
+                    { "name": "Trend Start", "Inv to Store": 0, "Store to Agency": 0, "Agency to Install": 0, "Install to SAT": 0, "SAT to Invoice": 0, "Invoice to Revenue": 0 }
                 ],
-                "distTitle": "Average Latency by Stage (Days)",
+                "distTitle": "Hierarchical Lead Time Comparison",
                 "distribution": [
-                    { "name": "DI → GMR", "value": 5.2 },
-                    { "name": "GMR → Agency", "value": 3.1 },
-                    { "name": "Agency → Sup", "value": 2.0 },
-                    { "name": "Sup → Install", "value": 4.5 },
-                    { "name": "Install → SAT", "value": 12.3 },
-                    { "name": "SAT → Revenue", "value": 8.7 }
+                    { "name": "Sample Label", "Inv to Store": 0, "Store to Agency": 0, "Agency to Install": 0, "Install to SAT": 0, "SAT to Invoice": 0, "Invoice to Revenue": 0 }
                 ],
                 "allowedTrendTypes": ["bar", "hbar"],
-                "allowedDistTypes": ["funnel", "hbar", "bar"],
-                "allowedDurations": ["Total Journey"]
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
+                "isTimeSeries": false
             }
         },
         {
             "name": "Meters Current Stage for Revenue not realized (Total & Category wise)",
             "module": "Meter Journey",
             "department": "Business",
-            "description": "Tracking stage of non-realized revenue meters.",
+            "description": "Consolidated 4-stage funnel analysis from Meter Inventory to Revenue Realization.",
             "status": "Stable",
             "analysisItems": [
-                { "label": "Metric", "value": "Count per Workflow Stage" }
+                { "label": "Workflow", "value": "Inventory -> Installed -> SAT -> Revenue" },
+                { "label": "Metric", "value": "Cumulative Count" }
             ],
-            "qualityDescription": "Visibility into where meters are 'stuck' in the revenue realization pipeline.",
+            "qualityDescription": "Measures the operational efficiency of the entire meter lifecycle pipeline.",
             "chartData": {
-                "trendTitle": "Meter Count by Project",
+                "trendTitle": "Meter Funnel (Stage-wise)",
                 "trend": [
-                    { "name": "AGRA", "Consumer": 45000, "Feeder": 1200, "DT": 2500 },
-                    { "name": "KASHI", "Consumer": 38000, "Feeder": 950, "DT": 2100 },
-                    { "name": "TRIVENI", "Consumer": 42000, "Feeder": 1100, "DT": 2300 }
+                    { "name": "Inventory", "Consumer": 0, "Feeder": 0, "DT": 0 },
+                    { "name": "Installed", "Consumer": 0, "Feeder": 0, "DT": 0 },
+                    { "name": "SAT Done", "Consumer": 0, "Feeder": 0, "DT": 0 },
+                    { "name": "Revenue Realized", "Consumer": 0, "Feeder": 0, "DT": 0 }
                 ],
-                "distTitle": "Current Pipeline Mix (Donut)",
+                "distTitle": "Hierarchical Funnel Comparison",
                 "distribution": [
-                    { "name": "Installed", "value": 45 },
-                    { "name": "SAT Done", "value": 22 },
-                    { "name": "Invoiced", "value": 15 },
-                    { "name": "Realized", "value": 18 }
+                    { "name": "Sample Label", "Inventory": 0, "Installed": 0, "SAT Done": 0, "Revenue Realized": 0 }
                 ],
                 "allowedTrendTypes": ["bar", "hbar"],
-                "allowedDistTypes": ["donut", "bar", "pie"],
-                "allowedDurations": ["Current State"]
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["As on latest SAT"],
+                "isTimeSeries": false
             }
         }
     ],

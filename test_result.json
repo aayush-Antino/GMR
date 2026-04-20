@@ -1,0 +1,34 @@
+{
+  "trend": [
+    {
+      "name": "2026-03-01",
+      "Inv to Store": 5,
+      "Store to Agency": 3,
+      "Agency to Install": 6,
+      "Install to SAT": 12,
+      "SAT to Invoice": 4,
+      "Invoice to Revenue": 5
+    }
+  ],
+  "distribution": [
+    {
+      "name": "AGRA",
+      "Inv to Store": 5,
+      "Store to Agency": 3,
+      "Agency to Install": 6,
+      "Install to SAT": 12,
+      "SAT to Invoice": 4,
+      "Invoice to Revenue": 4
+    }
+  ],
+  "summary": {
+    "Avg Store Time": 5,
+    "Avg Agency allocation": 3,
+    "Avg Installation": 6,
+    "Avg SAT": 12,
+    "Avg Invoicing": 4,
+    "Avg Revenue": 5,
+    "Total Journey": 35,
+    "Total Meters": 5000
+  }
+}

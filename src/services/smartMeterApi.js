@@ -218,21 +218,11 @@ export async function fetchStockAgeingSummary(params = {}, signal = null) {
 
 export async function fetchStockAgeingDashboard(params = {}, signal = null) {
     const mappedParams = {
-        duration: params.period || 'monthly',
-        level: params.level_by || 'discom',
+        duration: 'monthly', // default for snapshot
+        level: params.level || params.level_by || 'discom',
         project: (params.project && params.project !== 'All') ? params.project : 'all',
-        start_date: params.from_date || '',
-        end_date: params.to_date || '',
-        ...params,
-        category: (params.category || params.meter_category || 'total').toLowerCase()
+        category: (params.category || params.meter_category || 'total').toUpperCase()
     };
-
-    delete mappedParams.meter_category;
-
-    delete mappedParams.period;
-    delete mappedParams.level_by;
-    delete mappedParams.from_date;
-    delete mappedParams.to_date;
 
     return apiFetch('/api/mi/stock-ageing/dashboard', mappedParams, signal);
 }
@@ -246,8 +236,40 @@ export async function fetchMIvsSAT(params = {}, signal = null) {
 }
 
 export async function fetchMIvsSATSummary(params = {}, signal = null) {
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
     const mappedParams = {
-        duration: params.period || 'daily',
+        ...rest,
+        period: period || duration || 'as on latest sat',
+        level: level || level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.category || params.meter_category || 'total').toLowerCase()
+    };
+
+    return apiFetch('/api/mi/mi-vs-sat/summary', mappedParams, signal);
+}
+
+// KPI 8 – Non-SAT Ageing
+// Dashboard Response: { total_non_sat, category_breakdown, period_breakdown, comparison }
+// ──────────────────────────────────────────────
+export async function fetchNonSATAgeingDashboard(params = {}, signal = null) {
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
+    const mappedParams = {
+        ...rest,
+        period: period || duration || 'as on latest sat',
+        level: level || level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.category || params.meter_category || 'total').toLowerCase()
+    };
+
+    return apiFetch('/api/mi/non-sat-ageing/dashboard', mappedParams, signal);
+}
+
+// KPI 9 – Meter Journey Average Time
+// Dashboard Response: { summary, trend, comparison }
+// ──────────────────────────────────────────────
+export async function fetchMeterJourneyDashboard(params = {}, signal = null) {
+    const mappedParams = {
+        duration: params.duration || params.period || 'daily',
         level: params.level_by || 'discom',
         project: (params.project && params.project !== 'All') ? params.project : 'all',
         category: (params.category || params.meter_category || 'total').toLowerCase(),
@@ -262,46 +284,36 @@ export async function fetchMIvsSATSummary(params = {}, signal = null) {
     delete mappedParams.to_date;
     delete mappedParams.meter_category;
 
-    return apiFetch('/api/mi/mi-vs-sat/summary', mappedParams, signal);
+    if (mappedParams.duration.toLowerCase() === 'as on latest sat') {
+        delete mappedParams.start_date;
+        delete mappedParams.end_date;
+    }
+
+    return apiFetch('/api/mi/meter-journey/dashboard', mappedParams, signal);
 }
 
-// ──────────────────────────────────────────────
-// KPI 8 – Non-SAT Ageing
-// ──────────────────────────────────────────────
-export async function fetchNonSATAgeing(params = {}, signal = null) {
-    return apiFetch('/api/mi/non-sat-ageing', params, signal);
-}
-
-// ──────────────────────────────────────────────
-// KPI 9 – Meter Journey Average Time
-// ──────────────────────────────────────────────
-export async function fetchMeterJourney(params = {}, signal = null) {
-    return apiFetch('/api/mi/meter-journey', params, signal);
-}
-
-// ──────────────────────────────────────────────
-// KPI 10 – Meter Current Stage Distribution
-// ──────────────────────────────────────────────
 export async function fetchMeterStage(params = {}, signal = null) {
-    return apiFetch('/api/mi/meter-stage', params, signal);
+    const { start_date, end_date, duration, ...rest } = params;
+    const mappedParams = {
+        ...rest,
+        duration: duration || 'as on latest sat'
+    };
+    return apiFetch('/api/mi/meter-stage', mappedParams, signal);
 }
 
-// ──────────────────────────────────────────────
-// KPI 11 – MI vs SAT vs Invoice Funnel
-// ──────────────────────────────────────────────
-export async function fetchMIvsSATvsInvoiceSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/mi-vs-sat-vs-invoice/summary', params, signal);
-}
 
-export async function fetchMIvsSATvsInvoice(params = {}, signal = null) {
-    return apiFetch('/api/mi/mi-vs-sat-vs-invoice', params, signal);
-}
 
 // ──────────────────────────────────────────────
 // KPI 12 – Revenue Realized
 // ──────────────────────────────────────────────
 export async function fetchRevenueRealizedSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/revenue-realized/summary', params, signal);
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
+    const mappedParams = {
+        ...rest,
+        period: period || duration || 'as on latest sat',
+        level: level || level_by || 'discom'
+    };
+    return apiFetch('/api/mi/revenue-realized/summary', mappedParams, signal);
 }
 
 export async function fetchRevenueRealized(params = {}, signal = null) {
@@ -312,7 +324,13 @@ export async function fetchRevenueRealized(params = {}, signal = null) {
 // KPI 13 – Revenue Ageing
 // ──────────────────────────────────────────────
 export async function fetchRevenueAgeingSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/revenue-ageing/summary', params, signal);
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
+    const mappedParams = {
+        ...rest,
+        period: period || duration || 'as on latest sat',
+        level: level || level_by || 'discom'
+    };
+    return apiFetch('/api/mi/revenue-ageing/summary', mappedParams, signal);
 }
 
 export async function fetchRevenueAgeing(params = {}, signal = null) {
@@ -378,6 +396,17 @@ export async function fetchOMProductivityTrend(params = {}, signal = null) {
 export async function fetchOMOpenAgeing(params = {}, signal = null) {
     return apiFetch('/api/om/open-ageing', params, signal);
 }
+
+export async function fetchMIvsSATvsInvoiceSummary(params = {}, signal = null) {
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
+    const mappedParams = {
+        ...rest,
+        period: period || duration || 'as on latest sat',
+        level: level || level_by || 'discom'
+    };
+    return apiFetch('/api/mi/mi-vs-sat-vs-invoice/summary', mappedParams, signal);
+}
+
 
 // ──────────────────────────────────────────────
 // KPI 11 – O&M Avg Closure Time
@@ -460,16 +489,16 @@ export function resolveKPIFetchers(kpiName) {
     }
     if (n.includes('non-sat ageing') || n.includes('non sat ageing')) {
         return {
-            fetchTrend: (p, s) => fetchNonSATAgeing(p, s),
-            fetchDistribution: (p, s) => fetchNonSATAgeing(p, s),
+            fetchTrend: (p, s) => fetchNonSATAgeingDashboard(p, s),
+            fetchDistribution: (p, s) => fetchNonSATAgeingDashboard(p, s),
             shared: true,
         };
     }
     if (n.includes('meter journey') || n.includes('meters journey')) {
         return {
-            fetchTrend: (p, s) => fetchMeterJourney(p, s),
-            fetchDistribution: (p, s) => fetchMeterJourney(p, s),
-            shared: false,
+            fetchTrend: (p, s) => fetchMeterJourneyDashboard(p, s),
+            fetchDistribution: (p, s) => fetchMeterJourneyDashboard(p, s),
+            shared: true,
         };
     }
     if (n.includes('meter stage') || n.includes('meters stage') || n.includes('meter current stage') || n.includes('meters current stage')) {
@@ -480,11 +509,11 @@ export function resolveKPIFetchers(kpiName) {
         };
     }
     // Moved up
-    if (n.includes('revenue realized')) {
+    if ((n.includes('revenue realized') || n.includes('invoice vs revenue released')) && !n.includes('ageing') && !n.includes('meter journey')) {
         return {
             fetchTrend: (p, s) => fetchRevenueRealizedSummary(p, s),
-            fetchDistribution: (p, s) => fetchRevenueRealized(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchRevenueRealizedSummary(p, s),
+            shared: true,
         };
     }
     if (n.includes('revenue') && n.includes('ageing')) {
