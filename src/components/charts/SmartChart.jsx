@@ -88,7 +88,7 @@ const renderCustomLegend = (props) => {
                             className="h-2.5 w-2.5 rounded-full shadow-sm shadow-black/10" 
                             style={{ backgroundColor }} 
                         />
-                        <span className="text-[12px] font-extrabold text-slate-700 capitalize tracking-tight">
+                        <span className="text-[12px] font-extrabold text-slate-700 tracking-tight">
                             {entry.value}
                         </span>
                     </li>

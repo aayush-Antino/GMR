@@ -246,7 +246,23 @@ export async function fetchMIvsSAT(params = {}, signal = null) {
 }
 
 export async function fetchMIvsSATSummary(params = {}, signal = null) {
-    return apiFetch('/api/mi/mi-vs-sat/summary', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.category || params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/mi/mi-vs-sat/summary', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -438,8 +454,8 @@ export function resolveKPIFetchers(kpiName) {
     if (n.includes('mi vs sat') || n.includes('mi vs. sat')) {
         return {
             fetchTrend: (p, s) => fetchMIvsSATSummary(p, s),
-            fetchDistribution: (p, s) => fetchMIvsSAT(p, s),
-            shared: false,
+            fetchDistribution: (p, s) => fetchMIvsSATSummary(p, s),
+            shared: true,
         };
     }
     if (n.includes('non-sat ageing') || n.includes('non sat ageing')) {

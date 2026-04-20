@@ -466,69 +466,57 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         };
     }
 
-    // MI vs SAT
+    // MI vs SAT Dashboard (Revamped Stage-wise)
     if (n.includes('mi vs sat') || n.includes('mi vs. sat')) {
-        const summary = trendData && !Array.isArray(trendData) ? trendData : null;
+        const dashboardData = trendData; // shared: true
+        const selCategory = (params?.category || params?.meter_category || 'Total').toUpperCase();
 
-        if (summary) {
-             const stages = [
-                 { name: 'S1', value: summary.sat_1 || 0 },
-                 { name: 'S2', value: summary.sat_2 || 0 },
-                 { name: 'S3', value: summary.sat_3 || 0 },
-                 { name: 'S4', value: summary.sat_4 || 0 },
-                 { name: 'S5', value: summary.sat_5 || 0 },
-                 { name: 'S6', value: summary.sat_6 || 0 },
-                 { name: 'S7', value: summary.sat_7 || 0 },
-                 { name: 'S8', value: summary.sat_8 || 0 },
-                 { name: 'S9', value: summary.sat_9 || 0 },
-             ];
-             
-             if (summary.period_breakdown && !Array.isArray(summary.period_breakdown)) {
-                const pFlattened = [];
-                Object.entries(summary.period_breakdown).forEach(([period, cats]) => {
-                    const label = formatLabel(period);
-                    if (!params?.meter_category || params?.meter_category === 'Total') {
-                        const point = { name: label, Consumer: 0, DT: 0, Feeder: 0 };
-                        // Note: Here we are stacking SAT (Verified) counts
-                        const conData = getCategoryData(cats, 'CONSUMER');
-                        const dtData = getCategoryData(cats, 'DT');
-                        const fdData = getCategoryData(cats, 'FEEDER');
+        // 1. Stage-wise Analysis (Left Chart - repurposed from trend)
+        const stages = ['sat_1', 'sat_2', 'sat_3', 'sat_4', 'sat_5', 'sat_6', 'sat_7', 'sat_8', 'sat_9'];
+        trend = stages.map(s => {
+            const label = s.toUpperCase().replace('_', ' ');
+            const point = { name: label };
+            
+            if (selCategory === 'TOTAL') {
+                point.Consumer = dashboardData.category_breakdown?.CONSUMER?.total?.[s] || 0;
+                point.DT = dashboardData.category_breakdown?.DT?.total?.[s] || 0;
+                point.Feeder = dashboardData.category_breakdown?.FEEDER?.total?.[s] || 0;
+            } else {
+                const catData = dashboardData.category_breakdown?.[selCategory];
+                point[selCategory.charAt(0) + selCategory.slice(1).toLowerCase()] = catData?.total?.[s] || 0;
+            }
+            return point;
+        });
 
-                        if (conData) point.Consumer = Object.values(conData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
-                        if (dtData) point.DT = Object.values(dtData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
-                        if (fdData) point.Feeder = Object.values(fdData).reduce((a, b) => a + (Number(b.total_sat) || 0), 0);
-                        
-                        pFlattened.push(point);
-                    } else {
-                        const sel = params.meter_category.toUpperCase();
-                        let totalMI = 0;
-                        let totalSAT = 0;
-                        const catData = getCategoryData(cats, sel);
-                        if (catData) {
-                            Object.values(catData).forEach(m => {
-                                totalMI += (m.total_mi || 0);
-                                totalSAT += (m.total_sat || 0);
-                            });
-                        }
-                        const keyName = sel === 'CONSUMER' ? 'Consumer' : (sel === 'DT' ? 'DT' : 'Feeder');
-                        pFlattened.push({ name: label, [keyName]: totalSAT, 'MI Installed': totalMI });
-                    }
-                });
-                trend = pFlattened;
-             } else {
-                trend = stages;
-             }
+        // 2. Comparison (Right Chart - Geographical / Hierarchical Array)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                'Total MI': Number(node.total_mi || 0),
+                'Total SAT': Number(node.total_sat || 0),
+                'SAT Progress %': Number(node.sat_progress_pct || 0)
+            }));
         }
 
-        if (Array.isArray(distData) && distData.length > 0) {
-            distribution = aggregateGeographically(distData, 'total_sat');
-        } else {
-             distribution = [
-                 { name: 'Installed', value: summary?.total_mi || 0 },
-                 { name: 'Verified (SAT)', value: summary?.total_sat || 0 }
-             ];
-        }
-        return { trend, distribution };
+        return { 
+            trend, 
+            distribution,
+            summary: {
+                'Total MI': dashboardData.total_mi || 0,
+                'Total SAT': dashboardData.total_sat || 0,
+                'SAT Progress %': dashboardData.sat_progress_pct || 0,
+                'SAT Stage 1': dashboardData.sat_1 || 0,
+                'SAT Stage 2': dashboardData.sat_2 || 0,
+                'SAT Stage 3': dashboardData.sat_3 || 0,
+                'SAT Stage 4': dashboardData.sat_4 || 0,
+                'SAT Stage 5': dashboardData.sat_5 || 0,
+                'SAT Stage 6': dashboardData.sat_6 || 0,
+                'SAT Stage 7': dashboardData.sat_7 || 0,
+                'SAT Stage 8': dashboardData.sat_8 || 0,
+                'SAT Stage 9': dashboardData.sat_9 || 0,
+            },
+            category_breakdown: dashboardData.category_breakdown
+        };
     }
     
     // Non-SAT Ageing

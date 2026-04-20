@@ -59,6 +59,13 @@ export const KEY_COLORS = {
     '31-60 days': GMR.yellow,
     '61-90 days': GMR.orange,
     '90+ days': GMR.red,
+    'total mi': GMR.blue,
+    'total sat': GMR.green,
+    'sat progress %': GMR.purple,
+    'sat progress': GMR.purple,
+    'mi progress': GMR.orange,
+    'installed': GMR.green,
+    'sat done': GMR.green
 };
 
 export const getColor = (key, index) => {

@@ -1515,25 +1515,26 @@ export const dashboardData = {
             "name": "MI Vs SAT-Progress (Total & Category wise)",
             "module": "SAT",
             "department": "Business",
-            "description": "Sites installed vs sites verified.",
+            "description": "Consolidated MI vs SAT tracking with stage-wise verification progress.",
             "status": "On Track",
             "analysisItems": [
-                { "label": "Formula", "value": "COUNT(SAT_Number) / COUNT(MI)" }
+                { "label": "Formula", "value": "Total SAT / Total MI" },
+                { "label": "Stages", "value": "SAT 1 to SAT 9 breakdown" },
+                { "label": "Categories", "value": "CONSUMER / FEEDER / DT" }
             ],
-            "qualityDescription": "Tracks the lag between technical installation and formal acceptance testing.",
+            "qualityDescription": "Tracks formal acceptance testing (SAT) progress against meter installations. Provides granular visibility into the 9 stages of the SAT workflow across categories and hierarchies.",
             "chartData": {
-                "trendTitle": "SAT Phase Completion",
+                "trendTitle": "Stage-wise SAT Distribution",
                 "trend": [
-                    { "name": "Phase 1", "value": 75 }, { "name": "Phase 2", "value": 78 }, { "name": "Phase 3", "value": 82 }
+                    { "name": "SAT 1", "Consumer": 0, "DT": 0, "Feeder": 0 }
                 ],
-                "distTitle": "MI vs SAT Gap (Bar)",
+                "distTitle": "Hierarchical MI/SAT Comparison",
                 "distribution": [
-                    { "name": "Installed", "value": 6100 },
-                    { "name": "Verified", "value": 4800 }
+                    { "name": "Sample Label", "Total MI": 0, "Total SAT": 0, "SAT Progress %": 0 }
                 ],
-                "allowedTrendTypes": ["bar", "hbar", "multi-line", "line"],
-                "allowedDistTypes": ["bar", "funnel"],
-                "allowedDurations": ["Daily"],
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "allowedDurations": ["Daily", "Weekly", "Monthly"],
                 "isTimeSeries": false
             }
         },
