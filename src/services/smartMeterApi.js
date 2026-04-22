@@ -293,10 +293,13 @@ export async function fetchMeterJourneyDashboard(params = {}, signal = null) {
 }
 
 export async function fetchMeterStage(params = {}, signal = null) {
-    const { start_date, end_date, duration, ...rest } = params;
+    const { start_date, end_date, duration, period, level, level_by, from_date, to_date, ...rest } = params;
     const mappedParams = {
         ...rest,
-        duration: duration || 'as on latest sat'
+        duration: duration || period || 'as on latest sat',
+        level: level || level_by || 'discom',
+        start_date: start_date || from_date || '',
+        end_date: end_date || to_date || ''
     };
     return apiFetch('/api/mi/meter-stage', mappedParams, signal);
 }
