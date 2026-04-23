@@ -25,6 +25,7 @@ export const KEY_COLORS = {
     'low': '#10b981',
     'count': GMR.blue,
     'value': GMR.blue,
+    'total': GMR.blue,
     'consumer': '#2563eb', // Blue
     'dt': '#fbbf24',       // Yellow
     'feeder': '#ef4444',   // Red
@@ -41,6 +42,9 @@ export const KEY_COLORS = {
     'open tickets': GMR.orange,
     'closed': GMR.green,
     'open': GMR.orange,
+    'total open': GMR.orange,
+    'auto ticketing': GMR.blue,
+    '1912 helpdesk': GMR.purple,
     'pace': GMR.blue,
     'revenue': GMR.purple,
     'installed': GMR.green,
@@ -53,6 +57,7 @@ export const KEY_COLORS = {
     'productivity': GMR.yellow,
     'agencies': GMR.red,
     'teams': GMR.red,
+    'technicians': GMR.red,
     'active days': GMR.red,
     'active_days': GMR.red,
     'inv to store': GMR.blue,
@@ -139,6 +144,7 @@ export const detectVariant = (data, name) => {
     const kpiName = (name || '').toLowerCase();
 
     // 1. Keyword Overrides
+    if (kpiName.includes('not closed') || kpiName.includes('open-ageing')) return 'bar';
     if (kpiName.includes('ageing') || kpiName.includes('closure avg. time') || kpiName.includes('avg time')) return 'boxplot';
     if (kpiName.includes('rca') || kpiName.includes('pareto')) return 'pareto';
     if (kpiName.includes('funnel') || kpiName.includes('workflow')) return 'funnel';

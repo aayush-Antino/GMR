@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin, ChevronDown, RefreshCw, Briefcase, Maximize2, Minimize2 } from 'lucide-react';
+import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin, ChevronDown, RefreshCw, Briefcase, Maximize2, Minimize2, Zap } from 'lucide-react';
 import SmartChart from './charts/SmartChart';
 import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 import { useSmartMeterKPI } from '../hooks/useSmartMeterKPI';
@@ -78,8 +78,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     const [toDate, setToDate] = useState('');
     const [isCustomDate, setIsCustomDate] = useState(false);
     const [selectedProject, setSelectedProject] = useState('All');
+    const [showLiveInsights, setShowLiveInsights] = useState(false);
 
     const isBusiness = kpi?.department === 'Business';
+    const isProductivityTeamKPI = kpi?.name?.toLowerCase().includes('productivity per team');
 
     // Params for the API – map UI state to API param names
     const levelToParam = (l) => ({
@@ -108,6 +110,9 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     const {
         trendData: liveTrend,
         distData: liveDist,
+        summary: liveSummary,
+        insights: liveInsights,
+        categoryBreakdown,
         loading: apiLoading,
         error: apiError,
         refetch,
@@ -400,6 +405,20 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     />
                                                 </div>
                                             )}
+
+                                            {/* Insights Toggle */}
+                                            {isProductivityTeamKPI && (
+                                                <button
+                                                    onClick={() => setShowLiveInsights(!showLiveInsights)}
+                                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg shadow-sm transition-all duration-200 border ${showLiveInsights ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-gray-200 text-slate-700 hover:bg-gray-50'}`}
+                                                >
+                                                    <Zap size={12} className={showLiveInsights ? 'text-white' : 'text-indigo-600'} />
+                                                    <span className="text-[11px] font-bold">Insights</span>
+                                                    <div className={`w-8 h-4 rounded-full relative transition-colors duration-200 ml-1 flex items-center ${showLiveInsights ? 'bg-indigo-400' : 'bg-gray-100'}`}>
+                                                        <div className={`absolute w-3 h-3 rounded-full bg-white shadow-sm transition-all duration-200 ${showLiveInsights ? 'right-0.5' : 'left-0.5'}`} />
+                                                    </div>
+                                                </button>
+                                            )}
                                         </div>
                                     ) : (
                                         /* Default Region Filter for other departments */
@@ -428,6 +447,63 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Live Summary Cards & Insights */}
+                                {isBusiness && isProductivityTeamKPI && showLiveInsights && !apiLoading && (
+                                    <div className="space-y-4">
+                                        {liveSummary && (
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                {Object.entries(liveSummary).map(([key, val]) => (
+                                                    <div key={key} className="p-4 bg-white/60 backdrop-blur-md border border-white rounded-2xl shadow-sm transition-all hover:shadow-md group">
+                                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">
+                                                            {key.replace(/_/g, ' ')}
+                                                        </p>
+                                                        <p className="text-xl font-black text-slate-800 tracking-tight">
+                                                            {typeof val === 'number' ? (Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2)) : val}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {liveInsights && (
+                                            <div className="p-4 bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 rounded-2xl flex flex-wrap gap-6 items-center shadow-sm">
+                                                <div className="p-3 bg-white rounded-xl shadow-sm border border-indigo-50">
+                                                    <Activity size={24} className="text-indigo-600" />
+                                                </div>
+                                                <div className="flex-1 min-w-[200px]">
+                                                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Live Performance Insights</h4>
+                                                    <div className="flex flex-wrap gap-x-12 gap-y-3">
+                                                        {liveInsights.top_performing_technician && (
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Top Performer</p>
+                                                                    <p className="text-xs font-black text-slate-800">
+                                                                        {liveInsights.top_performing_technician.name} 
+                                                                        <span className="text-emerald-600 ml-2 font-black">{liveInsights.top_performing_technician.productivity_per_technician_per_day}</span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {liveInsights.lowest_performing_technician && (
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-1.5 h-8 bg-orange-500 rounded-full" />
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Requires Support</p>
+                                                                    <p className="text-xs font-black text-slate-800">
+                                                                        {liveInsights.lowest_performing_technician.name}
+                                                                        <span className="text-orange-600 ml-2 font-black">{liveInsights.lowest_performing_technician.productivity_per_technician_per_day}</span>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Chart Grid: Now occupies full width with responsive stacking */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

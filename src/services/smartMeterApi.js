@@ -94,6 +94,7 @@ export async function fetchMIProductivityTeamDashboard(params = {}, signal = nul
         duration: params.period || 'daily',
         level: params.level_by || 'discom',
         project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
         start_date: params.from_date || '',
         end_date: params.to_date || '',
         ...params
@@ -103,6 +104,7 @@ export async function fetchMIProductivityTeamDashboard(params = {}, signal = nul
     delete mappedParams.level_by;
     delete mappedParams.from_date;
     delete mappedParams.to_date;
+    delete mappedParams.meter_category;
 
     return apiFetch('/api/mi/productivity/team/dashboard', mappedParams, signal);
 }
@@ -133,6 +135,7 @@ export async function fetchMonthlyProductivityTrendDashboard(params = {}, signal
         duration: params.period || 'monthly',
         level: params.level_by || 'zone',
         project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
         start_date: params.from_date || '',
         end_date: params.to_date || '',
         ...params
@@ -142,6 +145,7 @@ export async function fetchMonthlyProductivityTrendDashboard(params = {}, signal
     delete mappedParams.level_by;
     delete mappedParams.from_date;
     delete mappedParams.to_date;
+    delete mappedParams.meter_category;
 
     return apiFetch('/api/mi/productivity/trend/dashboard', mappedParams, signal);
 }
@@ -381,7 +385,23 @@ export async function fetchCommandCenter(region, params = {}, signal = null) {
 // Response: [{ technician, agency, closed_tickets }]
 // ──────────────────────────────────────────────
 export async function fetchOMProductivityTeam(params = {}, signal = null) {
-    return apiFetch('/api/om/productivity-team', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/om/productivity-team/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -389,7 +409,23 @@ export async function fetchOMProductivityTeam(params = {}, signal = null) {
 // Response: [{ closed_month, total_closed_tickets }]
 // ──────────────────────────────────────────────
 export async function fetchOMProductivityTrend(params = {}, signal = null) {
-    return apiFetch('/api/om/productivity-trend', params, signal);
+    const mappedParams = {
+        duration: params.period || 'monthly',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/om/productivity-trend/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
@@ -397,7 +433,23 @@ export async function fetchOMProductivityTrend(params = {}, signal = null) {
 // Response: [{ ticket_id, created_date, ageing_days }]
 // ──────────────────────────────────────────────
 export async function fetchOMOpenAgeing(params = {}, signal = null) {
-    return apiFetch('/api/om/open-ageing', params, signal);
+    const mappedParams = {
+        duration: params.period || 'daily',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/om/open-ageing/dashboard', mappedParams, signal);
 }
 
 export async function fetchMIvsSATvsInvoiceSummary(params = {}, signal = null) {
@@ -416,7 +468,23 @@ export async function fetchMIvsSATvsInvoiceSummary(params = {}, signal = null) {
 // Response: [{ avg_resolution_days, period_value_closed }]
 // ──────────────────────────────────────────────
 export async function fetchOMAvgClosureTime(params = {}, signal = null) {
-    return apiFetch('/api/om/avg-closure-time', params, signal);
+    const mappedParams = {
+        duration: params.period || 'monthly',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/om/avg-closure-time/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────

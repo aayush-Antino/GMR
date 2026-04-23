@@ -211,9 +211,9 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 
                 return {
                     name: label,
-                    Productivity: node.productivity_per_agency_per_day || 0,
+                    Productivity: node.productivity_per_technician_per_day || 0,
                     Installations: node.total_installations || 0,
-                    Agencies: node.active_agencies || 0
+                    Technicians: node.active_technicians || 0
                 };
             });
         }
@@ -230,14 +230,20 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
                 return {
                     name: label,
-                    Productivity: node.productivity_per_agency_per_day || 0,
+                    Productivity: node.productivity_per_technician_per_day || 0,
                     Installations: node.total_installations || 0,
-                    Teams: node.active_agencies || 0
+                    Technicians: node.active_technicians || 0
                 };
             });
         }
 
-        return { trend, distribution, summary: dashboardData?.summary, insights: dashboardData?.insights };
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            insights: dashboardData?.insights,
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
     // Monthly Productivity Trend (New Dashboard Endpoint)
@@ -245,12 +251,13 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         const dashboardData = trendData; // Since shared: true
         
         // 1. Trend Analysis
-        if (Array.isArray(dashboardData?.monthly_productivity_trend)) {
-            trend = dashboardData.monthly_productivity_trend.map(node => ({
-                name: formatLabel(node.month),
-                Productivity: node.productivity_per_day || 0,
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.month || node.date || node.period_value),
+                Productivity: node.productivity_per_technician_per_day || node.productivity_per_day || 0,
                 Installations: node.total_installations || 0,
-                'Active Days': node.active_days || 0
+                'Active Days': node.active_days || 0,
+                Technicians: node.avg_active_technicians || 0
             }));
         }
         
@@ -258,13 +265,20 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => ({
                 name: node.label,
-                Productivity: node.productivity_per_day || 0,
+                Productivity: node.productivity_per_technician_per_day || node.productivity_per_day || 0,
                 Installations: node.total_installations || 0,
-                'Active Days': node.active_days || 0
+                'Active Days': node.active_days || 0,
+                Technicians: node.avg_active_technicians || 0
             }));
         }
         
-        return { trend, distribution };
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            insights: dashboardData?.insights, 
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
     // Defective Meters (Revamped Dashboard)
@@ -1019,125 +1033,146 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
     // O&M Team Productivity
     if ((n.includes('o&m') || n.includes('om')) && n.includes('productivity') && n.includes('team')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        if (rows.length === 0) return { trend: [], distribution: [] };
-
-        // 1. Trend: Category-wise productivity over time
-        const periodMap = new Map();
-        rows.forEach(r => {
-            const period = formatLabel(r.period_value || 'Unknown');
-            const rawCat = r.meter_category || r.category || 'Other';
-            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : ((rawCat.toUpperCase() === 'DT' || rawCat.toUpperCase() === 'DTR') ? 'DT' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : rawCat));
-            const val = Number(r.closed_tickets || 0);
-            
-            if (!periodMap.has(period)) periodMap.set(period, { name: period });
-            const pObj = periodMap.get(period);
-
-            if (!params?.meter_category || params?.meter_category === 'Total' || rawCat.toUpperCase() === params.meter_category.toUpperCase()) {
-                pObj[cat] = (pObj[cat] || 0) + val;
-            }
-        });
-        trend = Array.from(periodMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-
-        // 2. Distribution: Team-wise Productivity with Category breakdown
-        const teamMap = new Map();
-        rows.forEach(r => {
-            // Strip quotes and trim
-            let team = (r.agency || r.technician || 'Other').replace(/^"|"$/g, '').trim();
-            if (team.startsWith('\\"')) team = team.replace(/^\\"|\\"$/g, '').trim(); 
-            
-            const rawCat = r.meter_category || r.category || 'Other';
-            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : ((rawCat.toUpperCase() === 'DT' || rawCat.toUpperCase() === 'DTR') ? 'DT' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : rawCat));
-            const val = Number(r.closed_tickets || 0);
-
-            if (!teamMap.has(team)) teamMap.set(team, { name: team });
-            const tObj = teamMap.get(team);
-
-            if (!params?.meter_category || params?.meter_category === 'Total' || rawCat.toUpperCase() === params.meter_category.toUpperCase()) {
-                tObj[cat] = (tObj[cat] || 0) + val;
-            }
-        });
-        distribution = Array.from(teamMap.values())
-            .sort((a, b) => {
-                const totalA = Object.keys(a).filter(k => k !== 'name').reduce((s, k) => s + a[k], 0);
-                const totalB = Object.keys(b).filter(k => k !== 'name').reduce((s, k) => s + b[k], 0);
-                return totalB - totalA;
-            })
-            .slice(0, 20);
-
-        /*
-        // Previous attempt - only single value aggregation
-        trend = aggregateData(rows, 'period_value', 'closed_tickets');
-        const catMap = new Map();
-        rows.forEach(r => {
-            const cat = r.meter_category || r.category || 'Other';
-            const val = Number(r.closed_tickets || 0);
-            catMap.set(cat, (catMap.get(cat) || 0) + val);
-        });
-        distribution = Array.from(catMap.entries()).map(([name, value]) => ({ name, value }));
-        */
+        const dashboardData = trendData; // Since shared: true
         
-        return { trend, distribution };
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.date || node.period_value),
+                Productivity: node.productivity_per_technician_per_day || 0,
+                'Closed Tickets': node.total_closed_tickets || 0,
+                Technicians: node.active_technicians || 0
+            }));
+        }
+        
+        // 2. Comparison
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                Productivity: node.productivity_per_technician_per_day || 0,
+                'Closed Tickets': node.total_closed_tickets || 0,
+                Technicians: node.active_technicians || 0
+            }));
+        }
+        
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            insights: dashboardData?.insights, 
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
     // O&M Productivity Trend
     if ((n.includes('o&m') || n.includes('om')) && n.includes('productivity trend')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        trend = aggregateData(rows, 'closed_month', 'total_closed_tickets');
-        distribution = [...trend];
-        return { trend, distribution };
+        const dashboardData = trendData; // Since shared: true
+        
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.month || node.date || node.period_value),
+                Productivity: node.productivity_per_technician_per_day || 0,
+                'Closed Tickets': node.total_closed_tickets || 0,
+                'Active Days': node.active_days || 0,
+                Technicians: node.avg_active_technicians || 0
+            }));
+        }
+        
+        // 2. Comparison
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                Productivity: node.productivity_per_technician_per_day || 0
+            }));
+        }
+        
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            insights: dashboardData?.insights, 
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
     // O&M Open Ageing
     if (n.includes('not closed') && n.includes('ageing')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        if (rows.length === 0) return { trend: [], distribution: [] };
+        const dashboardData = trendData; // shared: true
+        const selCategory = (params?.meter_category || 'TOTAL').toUpperCase();
+        
+        const buckets = [
+            { key: 'age_less_than_3_days', label: '< 3 Days' },
+            { key: 'age_less_than_7_days', label: '3-7 Days' },
+            { key: 'age_less_than_15_days', label: '7-15 Days' },
+            { key: 'age_less_than_30_days', label: '15-30 Days' },
+            { key: 'age_less_than_3_months', label: '1-3 Months' },
+            { key: 'age_less_than_6_months', label: '3-6 Months' },
+            { key: 'age_6_months_and_above', label: '> 6 Months' }
+        ];
 
-        const buckets = { '<1 day': 0, '1–3 days': 0, '4–7 days': 0, '>7 days': 0 };
-        const periodMap = new Map();
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.period_value),
+                'Total Open': node.total_open || 0,
+                'Auto Ticketing': node.auto_ticketing || 0,
+                '1912 Helpdesk': node['1912_helpdesk'] || 0,
+                Others: node.others || 0
+            }));
+        }
 
-        rows.forEach(r => {
-            const rawCat = r.meter_category || r.category || 'Other';
-            const cat = rawCat.toUpperCase() === 'CONSUMER' ? 'Consumer' : ((rawCat.toUpperCase() === 'DT' || rawCat.toUpperCase() === 'DTR') ? 'DT' : (rawCat.toUpperCase() === 'FEEDER' ? 'Feeder' : rawCat));
-            const d = Number(r.ageing_days || 0);
-            
-            if (d < 1) buckets['<1 day']++;
-            else if (d <= 3) buckets['1–3 days']++;
-            else if (d <= 7) buckets['4–7 days']++;
-            else buckets['>7 days']++;
-
-            if (r.created_date) {
-                const date = formatLabel(r.created_date.split('T')[0]);
-                if (!periodMap.has(date)) periodMap.set(date, { name: date });
-                const pObj = periodMap.get(date);
-
-                if (!params?.meter_category || params?.meter_category === 'Total' || rawCat.toUpperCase() === params.meter_category.toUpperCase()) {
-                    pObj[cat] = (pObj[cat] || 0) + 1;
-                }
-            }
-        });
-
-        trend = Array.from(periodMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-
-        if (trend.length === 0) trend = [{ name: 'Total Open', value: rows.length }];
-
-        distribution = Object.entries(buckets).map(([name, value]) => ({ 
-            name, 
-            value,
-            avg: value // For BoxPlot compatibility
+        // 2. Ageing Distribution (Bar Chart)
+        const summaryObj = (selCategory === 'TOTAL') ? dashboardData.summary : dashboardData.category_breakdown?.[selCategory];
+        const ageBuckets = summaryObj?.age_buckets || {};
+        
+        distribution = buckets.map(b => ({
+            name: b.label,
+            'Auto Ticketing': ageBuckets[b.key]?.auto_ticketing || 0,
+            '1912 Helpdesk': ageBuckets[b.key]?.['1912_helpdesk'] || 0,
+            'Others': ageBuckets[b.key]?.others || 0
         }));
 
-        return { trend, distribution };
+        return { 
+            trend, 
+            distribution,
+            summary: {
+               'Total Open': summaryObj?.total_open || 0,
+               'Auto Ticketing': summaryObj?.auto_ticketing || 0,
+               '1912 Helpdesk': summaryObj?.['1912_helpdesk'] || 0,
+               'Others': summaryObj?.others || 0
+            }
+        };
     }
 
     // O&M Avg Closure Time
     if (n.includes('closure') && n.includes('avg')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        trend = aggregateData(rows, 'period_value_closed', 'avg_resolution_days');
-        // For average, we should actually average it rather than sum if multiple rows hit same label.
-        // But typically these are already monthly points.
-        distribution = [...trend];
-        return { trend, distribution };
+        const dashboardData = trendData; // shared: true
+        
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.period_value),
+                'Avg Days': node.avg_resolution_days || 0,
+                'Closed Tickets': node.total_closed_tickets || 0
+            }));
+        }
+        
+        // 2. Comparison
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                'Avg Days': node.avg_resolution_days || 0,
+                'Closed Tickets': node.total_closed_tickets || 0
+            }));
+        }
+        
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
     // O&M Closed Analysis

@@ -15,6 +15,9 @@ import { transformAPIResponse } from '../services/smartMeterUtils';
 export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
     const [trendData, setTrendData] = useState([]);
     const [distData, setDistData] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [insights, setInsights] = useState(null);
+    const [categoryBreakdown, setCategoryBreakdown] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const abortRef = useRef(null);
@@ -41,7 +44,7 @@ export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
                 rawTrend = await fetchers.fetchTrend(params, signal);
                 rawDist = rawTrend;
             } else {
-                // Separate requests - handle partial failures so one failing API doesn't kill the whole UI
+                // Separate requests
                 const results = await Promise.allSettled([
                     fetchers.fetchTrend(params, signal),
                     fetchers.fetchDistribution(params, signal),
@@ -55,9 +58,12 @@ export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
                 }
             }
 
-            const { trend, distribution } = transformAPIResponse(kpiName, rawTrend, rawDist, params);
-            setTrendData(trend);
-            setDistData(distribution);
+            const transformed = transformAPIResponse(kpiName, rawTrend, rawDist, params);
+            setTrendData(transformed.trend || []);
+            setDistData(transformed.distribution || []);
+            setSummary(transformed.summary || null);
+            setInsights(transformed.insights || null);
+            setCategoryBreakdown(transformed.category_breakdown || null);
         } catch (err) {
             if (err.name !== 'AbortError') {
                 setError(err.message || 'Failed to load data');
@@ -73,9 +79,8 @@ export function useSmartMeterKPI(kpiName, params = {}, enabled = true) {
         return () => {
             if (abortRef.current) abortRef.current.abort();
         };
-    // Stringify params to avoid infinite loop from object identity changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kpiName, JSON.stringify(params), enabled]);
 
-    return { trendData, distData, loading, error, refetch: fetch };
+    return { trendData, distData, summary, insights, categoryBreakdown, loading, error, refetch: fetch };
 }
