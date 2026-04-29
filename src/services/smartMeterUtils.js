@@ -1115,7 +1115,6 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.trend)) {
             trend = dashboardData.trend.map(node => ({
                 name: formatLabel(node.period_value),
-                'Total Open': node.total_open || 0,
                 'Auto Ticketing': node.auto_ticketing || 0,
                 '1912 Helpdesk': node['1912_helpdesk'] || 0,
                 Others: node.others || 0
@@ -1175,26 +1174,37 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         };
     }
 
-    // O&M Closed Analysis
+    // O&M Closed Analysis (New Dashboard Endpoint)
     if (n.includes('closed analysis')) {
-        const rows = Array.isArray(trendData) ? trendData : [];
-        if (rows.length === 0) return { trend: [], distribution: [] };
-
-        // 1. Trend: Total closed tickets over time
-        trend = aggregateData(rows, 'period_value', 'closed_tickets');
-
-        // 2. Distribution: By Complaint Type
-        const typeMap = new Map();
-        rows.forEach(r => {
-            const type = (r.complaint_type || 'Other').replace(/^"|"$/g, '').trim();
-            const val = Number(r.closed_tickets || 0);
-            typeMap.set(type, (typeMap.get(type) || 0) + val);
-        });
-        distribution = Array.from(typeMap.entries())
-            .map(([name, value]) => ({ name, value }))
-            .sort((a, b) => b.value - a.value);
-
-        return { trend, distribution };
+        const dashboardData = trendData; // shared: true
+        
+        // 1. Trend Analysis
+        if (Array.isArray(dashboardData?.trend)) {
+            trend = dashboardData.trend.map(node => ({
+                name: formatLabel(node.period_value),
+                'Auto Ticketing': node.auto_ticketing || 0,
+                '1912 Helpdesk': node['1912_helpdesk'] || 0,
+                Others: node.others || 0
+            }));
+        }
+        
+        // 2. Comparison (Geographical)
+        if (Array.isArray(dashboardData?.comparison)) {
+            distribution = dashboardData.comparison.map(node => ({
+                name: node.label,
+                'Auto Ticketing': node.auto_ticketing || 0,
+                '1912 Helpdesk': node['1912_helpdesk'] || 0,
+                Others: node.others || 0,
+                value: (node.auto_ticketing || 0) + (node['1912_helpdesk'] || 0) + (node.others || 0)
+            }));
+        }
+        
+        return { 
+            trend, 
+            distribution, 
+            summary: dashboardData?.summary, 
+            category_breakdown: dashboardData?.category_breakdown 
+        };
     }
 
 

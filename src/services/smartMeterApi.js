@@ -492,7 +492,23 @@ export async function fetchOMAvgClosureTime(params = {}, signal = null) {
 // Response: [{ complaint_type, closed_tickets }]
 // ──────────────────────────────────────────────
 export async function fetchOMClosedAnalysis(params = {}, signal = null) {
-    return apiFetch('/api/om/closed-analysis', params, signal);
+    const mappedParams = {
+        duration: params.period || 'monthly',
+        level: params.level_by || 'discom',
+        project: (params.project && params.project !== 'All') ? params.project : 'all',
+        category: (params.meter_category || 'total').toLowerCase(),
+        start_date: params.from_date || '',
+        end_date: params.to_date || '',
+        ...params
+    };
+
+    delete mappedParams.period;
+    delete mappedParams.level_by;
+    delete mappedParams.from_date;
+    delete mappedParams.to_date;
+    delete mappedParams.meter_category;
+
+    return apiFetch('/api/om/closed-analysis/dashboard', mappedParams, signal);
 }
 
 // ──────────────────────────────────────────────
