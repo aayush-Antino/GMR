@@ -232,7 +232,7 @@ const DeptSpecificDashboard = () => {
                                 {moduleName && (
                                     <>
                                         <ChevronRight size={10} className="text-gray-400" />
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{moduleName}</p>
+                                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{moduleName}</p>
                                     </>
                                 )}
                             </div>
@@ -263,7 +263,7 @@ const DeptSpecificDashboard = () => {
                     <div className="flex items-center gap-2 pt-3">
                         {dashKey === 'dashboard10' ? (
                             // Dynamic Summary for Business
-                            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full border border-gray-100 bg-gray-50/50 text-slate-500 whitespace-nowrap">
+                            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full border border-gray-100 bg-gray-50/50 text-slate-600 whitespace-nowrap">
                                 <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                                 {moduleName 
                                     ? `Total KPIs in ${businessModules[moduleName]?.title || moduleName}: ${items.length}`

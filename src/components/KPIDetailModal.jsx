@@ -222,7 +222,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                             <div className="flex items-center gap-2 mb-0">
                                 <div className="flex items-center gap-1">
                                     <div className="w-0.5 h-2 bg-primary rounded-full" />
-                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">{kpi.department}</p>
+                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">{kpi.department}</p>
                                 </div>
                                 <div className="flex gap-1.5">
                                     {kpi.department === 'Business' && (
@@ -237,7 +237,12 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     </div> */}
                                 </div>
                             </div>
-                            <h2 className="text-base font-black text-slate-900 leading-tight tracking-tight">{kpi.name}</h2>
+                            <h2 
+                                className="text-base font-black leading-tight tracking-tight"
+                                style={{ color: isBusiness ? '#003975' : '#0f172a' }}
+                            >
+                                {kpi.name}
+                            </h2>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -261,7 +266,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                             {/* Section header + filters */}
                             <div className="flex flex-col gap-6">
                                 <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <h3 
+                                        className="text-xs font-black uppercase tracking-widest flex items-center gap-1.5"
+                                        style={{ color: isBusiness ? '#003975' : '#94a3b8' }}
+                                    >
                                         <Activity size={12} />
                                         Analytics
                                     </h3>
@@ -274,7 +282,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     onClick={() => setIsDurationDropdownOpen(!isDurationDropdownOpen)}
                                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg shadow-sm transition-all duration-200"
                                                 >
-                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Duration:</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tighter" style={{ color: isBusiness ? '#003975' : '#94a3b8' }}>Duration:</span>
                                                     <span className="text-[11px] font-bold text-slate-800">{duration}</span>
                                                     <ChevronDown size={12} className={`text-slate-400 transition-transform ${isDurationDropdownOpen ? 'rotate-180' : ''}`} />
                                                 </button>
@@ -306,7 +314,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
                                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg shadow-sm transition-all duration-200"
                                                 >
-                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Category:</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tighter" style={{ color: isBusiness ? '#003975' : '#94a3b8' }}>Category:</span>
                                                     <span className="text-[11px] font-bold text-slate-800">{category}</span>
                                                     <ChevronDown size={12} className={`text-slate-400 transition-transform ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                                                 </button>
@@ -331,7 +339,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     onClick={() => setIsLevelDropdownOpen(!isLevelDropdownOpen)}
                                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg shadow-sm transition-all duration-200"
                                                 >
-                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Level:</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tighter" style={{ color: isBusiness ? '#003975' : '#94a3b8' }}>Level:</span>
                                                     <span className="text-[11px] font-bold text-slate-800">{level}</span>
                                                     <ChevronDown size={12} className={`text-slate-400 transition-transform ${isLevelDropdownOpen ? 'rotate-180' : ''}`} />
                                                 </button>
@@ -357,7 +365,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-slate-700 hover:bg-gray-50 rounded-lg shadow-sm transition-all duration-200"
                                                 >
                                                     <Briefcase size={12} className="text-primary/60" />
-                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Project:</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tighter" style={{ color: isBusiness ? '#003975' : '#94a3b8' }}>Project:</span>
                                                     <span className="text-[11px] font-bold text-slate-800">
                                                         {['All', 'kashi', 'triveni', 'agra'].find(p => p === selectedProject)?.replace(/^\w/, c => c.toUpperCase()) || selectedProject}
                                                     </span>
@@ -381,7 +389,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             {/* Date Range Filter */}
                                             {kpi.chartData?.isTimeSeries !== false && (
                                                 <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm transition-all duration-200">
-                                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Range:</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-tighter" style={{ color: isBusiness ? '#003975' : '#94a3b8' }}>Range:</span>
                                                     <input 
                                                         type={kpi.chartData?.isMonthlyOnly ? "month" : "date"} 
                                                         value={kpi.chartData?.isMonthlyOnly ? fromDate.slice(0, 7) : fromDate}
@@ -510,7 +518,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     {/* Primary Trend Chart */}
                                     <div className="p-6 bg-white/60 backdrop-blur-md rounded-2xl border border-white shadow-[0_8px_32px_rgba(15,39,68,0.05)]">
                                         <div className="flex items-center justify-between mb-5">
-                                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+                                            <h3 
+                                                className="text-sm font-black uppercase tracking-widest"
+                                                style={{ color: isBusiness ? '#003975' : '#94a3b8' }}
+                                            >
                                                 {activeChartData?.trendTitle || 'Performance Trend'}
                                             </h3>
                                             
@@ -582,7 +593,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     {/* Distribution Chart */}
                                     <div className="p-6 bg-white/60 backdrop-blur-md rounded-2xl border border-white shadow-[0_8px_32px_rgba(15,39,68,0.05)]">
                                         <div className="flex items-center justify-between mb-5">
-                                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+                                            <h3 
+                                                className="text-sm font-black uppercase tracking-widest"
+                                                style={{ color: isBusiness ? '#003975' : '#94a3b8' }}
+                                            >
                                                 {isBusiness ? (
                                                     selectedProject === 'All' && level === 'Discom' ? 'Comparison by Cluster (Agra / Kashi / Triveni)' :
                                                     level === 'Discom' ? `Comparison by Discom (${selectedProject})` :
@@ -716,7 +730,10 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                 <Activity size={20} className="text-indigo-600" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                                <h2 
+                                    className="text-lg font-black tracking-tight"
+                                    style={{ color: isBusiness ? '#003975' : '#1e293b' }}
+                                >
                                     {expandedChart === 'trend' ? (activeChartData?.trendTitle || 'Detailed Trend Analysis') : (activeChartData?.distTitle || 'Detailed Distribution')}
                                 </h2>
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{kpi.name} • Full Details</p>
