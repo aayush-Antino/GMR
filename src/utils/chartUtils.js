@@ -101,7 +101,9 @@ export const KEY_COLORS = {
     'sat progress': GMR.purple,
     'mi progress': GMR.orange,
     'installed': GMR.green,
-    'sat done': GMR.green
+    'sat done': GMR.green,
+    'total lumpsum invoice': GMR.purple,
+    'total pmpm invoice': GMR.pink,
 };
 
 export const getColor = (key, index) => {
@@ -147,7 +149,7 @@ export const detectVariant = (data, name) => {
     if (kpiName.includes('not closed') || kpiName.includes('open-ageing')) return 'bar';
     if (kpiName.includes('ageing') || kpiName.includes('closure avg. time') || kpiName.includes('avg time')) return 'boxplot';
     if (kpiName.includes('rca') || kpiName.includes('pareto')) return 'pareto';
-    if (kpiName.includes('funnel') || kpiName.includes('workflow')) return 'funnel';
+    if ((kpiName.includes('funnel') || kpiName.includes('workflow')) && !kpiName.includes('mi vs sat vs invoice')) return 'funnel';
     
     // Utilization: gauge for single value summary, bar/area for trends/categories
     if (kpiName.includes('utilization') || kpiName.includes('never / non-comm')) {

@@ -481,16 +481,34 @@ const BoxPlotVariant = ({ data }) => {
 };
 
 const FunnelVariant = ({ data }) => {
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    
     return (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ top: 20, right: 60, left: 40, bottom: 20 }}>
+            <BarChart data={data} layout="vertical" margin={{ top: 20, right: 80, left: 40, bottom: 20 }} barGap={2}>
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" tick={AXIS_STYLE} axisLine={false} tickLine={false} width={100} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend content={renderCustomLegend} verticalAlign="top" />
-                <Bar dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} fill={GMR.orange} stroke={GMR.orange} radius={[0, 12, 12, 0]} barSize={28} isAnimationActive={true}>
-                    <LabelList dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'} position="right" style={{ fill: GMR.orange, fontWeight: 900, fontSize: 12 }} offset={10} />
-                </Bar>
+                {rawKeys.map((key, i) => (
+                    <Bar 
+                        key={key} 
+                        dataKey={key} 
+                        fill={getColor(key, i)} 
+                        stroke={getColor(key, i)} 
+                        radius={[0, 12, 12, 0]} 
+                        barSize={Math.min(28, 120 / (data.length * rawKeys.length))} 
+                        isAnimationActive={true}
+                    >
+                        <LabelList 
+                            dataKey={key} 
+                            position="right" 
+                            style={{ fill: getColor(key, i), fontWeight: 900, fontSize: 11 }} 
+                            offset={10} 
+                            formatter={formatValue} 
+                        />
+                    </Bar>
+                ))}
             </BarChart>
         </ResponsiveContainer>
     );

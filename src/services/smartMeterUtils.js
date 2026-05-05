@@ -649,35 +649,25 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
 
         const stages = [
-            { key: 'mi', label: 'mi' },
-            { key: 'sat', label: 'sat' },
-            { key: 'lumpsum_invoice', label: 'lumpsum_invoice' },
-            { key: 'pmpm_invoice', label: 'pmpm_invoice' }
+            { key: 'mi', label: 'MI' },
+            { key: 'sat', label: 'SAT' },
+            { key: 'lumpsum_invoice', label: 'Lumpsum Inv' },
+            { key: 'pmpm_invoice', label: 'PMPM Inv' }
         ];
 
         // 1. Snapshot Funnel (Left Chart)
         trend = stages.map(st => {
             const point = { name: st.label };
+            const stageKey = `total_${st.key}`;
+            const stageSummary = dashboardData.summary?.[stageKey];
+
             if (selCategory === 'TOTAL') {
-                ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
-                    const catData = dashboardData.category_breakdown?.[cat];
-                    const catLabel = cat.charAt(0) + cat.slice(1).toLowerCase();
-                    if (catData) {
-                        const m = catData.total || catData;
-                        point[catLabel] = Number(m[st.key] || m[`total_${st.key}`] || 0);
-                    } else {
-                        point[catLabel] = 0;
-                    }
-                });
+                point.Consumer = Number(stageSummary?.CONSUMER || 0);
+                point.DT = Number(stageSummary?.DT || 0);
+                point.Feeder = Number(stageSummary?.FEEDER || 0);
             } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                const catLabel = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
-                if (catData) {
-                    const m = catData.total || catData;
-                    point[catLabel] = Number(m[st.key] || m[`total_${st.key}`] || 0);
-                } else {
-                    point[catLabel] = 0;
-                }
+                const displayKey = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
+                point[displayKey] = Number(stageSummary?.[selCategory] || 0);
             }
             return point;
         });
@@ -686,10 +676,10 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => ({
                 name: node.label || 'Unknown',
-                'total_mi': Number(node.total_mi || 0),
-                'total_sat': Number(node.total_sat || 0),
-                'total_lumpsum_invoice': Number(node.total_lumpsum_invoice || 0),
-                'total_pmpm_invoice': Number(node.total_pmpm_invoice || 0)
+                'total mi': Number(node.total_mi?.total ?? node.total_mi ?? 0),
+                'total sat': Number(node.total_sat?.total ?? node.total_sat ?? 0),
+                'total lumpsum invoice': Number(node.total_lumpsum_invoice?.total ?? node.total_lumpsum_invoice ?? 0),
+                'total pmpm invoice': Number(node.total_pmpm_invoice?.total ?? node.total_pmpm_invoice ?? 0)
             }));
         }
 
@@ -697,9 +687,9 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             trend, 
             distribution,
             summary: {
-                'Total MI': dashboardData.total_mi || 0,
-                'Total SAT': dashboardData.total_sat || 0,
-                'Total Invoiced': dashboardData.total_invoice || (Number(dashboardData.total_lumpsum_invoice || 0) + Number(dashboardData.total_pmpm_invoice || 0))
+                'Total MI': dashboardData.summary?.total_mi?.total || 0,
+                'Total SAT': dashboardData.summary?.total_sat?.total || 0,
+                'Total Invoiced': (Number(dashboardData.summary?.total_lumpsum_invoice?.total || 0) + Number(dashboardData.summary?.total_pmpm_invoice?.total || 0))
             }
         };
     }
