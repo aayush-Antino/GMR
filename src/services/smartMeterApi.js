@@ -297,13 +297,14 @@ export async function fetchMeterJourneyDashboard(params = {}, signal = null) {
 }
 
 export async function fetchMeterStage(params = {}, signal = null) {
-    const { start_date, end_date, duration, period, level, level_by, from_date, to_date, ...rest } = params;
+    const { start_date, end_date, duration, period, level, level_by, from_date, to_date, meter_category, ...rest } = params;
     const mappedParams = {
         ...rest,
         duration: duration || period || 'as on latest sat',
         level: level || level_by || 'discom',
         start_date: start_date || from_date || '',
-        end_date: end_date || to_date || ''
+        end_date: end_date || to_date || '',
+        category: (params.category || meter_category || 'total').toLowerCase()
     };
     return apiFetch('/api/mi/meter-stage', mappedParams, signal);
 }
@@ -453,11 +454,12 @@ export async function fetchOMOpenAgeing(params = {}, signal = null) {
 }
 
 export async function fetchMIvsSATvsInvoiceSummary(params = {}, signal = null) {
-    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, ...rest } = params;
+    const { start_date, end_date, from_date, to_date, duration, period, level, level_by, meter_category, ...rest } = params;
     const mappedParams = {
         ...rest,
         period: period || duration || 'as on latest sat',
-        level: level || level_by || 'discom'
+        level: level || level_by || 'discom',
+        category: (params.category || meter_category || 'total').toLowerCase()
     };
     return apiFetch('/api/mi/mi-vs-sat-vs-invoice/summary', mappedParams, signal);
 }

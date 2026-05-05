@@ -107,10 +107,18 @@ export const KEY_COLORS = {
 };
 
 export const getColor = (key, index) => {
-    if (!key) return GMR_PALETTE[index % GMR_PALETTE.length];
+    const palette = GMR_PALETTE || [];
+    if (!key) return palette[index % palette.length] || '#2563eb';
+    
     const k = key.toLowerCase().trim();
     if (KEY_COLORS[k]) return KEY_COLORS[k];
-    return GMR_PALETTE[index % GMR_PALETTE.length];
+
+    // Fallback for dynamic keys: use index if provided, otherwise hash the string
+    const i = (typeof index === 'number' && !isNaN(index)) 
+        ? index 
+        : k.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        
+    return palette[i % palette.length] || '#2563eb';
 };
 
 export const AXIS_STYLE = {
@@ -147,7 +155,7 @@ export const detectVariant = (data, name) => {
 
     // 1. Keyword Overrides
     if (kpiName.includes('not closed') || kpiName.includes('open-ageing')) return 'bar';
-    if (kpiName.includes('ageing') || kpiName.includes('closure avg. time') || kpiName.includes('avg time')) return 'boxplot';
+    if (kpiName.includes('ageing') || kpiName.includes('closure avg. time') || kpiName.includes('avg time')) return 'bar';
     if (kpiName.includes('rca') || kpiName.includes('pareto')) return 'pareto';
     if ((kpiName.includes('funnel') || kpiName.includes('workflow')) && !kpiName.includes('mi vs sat vs invoice')) return 'funnel';
     

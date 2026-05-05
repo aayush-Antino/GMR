@@ -147,6 +147,65 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         return Number(raw || 0);
     };
 
+    const getBreakdownData = (node, selCategory, fallbackLabel) => {
+        const point = {};
+        
+        if (typeof node === 'number') {
+            let label = fallbackLabel;
+            if (!label) {
+                label = (selCategory === 'DT' || selCategory === 'DTR') ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
+            }
+            point[label] = node;
+            return point;
+        }
+
+        if (!node) {
+            // Ensure the main category key exists even for null/0 nodes
+            if (selCategory !== 'TOTAL' && selCategory) {
+                const label = fallbackLabel || (selCategory === 'DT' || selCategory === 'DTR' ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase()));
+                point[label] = 0;
+            }
+            return point;
+        }
+
+        if (selCategory === 'TOTAL' || !selCategory) {
+            point.DT = Number(node?.DT || 0);
+            point.Consumer = Number(node?.CONSUMER || 0);
+            point.Feeder = Number(node?.FEEDER || 0);
+            
+            // If all categories are 0 but total exists, it might be a single-category response or nested
+            if (point.DT === 0 && point.Consumer === 0 && point.Feeder === 0 && node?.total) {
+                point.Consumer = Number(node.total); // Usually default to consumer if ambiguous
+            }
+            point.total = (point.DT + point.Consumer + point.Feeder);
+        } else {
+            const searchStr = selCategory === 'DTR' ? 'DT' : selCategory;
+            const subKeys = node ? Object.keys(node).filter(k => 
+                k.toUpperCase().includes(searchStr) && 
+                k.toUpperCase() !== selCategory &&
+                !['NAME', 'LABEL', 'PERIOD_VALUE', 'DATE', 'TOTAL', 'PROJECT', 'PROJECT_PREFIX'].includes(k.toUpperCase())
+            ) : [];
+
+            if (subKeys.length > 0) {
+                let subTotal = 0;
+                subKeys.forEach(sk => {
+                    point[sk] = Number(node[sk] || 0);
+                    subTotal += point[sk];
+                });
+                if (subKeys.length > 1 && !['DT', 'FEEDER', 'DTR'].includes(selCategory)) {
+                    point.total = subTotal;
+                }
+            } else {
+                let label = fallbackLabel;
+                if (!label) {
+                    label = (selCategory === 'DT' || selCategory === 'DTR') ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
+                }
+                point[label] = Number(node[selCategory] || node[searchStr] || 0);
+            }
+        }
+        return point;
+    };
+
     // MI Progress (New Dashboard Endpoint)
     if (n.includes('mi-progress') || n.includes('mi progress')) {
         const dashboardData = trendData; // Since shared: true
@@ -157,19 +216,7 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             
             trend = dashboardData.trend.map(node => {
                 const label = formatLabel(node.period_value);
-                const point = { name: label };
-                
-                if (selCategory === 'TOTAL') {
-                    point.Consumer = node.CONSUMER || 0;
-                    point.Feeder = node.FEEDER || 0;
-                    point.DT = node.DT || 0;
-                } else {
-                    // Only return the selected category series, others are 0 (as per requirement)
-                    point.Consumer = selCategory === 'CONSUMER' ? node.CONSUMER || 0 : 0;
-                    point.Feeder = selCategory === 'FEEDER' ? node.FEEDER || 0 : 0;
-                    point.DT = selCategory === 'DT' || selCategory === 'DTR' ? (node.DT || node.DTR || 0) : 0;
-                }
-                return point;
+                return { name: label, ...getBreakdownData(node, selCategory) };
             });
         }
         
@@ -177,6 +224,7 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.comparison)) {
             const project = (params?.project || 'all').toLowerCase();
             const level = (params?.level_by || params?.level || 'discom').toLowerCase();
+            const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
             
             distribution = dashboardData.comparison.map(node => {
                 let label = node.label || 'Unknown';
@@ -186,12 +234,7 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                     label = `${node.project_prefix} | ${label}`;
                 }
 
-                return {
-                    name: label,
-                    Consumer: node.CONSUMER || 0,
-                    Feeder: node.FEEDER || 0,
-                    DT: node.DT || 0
-                };
+                return { name: label, ...getBreakdownData(node, selCategory) };
             });
         }
         
@@ -284,14 +327,16 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
     // Defective Meters (Revamped Dashboard)
     if (n.includes('defective meters')) {
         const dashboardData = trendData; // shared: true
+        const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
         
-        // 1. Trend Analysis
-        if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
+        // 1. Trend Analysis (Source: period_breakdown or trend)
+        const trendSource = dashboardData?.period_breakdown || dashboardData?.trend;
+        if (Array.isArray(trendSource)) {
+            trend = trendSource.map(node => ({
                 name: formatLabel(node.period_value),
-                Burnt: node.burnt || 0,
-                Faulty: node.faulty || 0,
-                Others: node.others || 0
+                Burnt: getBucketVal(node, 'total_burnt', selCategory),
+                Faulty: getBucketVal(node, 'total_faulty', selCategory),
+                Others: getBucketVal(node, 'total_others', selCategory)
             }));
         }
         
@@ -299,21 +344,21 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => ({
                 name: node.label,
-                Burnt: node.burnt || 0,
-                Faulty: node.faulty || 0,
-                Others: node.others || 0,
-                value: node.total_defective || 0
+                Burnt: getBucketVal(node, 'total_burnt', selCategory),
+                Faulty: getBucketVal(node, 'total_faulty', selCategory),
+                Others: getBucketVal(node, 'total_others', selCategory),
+                value: getBucketVal(node, 'total_defective', selCategory)
             }));
         }
-
+        
         return { 
             trend, 
             distribution, 
             summary: {
-                'Total Defective': dashboardData.total_defective,
-                'Meter Burnt': dashboardData.total_burnt,
-                'Meter Faulty': dashboardData.total_faulty,
-                'Others': dashboardData.total_others
+                'Total Defective': getBucketVal(dashboardData.summary, 'total_defective', selCategory),
+                'Meter Burnt': getBucketVal(dashboardData.summary, 'total_burnt', selCategory),
+                'Meter Faulty': getBucketVal(dashboardData.summary, 'total_faulty', selCategory),
+                'Others': getBucketVal(dashboardData.summary, 'total_others', selCategory)
             },
             category_breakdown: dashboardData.category_breakdown
         };
@@ -471,31 +516,21 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         // 1. Snapshot Breakdown (Left Chart)
         trend = bucketKeys.map(b => {
-            const point = { name: b.label };
-            // Since it's a snapshot, we use the top-level or summary breakdown for the trend bars
-            if (selCategory === 'TOTAL') {
-                ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
-                    const catData = dashboardData.category_breakdown?.[cat];
-                    const summary = catData?.total || catData;
-                    const displayKey = cat === 'DT' ? 'DT' : (cat.charAt(0) + cat.slice(1).toLowerCase());
-                    point[displayKey] = Number(summary?.[b.key] || 0);
-                });
-            } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                const summary = catData?.total || catData;
-                const displayKey = selCategory === 'DT' ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
-                point[displayKey] = Number(summary?.[b.key] || 0);
-            }
-            return point;
+            const bucketNode = dashboardData.summary?.[b.key];
+            return { name: b.label, ...getBreakdownData(bucketNode, selCategory) };
         });
 
         // 2. Comparison (Geographical / Comparison Array)
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => {
                 const point = { name: node.label || 'Unknown' };
+                let sum = 0;
                 bucketKeys.forEach(b => {
-                    point[b.label] = getBucketVal(node, b.key, selCategory);
+                    const val = getBucketVal(node, b.key, selCategory);
+                    point[b.label] = val;
+                    sum += val;
                 });
+                point.total = sum;
                 return point;
             });
         }
@@ -505,11 +540,12 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             distribution,
             summary: {
                 'Total Stock': dashboardData.total_stock || 0,
-                '0-30 Days': dashboardData.age_0_30 || 0,
-                '31-60 Days': dashboardData.age_31_60 || 0,
-                '61-90 Days': dashboardData.age_61_90 || 0,
-                '90+ Days': dashboardData.age_90_plus || 0
-            }
+                '0-30 Days': getBucketVal(dashboardData.summary, 'age_0_30', selCategory),
+                '31-60 Days': getBucketVal(dashboardData.summary, 'age_31_60', selCategory),
+                '61-90 Days': getBucketVal(dashboardData.summary, 'age_61_90', selCategory),
+                '90+ Days': getBucketVal(dashboardData.summary, 'age_90_plus', selCategory)
+            },
+            category_breakdown: dashboardData.category_breakdown
         };
     }
 
@@ -522,17 +558,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         const stages = ['sat_1', 'sat_2', 'sat_3', 'sat_4', 'sat_5', 'sat_6', 'sat_7', 'sat_8', 'sat_9'];
         trend = stages.map(s => {
             const label = s.toUpperCase().replace('_', ' ');
-            const point = { name: label };
-            
-            if (selCategory === 'TOTAL') {
-                point.Consumer = dashboardData.category_breakdown?.CONSUMER?.total?.[s] || 0;
-                point.DT = dashboardData.category_breakdown?.DT?.total?.[s] || 0;
-                point.Feeder = dashboardData.category_breakdown?.FEEDER?.total?.[s] || 0;
-            } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                point[selCategory.charAt(0) + selCategory.slice(1).toLowerCase()] = catData?.total?.[s] || 0;
-            }
-            return point;
+            const stageNode = dashboardData.summary?.[s];
+            return { name: label, ...getBreakdownData(stageNode, selCategory) };
         });
 
         // 2. Comparison (Right Chart - Geographical / Hierarchical Array)
@@ -552,15 +579,15 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 'Total MI': dashboardData.total_mi || 0,
                 'Total SAT': dashboardData.total_sat || 0,
                 'SAT Progress %': dashboardData.sat_progress_pct || 0,
-                'SAT Stage 1': dashboardData.sat_1 || 0,
-                'SAT Stage 2': dashboardData.sat_2 || 0,
-                'SAT Stage 3': dashboardData.sat_3 || 0,
-                'SAT Stage 4': dashboardData.sat_4 || 0,
-                'SAT Stage 5': dashboardData.sat_5 || 0,
-                'SAT Stage 6': dashboardData.sat_6 || 0,
-                'SAT Stage 7': dashboardData.sat_7 || 0,
-                'SAT Stage 8': dashboardData.sat_8 || 0,
-                'SAT Stage 9': dashboardData.sat_9 || 0,
+                'SAT Stage 1': getBucketVal(dashboardData.summary, 'sat_1', selCategory),
+                'SAT Stage 2': getBucketVal(dashboardData.summary, 'sat_2', selCategory),
+                'SAT Stage 3': getBucketVal(dashboardData.summary, 'sat_3', selCategory),
+                'SAT Stage 4': getBucketVal(dashboardData.summary, 'sat_4', selCategory),
+                'SAT Stage 5': getBucketVal(dashboardData.summary, 'sat_5', selCategory),
+                'SAT Stage 6': getBucketVal(dashboardData.summary, 'sat_6', selCategory),
+                'SAT Stage 7': getBucketVal(dashboardData.summary, 'sat_7', selCategory),
+                'SAT Stage 8': getBucketVal(dashboardData.summary, 'sat_8', selCategory),
+                'SAT Stage 9': getBucketVal(dashboardData.summary, 'sat_9', selCategory),
             },
             category_breakdown: dashboardData.category_breakdown
         };
@@ -581,52 +608,22 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             { key: 'age_120_plus', label: 'age 120+' }
         ];
 
-        // Use shared getBucketVal for robust extraction
-
         trend = buckets.map(b => {
-            const point = { name: b.label };
-            const bucketSummary = dashboardData.summary?.[b.key];
-
-            if (selCategory === 'TOTAL') {
-                // If summary has nested categories, use them
-                if (bucketSummary && typeof bucketSummary === 'object' && bucketSummary.total !== undefined) {
-                    ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
-                        const val = Number(bucketSummary[cat] || 0);
-                        const displayKey = cat === 'DT' ? 'DT' : (cat.charAt(0) + cat.slice(1).toLowerCase());
-                        point[displayKey] = val;
-                    });
-                } else {
-                    // Fallback if summary is flat
-                    point.Value = Number(dashboardData.summary?.[b.key] || 0);
-                }
-            } else {
-                // Specific category selection
-                if (bucketSummary && typeof bucketSummary === 'object' && bucketSummary[selCategory] !== undefined) {
-                    const val = Number(bucketSummary[selCategory] || 0);
-                    const displayKey = selCategory === 'DT' ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
-                    point[displayKey] = val;
-                } else {
-                    const catData = dashboardData.category_breakdown?.[selCategory];
-                    const displayKey = selCategory === 'DT' ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
-                    point[displayKey] = getVal(catData, b.key);
-                }
-            }
-            return point;
+            const bucketNode = dashboardData.summary?.[b.key];
+            return { name: b.label, ...getBreakdownData(bucketNode, selCategory) };
         });
 
         // 2. Comparison (Geographical Array)
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => {
-                const point = {
-                    name: node.label,
-                    value: Number(node.count || 0),
-                };
-                
-                // Add buckets for stacked geographical comparison
+                const point = { name: node.label || 'Unknown' };
+                let sum = 0;
                 buckets.forEach(b => {
-                    point[b.label] = getBucketVal(node, b.key, selCategory);
+                    const val = getBucketVal(node, b.key, selCategory);
+                    point[b.label] = val;
+                    sum += val;
                 });
-
+                point.total = sum;
                 return point;
             });
         }
@@ -636,10 +633,13 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             distribution,
             summary: {
                 'Total Non-SAT': dashboardData.total_non_sat || 0,
-                'Consumer': dashboardData.category_breakdown?.CONSUMER || 0,
-                'DT': dashboardData.category_breakdown?.DT || 0,
-                'Feeder': dashboardData.category_breakdown?.FEEDER || 0
-            }
+                'age 0-30': getBucketVal(dashboardData.summary, 'age_0_30', selCategory),
+                'age 31-60': getBucketVal(dashboardData.summary, 'age_31_60', selCategory),
+                'age 61-90': getBucketVal(dashboardData.summary, 'age_61_90', selCategory),
+                'age 91-120': getBucketVal(dashboardData.summary, 'age_91_120', selCategory),
+                'age 120+': getBucketVal(dashboardData.summary, 'age_120_plus', selCategory),
+            },
+            category_breakdown: dashboardData.category_breakdown
         };
     }
 
@@ -657,30 +657,30 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         // 1. Snapshot Funnel (Left Chart)
         trend = stages.map(st => {
-            const point = { name: st.label };
+            const label = st.label;
             const stageKey = `total_${st.key}`;
             const stageSummary = dashboardData.summary?.[stageKey];
 
-            if (selCategory === 'TOTAL') {
-                point.Consumer = Number(stageSummary?.CONSUMER || 0);
-                point.DT = Number(stageSummary?.DT || 0);
-                point.Feeder = Number(stageSummary?.FEEDER || 0);
-            } else {
-                const displayKey = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
-                point[displayKey] = Number(stageSummary?.[selCategory] || 0);
-            }
-            return point;
+            return { name: label, ...getBreakdownData(stageSummary, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
         if (Array.isArray(dashboardData?.comparison)) {
-            distribution = dashboardData.comparison.map(node => ({
-                name: node.label || 'Unknown',
-                'total mi': Number(node.total_mi?.total ?? node.total_mi ?? 0),
-                'total sat': Number(node.total_sat?.total ?? node.total_sat ?? 0),
-                'total lumpsum invoice': Number(node.total_lumpsum_invoice?.total ?? node.total_lumpsum_invoice ?? 0),
-                'total pmpm invoice': Number(node.total_pmpm_invoice?.total ?? node.total_pmpm_invoice ?? 0)
-            }));
+            distribution = dashboardData.comparison.map(node => {
+                const mi = Number(node.total_mi?.total ?? node.total_mi ?? 0);
+                const sat = Number(node.total_sat?.total ?? node.total_sat ?? 0);
+                const lumpsum = Number(node.total_lumpsum_invoice?.total ?? node.total_lumpsum_invoice ?? 0);
+                const pmpm = Number(node.total_pmpm_invoice?.total ?? node.total_pmpm_invoice ?? 0);
+                
+                return {
+                    name: node.label || 'Unknown',
+                    'total mi': mi,
+                    'total sat': sat,
+                    'total lumpsum invoice': lumpsum,
+                    'total pmpm invoice': pmpm,
+                    total: mi // For Funnel comparison, MI is usually the baseline "Total"
+                };
+            });
         }
 
         return { 
@@ -711,17 +711,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         // 1. Snapshot Stages (Left Chart)
         trend = realizationStages.map(st => {
-            const point = { name: st.label };
-            if (selCategory === 'TOTAL') {
-                point.Consumer = Number(dashboardData.category_breakdown?.CONSUMER?.total?.[st.key] || 0);
-                point.DT = Number(dashboardData.category_breakdown?.DT?.total?.[st.key] || 0);
-                point.Feeder = Number(dashboardData.category_breakdown?.FEEDER?.total?.[st.key] || 0);
-            } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                const catLabel = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
-                point[catLabel] = Number(catData?.total?.[st.key] || catData?.[st.key] || 0);
-            }
-            return point;
+            const node = dashboardData.summary?.['total_' + st.key];
+            return { name: st.label, ...getBreakdownData(node, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
@@ -729,11 +720,13 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             distribution = dashboardData.comparison.map(node => {
                 const point = { name: node.label || 'Unknown' };
                 // Use pmpm_collection as the metric for comparison
-                const val = Number(node.count?.pmpm_collection || 0);
+                const pmpmNode = node['total_pmpm_collection'];
+                const val = getBucketVal({ val: pmpmNode }, 'val', selCategory);
+                
                 if (selCategory === 'TOTAL') {
                     point.Realized = val;
                 } else {
-                    const catLabel = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
+                    const catLabel = (selCategory === 'DT' || selCategory === 'DTR') ? 'DT' : (selCategory.charAt(0) + selCategory.slice(1).toLowerCase());
                     point[catLabel] = val;
                 }
                 return point;
@@ -744,12 +737,13 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             trend, 
             distribution,
             summary: {
-                'Total Realized': dashboardData.total_pmpm_collection || 0
+                'Lumpsum Invoice': getBucketVal({ val: dashboardData.summary?.total_lumpsum_invoice }, 'val', selCategory),
+                'PMPM Invoice': getBucketVal({ val: dashboardData.summary?.total_pmpm_invoice }, 'val', selCategory),
+                'Lumpsum Collection': getBucketVal({ val: dashboardData.summary?.total_lumpsum_collection }, 'val', selCategory),
+                'PMPM Collection': getBucketVal({ val: dashboardData.summary?.total_pmpm_collection }, 'val', selCategory),
             }
         };
-    }
-
-    // Revenue Ageing Summary
+    }    // Revenue Ageing Summary
     if (n.includes('revenue') && n.includes('ageing')) {
         const dashboardData = trendData; // shared: true
         const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
@@ -763,41 +757,21 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         // 1. Snapshot Breakdown (Left Chart)
         trend = ageBuckets.map(bucket => {
-            const point = { name: bucket.label };
-            if (selCategory === 'TOTAL') {
-                ['CONSUMER', 'DT', 'FEEDER'].forEach(cat => {
-                    const catData = dashboardData.category_breakdown?.[cat];
-                    const catLabel = cat.charAt(0) + cat.slice(1).toLowerCase();
-                    let total = 0;
-                    if (catData) {
-                        Object.values(catData).forEach(techData => {
-                            total += Number(techData?.[bucket.key] || techData?.total?.[bucket.key] || 0);
-                        });
-                    }
-                    point[catLabel] = total;
-                });
-            } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                const catLabel = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
-                let total = 0;
-                if (catData) {
-                    Object.values(catData).forEach(techData => {
-                        total += Number(techData?.[bucket.key] || techData?.total?.[bucket.key] || 0);
-                    });
-                }
-                point[catLabel] = total;
-            }
-            return point;
+            const bucketNode = dashboardData.summary?.[bucket.key];
+            return { name: bucket.label, ...getBreakdownData(bucketNode, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
         if (Array.isArray(dashboardData?.comparison)) {
             distribution = dashboardData.comparison.map(node => {
                 const point = { name: node.label || 'Unknown' };
-                point['age 0-30'] = Number(node.age_0_30 || 0);
-                point['age 31-60'] = Number(node.age_31_60 || 0);
-                point['age 61-90'] = Number(node.age_61_90 || 0);
-                point['age 90+'] = Number(node.age_90_plus || 0);
+                let sum = 0;
+                ageBuckets.forEach(b => {
+                    const val = getBucketVal(node, b.key, selCategory);
+                    point[b.label] = val;
+                    sum += val;
+                });
+                point.total = sum;
                 return point;
             });
         }
@@ -806,8 +780,13 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             trend, 
             distribution,
             summary: {
-                'Total Overdue': dashboardData.total_overdue || trend.reduce((acc, p) => acc + (p.Value || 0), 0)
-            }
+                'Total Pending': dashboardData.summary?.total_pending || 0,
+                'age 0-30': getBucketVal(dashboardData.summary, 'age_0_30', selCategory),
+                'age 31-60': getBucketVal(dashboardData.summary, 'age_31_60', selCategory),
+                'age 61-90': getBucketVal(dashboardData.summary, 'age_61_90', selCategory),
+                'age 90+': getBucketVal(dashboardData.summary, 'age_90_plus', selCategory),
+            },
+            category_breakdown: dashboardData.category_breakdown
         };
     }
 
@@ -846,16 +825,16 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             Object.entries(summary.period_breakdown).forEach(([period, data]) => {
                 const label = formatLabel(period);
                 if (!params?.meter_category || params?.meter_category === 'Total') {
-                    const point = { name: label, _rawDate: period, Consumer: 0, DT: 0, Feeder: 0 };
-                    
-                    const conData = getCategoryData(data, 'CONSUMER');
-                    if (conData?.total) {
-                        point.Consumer = (Number(conData.total.meter_burnt) || 0) + (Number(conData.total.meter_faulty) || 0) + (Number(conData.total.others) || 0);
-                    }
+                    const point = { name: label, _rawDate: period, DT: 0, Consumer: 0, Feeder: 0 };
                     
                     const dtData = getCategoryData(data, 'DT');
                     if (dtData?.total) {
                         point.DT = (Number(dtData.total.meter_burnt) || 0) + (Number(dtData.total.meter_faulty) || 0) + (Number(dtData.total.others) || 0);
+                    }
+
+                    const conData = getCategoryData(data, 'CONSUMER');
+                    if (conData?.total) {
+                        point.Consumer = (Number(conData.total.meter_burnt) || 0) + (Number(conData.total.meter_faulty) || 0) + (Number(conData.total.others) || 0);
                     }
                     
                     const fdData = getCategoryData(data, 'FEEDER');
@@ -863,6 +842,7 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                         point.Feeder = (Number(fdData.total.meter_burnt) || 0) + (Number(fdData.total.meter_faulty) || 0) + (Number(fdData.total.others) || 0);
                     }
                     
+                    point.total = (Number(point.DT) + Number(point.Consumer) + Number(point.Feeder));
                     pFlattened.push(point);
                 } else {
                     const sel = params.meter_category.toUpperCase();
@@ -938,38 +918,37 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 1. Stage-wise Analysis (Left Chart)
         // Each stage on X-axis with a single 'Avg Days' bar from the global summary.
         const summaryData = dashboardData?.summary || {};
-        trend = stages.map(st => ({
-            name: st.label,
-            'Avg Days': Number(summaryData[st.key] ?? 0)
-        }));
+
+        trend = stages.map(st => {
+            const node = summaryData[st.key];
+            return { name: st.label, ...getBreakdownData(node, selCategory, 'Avg Days') };
+        });
 
         // 2. Comparison (Right Chart - Hierarchical)
         if (Array.isArray(dashboardData?.comparison) && dashboardData.comparison.length > 0) {
-            distribution = dashboardData.comparison.map(node => ({
-                name: node.label || formatLabel(node.period_value),
-                'Inv to Store': Number(node.inventory_to_store || 0),
-                'Store to Agency': Number(node.store_to_agency || 0),
-                'Agency to Install': Number(node.agency_to_meter_installation || 0),
-                'Install to SAT': Number(node.meter_installation_to_sat || 0),
-                'SAT to Invoice': Number(node.sat_to_invoice || 0),
-                'Invoice to Revenue': Number(node.invoice_to_revenue || 0),
-                'Total Journey': Number(node.total_journey || 0)
-            }));
+            distribution = dashboardData.comparison.map(node => {
+                const point = { name: node.label || 'Unknown' };
+                stages.forEach(st => {
+                    point[st.label] = getBucketVal(node, st.key, selCategory);
+                });
+                return point;
+            });
         }
 
         return {
             trend,
             distribution,
             summary: {
-                'Avg Store Time': summaryData.inventory_to_store || 0,
-                'Avg Agency allocation': summaryData.store_to_agency || 0,
-                'Avg Installation': summaryData.agency_to_meter_installation || 0,
-                'Avg SAT': summaryData.meter_installation_to_sat || 0,
-                'Avg Invoicing': summaryData.sat_to_invoice || 0,
-                'Avg Revenue': summaryData.invoice_to_revenue || 0,
-                'Total Journey': summaryData.total_journey || 0,
-                'Total Meters': summaryData.meter_count || 0
-            }
+                'Avg Store Time': getBucketVal(summaryData, 'inventory_to_store', selCategory),
+                'Avg Agency allocation': getBucketVal(summaryData, 'store_to_agency', selCategory),
+                'Avg Installation': getBucketVal(summaryData, 'agency_to_meter_installation', selCategory),
+                'Avg SAT': getBucketVal(summaryData, 'meter_installation_to_sat', selCategory),
+                'Avg Invoicing': getBucketVal(summaryData, 'sat_to_invoice', selCategory),
+                'Avg Revenue': getBucketVal(summaryData, 'invoice_to_revenue', selCategory),
+                'Total Journey': getBucketVal(summaryData, 'total_journey', selCategory),
+                'Total Meters': getBucketVal(summaryData, 'meter_count', selCategory)
+            },
+            category_breakdown: dashboardData.category_breakdown
         };
     }
 
@@ -982,41 +961,34 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             { key: 'inventory', label: 'Inventory' },
             { key: 'installed', label: 'Installed' },
             { key: 'sat_done', label: 'SAT Done' },
-            { key: 'revenue_collected', label: 'Revenue Realized' }
+            { key: 'invoice_done', label: 'Invoice Done' }
         ];
 
         // 1. Funnel/Trend (Left Chart)
         trend = stages.map(st => {
-            const point = { name: st.label };
-            if (selCategory === 'TOTAL') {
-                point.Count = Number(dashboardData[st.key] || 0);
-            } else {
-                const catData = dashboardData.category_breakdown?.[selCategory];
-                const catLabel = selCategory.charAt(0) + selCategory.slice(1).toLowerCase();
-                point[catLabel] = Number(catData?.total?.[st.key] || 0);
-            }
-            return point;
+            const node = dashboardData.summary?.[st.key];
+            return { name: st.label, ...getBreakdownData(node, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
         if (Array.isArray(dashboardData?.comparison)) {
-            distribution = dashboardData.comparison.map(node => ({
-                name: node.label || 'Unknown',
-                'Inventory': Number(node.inventory || 0),
-                'Installed': Number(node.installed || 0),
-                'SAT Done': Number(node.sat_done || 0),
-                'Revenue Realized': Number(node.revenue_collected || 0)
-            }));
+            distribution = dashboardData.comparison.map(node => {
+                const point = { name: node.label || 'Unknown' };
+                stages.forEach(st => {
+                    point[st.label] = getBucketVal(node, st.key, selCategory);
+                });
+                return point;
+            });
         }
 
         return { 
             trend, 
             distribution,
             summary: {
-                'Total Inventory': dashboardData.inventory || 0,
-                'Total Installed': dashboardData.installed || 0,
-                'SAT Done': dashboardData.sat_done || 0,
-                'Revenue Realized': dashboardData.revenue_collected || 0
+                'Total Inventory': getBucketVal(dashboardData.summary, 'inventory', selCategory),
+                'Total Installed': getBucketVal(dashboardData.summary, 'installed', selCategory),
+                'SAT Done': getBucketVal(dashboardData.summary, 'sat_done', selCategory),
+                'Invoice Done': getBucketVal(dashboardData.summary, 'invoice_done', selCategory)
             }
         };
     }
@@ -1107,7 +1079,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 name: formatLabel(node.period_value),
                 'Auto Ticketing': node.auto_ticketing || 0,
                 '1912 Helpdesk': node['1912_helpdesk'] || 0,
-                Others: node.others || 0
+                Others: node.others || 0,
+                total: (node.auto_ticketing || 0) + (node['1912_helpdesk'] || 0) + (node.others || 0)
             }));
         }
 
@@ -1115,12 +1088,18 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         const summaryObj = (selCategory === 'TOTAL') ? dashboardData.summary : dashboardData.category_breakdown?.[selCategory];
         const ageBuckets = summaryObj?.age_buckets || {};
         
-        distribution = buckets.map(b => ({
-            name: b.label,
-            'Auto Ticketing': ageBuckets[b.key]?.auto_ticketing || 0,
-            '1912 Helpdesk': ageBuckets[b.key]?.['1912_helpdesk'] || 0,
-            'Others': ageBuckets[b.key]?.others || 0
-        }));
+        distribution = buckets.map(b => {
+            const auto = ageBuckets[b.key]?.auto_ticketing || 0;
+            const helpdesk = ageBuckets[b.key]?.['1912_helpdesk'] || 0;
+            const others = ageBuckets[b.key]?.others || 0;
+            return {
+                name: b.label,
+                'Auto Ticketing': auto,
+                '1912 Helpdesk': helpdesk,
+                'Others': others,
+                total: auto + helpdesk + others
+            };
+        });
 
         return { 
             trend, 
@@ -1167,33 +1146,54 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
     // O&M Closed Analysis (New Dashboard Endpoint)
     if (n.includes('closed analysis')) {
         const dashboardData = trendData; // shared: true
+        const selCategory = (params?.category || params?.meter_category || 'total').toUpperCase();
         
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.period_value),
-                'Auto Ticketing': node.auto_ticketing || 0,
-                '1912 Helpdesk': node['1912_helpdesk'] || 0,
-                Others: node.others || 0
-            }));
+            trend = dashboardData.trend.map(node => {
+                const auto = node.auto_ticketing || 0;
+                const helpdesk = node['1912_helpdesk'] || 0;
+                const others = node.others || 0;
+                const sum = auto + helpdesk + others;
+                return {
+                    name: formatLabel(node.period_value),
+                    'Auto Ticketing': auto,
+                    '1912 Helpdesk': helpdesk,
+                    Others: others,
+                    total: sum
+                };
+            });
         }
         
         // 2. Comparison (Geographical)
         if (Array.isArray(dashboardData?.comparison)) {
-            distribution = dashboardData.comparison.map(node => ({
-                name: node.label,
-                'Auto Ticketing': node.auto_ticketing || 0,
-                '1912 Helpdesk': node['1912_helpdesk'] || 0,
-                Others: node.others || 0,
-                value: (node.auto_ticketing || 0) + (node['1912_helpdesk'] || 0) + (node.others || 0)
-            }));
+            distribution = dashboardData.comparison.map(node => {
+                const auto = node.auto_ticketing || 0;
+                const helpdesk = node['1912_helpdesk'] || 0;
+                const others = node.others || 0;
+                const sum = auto + helpdesk + others;
+                
+                return {
+                    name: node.label || 'Unknown',
+                    'Auto Ticketing': auto,
+                    '1912 Helpdesk': helpdesk,
+                    Others: others,
+                    value: sum,
+                    total: sum
+                };
+            });
         }
         
         return { 
             trend, 
             distribution, 
-            summary: dashboardData?.summary, 
-            category_breakdown: dashboardData?.category_breakdown 
+            summary: {
+                'Total Closed': (dashboardData.summary?.auto_ticketing || 0) + (dashboardData.summary?.['1912_helpdesk'] || 0) + (dashboardData.summary?.others || 0),
+                'Auto Ticketing': dashboardData.summary?.auto_ticketing || 0,
+                '1912 Helpdesk': dashboardData.summary?.['1912_helpdesk'] || 0,
+                'Others': dashboardData.summary?.others || 0
+            },
+            category_breakdown: dashboardData.category_breakdown 
         };
     }
 

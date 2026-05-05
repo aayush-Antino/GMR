@@ -24,10 +24,31 @@ const formatValue = (v) => {
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+        const rawData = payload[0].payload;
+        const totalVal = rawData.total ?? rawData.Total;
+        const isTotalAlreadyShown = payload.some(p => p.name.toLowerCase() === 'total');
+
+        // Define desired order
+        const order = ['dt', 'consumer', 'feeder'];
+        const sortedPayload = [...payload].sort((a, b) => {
+            const indexA = order.indexOf(a.name.toLowerCase());
+            const indexB = order.indexOf(b.name.toLowerCase());
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0;
+        });
+
+        const allowedTotalKeys = ['dt', 'consumer', 'feeder', 'day', 'month', 'week', 'burnt', 'faulty', 'others', 'mi', 'sat', 'invoice', 'ticketing', 'helpdesk'];
+        const hasSegmentedKeys = payload.some(p => {
+            const n = p.name.toLowerCase();
+            return allowedTotalKeys.some(k => n.includes(k));
+        });
+
         return (
             <div style={TOOLTIP_STYLE}>
                 <p className="font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">{label}</p>
-                {payload.map((entry, index) => (
+                {sortedPayload.map((entry, index) => (
                     <div key={index} className="flex items-center justify-between gap-4 py-0.5">
                         <span className="flex items-center gap-2">
                             <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -36,6 +57,14 @@ const CustomTooltip = ({ active, payload, label }) => {
                         <span className="font-bold text-slate-900">{formatValue(entry.value)}</span>
                     </div>
                 ))}
+                {totalVal !== undefined && !isTotalAlreadyShown && hasSegmentedKeys && (
+                    <div className="flex items-center justify-between gap-4 py-0.5 mt-1 border-t border-slate-100 pt-1.5">
+                        <span className="flex items-center gap-2">
+                            <span className="text-slate-600 font-bold capitalize">Total:</span>
+                        </span>
+                        <span className="font-bold text-slate-900">{formatValue(totalVal)}</span>
+                    </div>
+                )}
             </div>
         );
     }
@@ -79,8 +108,8 @@ const renderCustomLegend = (props) => {
             {payload.map((entry, index) => {
                 const isUrl = entry.color && entry.color.includes('url');
                 const backgroundColor = isUrl 
-                    ? getColor(entry.value?.toString().trim())
-                    : (entry.color || getColor(entry.value?.toString().trim()) || GMR.blue);
+                    ? getColor(entry.value?.toString().trim(), index)
+                    : (entry.color || getColor(entry.value?.toString().trim(), index) || GMR.blue);
 
                 return (
                     <li key={`item-${index}`} className="flex items-center gap-2 select-none">
@@ -99,7 +128,7 @@ const renderCustomLegend = (props) => {
 };
 
 const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, chartName }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const chartId = slugify(chartName || 'chart');
     
@@ -153,7 +182,7 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, ch
 };
 
 const MultiLineVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
     const interval = propInterval !== undefined ? propInterval : 'auto';
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -253,7 +282,7 @@ const CustomHBarLabel = (props) => {
 };
 
 const HBarVariant = ({ data, xLabel, yLabel }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 15;
     const barSize = isDense ? Math.max(6, Math.min(12, 400 / data.length)) : 16;
@@ -343,7 +372,7 @@ const CustomVBarLabel = (props) => {
 };
 
 const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 10;
     const barSize = isDense ? Math.max(12, 300 / data.length) : 32;
@@ -481,7 +510,7 @@ const BoxPlotVariant = ({ data }) => {
 };
 
 const FunnelVariant = ({ data }) => {
-    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
     
     return (
         <ResponsiveContainer width="100%" height="100%">
