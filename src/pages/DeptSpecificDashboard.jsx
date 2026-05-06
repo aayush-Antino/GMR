@@ -98,9 +98,8 @@ const KPICard = ({ kpi, idx, onClick }) => {
                 <div className="absolute top-0 bottom-0 -left-5 w-1 rounded-r-lg transition-all duration-300 group-hover:w-1.5"
                     style={{ background: c.color }} />
 
-                <div className="flex items-start justify-between mb-4 pl-1">
-                    <div className="flex flex-col gap-1">
-                        {/* Status Badge - Hidden for Business */}
+                <div className="w-full flex items-center justify-end mb-4 pl-1">
+                    {/* <div className="flex flex-col gap-1">
                         {!isBusiness && (
                             <span
                                 className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest self-start"
@@ -109,7 +108,7 @@ const KPICard = ({ kpi, idx, onClick }) => {
                                 {c.label}
                             </span>
                         )}
-                    </div>
+                    </div> */}
                     <Sparkline color={c.color} />
                 </div>
 
@@ -147,7 +146,6 @@ const DeptSpecificDashboard = () => {
     const kpiName = params['*'] || null;
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
-    const [activeFilter, setActiveFilter] = useState('All');
 
     const allItems = dashboardData[dashKey] || [];
     const meta = dashboardMeta[dashKey] || { title: 'Dashboard', description: '' };
@@ -160,12 +158,7 @@ const DeptSpecificDashboard = () => {
     // Filter items (all items in this dashKey already belong to the same department anyway)
     const deptItems = allItems;
 
-    const statuses = ['All', ...Object.keys(
-        deptItems.reduce((acc, k) => { acc[k.status] = true; return acc; }, {})
-    ).sort((a, b) => (STATUS_RANK[a] ?? 99) - (STATUS_RANK[b] ?? 99))];
-
     const items = deptItems.filter(item =>
-        (activeFilter === 'All' || item.status === activeFilter) &&
         item.name.toLowerCase().includes(search.toLowerCase()) &&
         (dashKey !== 'dashboard10' || !moduleName || item.module === moduleName)
     );
@@ -258,8 +251,7 @@ const DeptSpecificDashboard = () => {
                     </div>
                 </div>
 
-                {/* Filter pills or Total Summary */}
-                <div className="max-w-screen-2xl mx-auto px-8 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
+                <div className="max-w-screen-2xl mx-auto px-8 pb-4 flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ borderTop: '1px solid #f1f5f9' }}>
                     <div className="flex items-center gap-2 pt-3">
                         {dashKey === 'dashboard10' ? (
                             // Dynamic Summary for Business
@@ -271,36 +263,10 @@ const DeptSpecificDashboard = () => {
                                 }
                             </div>
                         ) : (
-                            // Interactive Filters for others
-                            statuses.map(s => {
-                                const c = s === 'All' ? null : cfgOf(s);
-                                const isActive = activeFilter === s;
-                                const count = s === 'All' ? deptItems.length : deptItems.filter(i => i.status === s).length;
-                                return (
-                                    <button
-                                        key={s}
-                                        onClick={() => setActiveFilter(s)}
-                                        className="flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-bold rounded-full transition-all duration-200 whitespace-nowrap"
-                                        style={isActive ? {
-                                            background: '#0f2744',
-                                            color: '#fff',
-                                            border: '1.5px solid #0f2744',
-                                            boxShadow: '0 4px 12px rgba(15,39,68,0.2)',
-                                            transform: 'scale(1.05)',
-                                        } : {
-                                            background: '#f8fafc',
-                                            color: '#64748b',
-                                            border: '1.5px solid #e2e8f0',
-                                        }}
-                                        onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = '#0f2744'; e.currentTarget.style.color = '#0f2744'; } }}
-                                        onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; } }}
-                                    >
-                                        {c && <span className="w-1.5 h-1.5 rounded-full" style={{ background: c.color }} />}
-                                        {s}
-                                        <span className="opacity-50">({count})</span>
-                                    </button>
-                                );
-                            })
+                            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-bold rounded-full border border-gray-100 bg-gray-50/50 text-slate-500 whitespace-nowrap">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                Total Parameters: {items.length}
+                            </div>
                         )}
                     </div>
                 </div>
@@ -355,7 +321,7 @@ const DeptSpecificDashboard = () => {
                         <p className="text-sm font-bold text-slate-500">No parameters found matching your search</p>
                         <p className="text-xs text-gray-400 mt-1">Try adjusting your filters or search terms</p>
                         <button
-                            onClick={() => { setSearch(''); setActiveFilter('All'); }}
+                            onClick={() => { setSearch(''); }}
                             className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-primary transition-all shadow-sm"
                         >
                             Reset Dashboard

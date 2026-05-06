@@ -12,12 +12,12 @@ import {
 export const dashboardMeta = {
     finance: { title: "Finance", description: "Financial performance and audits." },
     operation_parameters: { title: "Operation Parameters", description: "Network reliability and outage metrics." },
-    power_quality: { title: "Power Qaulity", description: "Voltage, frequency, and power factor analysis." },
+    power_quality: { title: "Power Quality", description: "Voltage, frequency, and power factor analysis." },
     load_management: { title: "Load Management", description: "Transformer loading and violation tracking." },
     theft_analysis: { title: "Theft Analysis", description: "Anomaly detection and revenue protection." },
     operation_analytics: { title: "Operation Analytics", description: "Phase monitoring and flow analysis." },
     advanced_analytics: { title: "Advanced Analytics", description: "Asset tracking and mapping accuracy." },
-    to_be_on_hold: { title: "To be on Hold", description: "Metrics currently under observation." },
+    load_management_analytics: { title: "Load Management", description: "Asset risk and consumption profile analysis." },
     dashboard10: { title: "Smart Meter Operations Dashboard", description: "Real-time monitoring of smart meter operations." },
 };
 
@@ -68,7 +68,7 @@ export const getDashboardsForDepartment = (deptName) => {
         // Added safety check for array
         const hasDeptData = Array.isArray(data) && data.some(item => item.department === deptName);
 
-        if (hasDeptData) {
+        if (hasDeptData && dashboardMeta[dashKey]) {
             availableDashboards.push({
                 key: dashKey,
                 ...dashboardMeta[dashKey]
@@ -78,6 +78,7 @@ export const getDashboardsForDepartment = (deptName) => {
 
     return availableDashboards;
 };
+
 export const findKPIOrigin = (kpiName, deptName) => {
     if (!kpiName) return null;
     let result = null;
