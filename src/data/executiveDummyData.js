@@ -2,8 +2,6 @@ export const executiveDummyData = {
     "summary": {
         "totalKPIs": 105,
         "totalIssues": 104,
-        "critical": 35,
-        "high": 51,
         "departments": 6,
         "overallScore": 44
     },
@@ -58,57 +56,17 @@ export const executiveDummyData = {
             "kpis": 10,
             "kpiList": [
                 {
-                    "id": "kpi_2224",
-                    "kpiName": "Feeder Loss (%)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "95%",
-                    "dashboard": "finance"
-                },
-                {
-                    "id": "kpi_7665",
-                    "kpiName": "DT (Distribution Transformer) Loss (%)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "91%",
-                    "dashboard": "finance"
-                },
-                {
-                    "id": "kpi_1197",
-                    "kpiName": "LT Loss (%)",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "97%",
-                    "dashboard": "finance"
-                },
-                {
                     "id": "kpi_9096",
                     "kpiName": "Billing Efficiency (%)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "82%",
                     "dashboard": "finance"
                 },
                 {
-                    "id": "kpi_3493",
-                    "kpiName": "Collection Efficiency (%)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "90%",
-                    "dashboard": "finance"
-                },
-                {
-                    "id": "kpi_1534",
-                    "kpiName": "AT&C Loss (%)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "91%",
-                    "dashboard": "finance"
-                },
-                {
                     "id": "kpi_9312",
                     "kpiName": "Top X Best/Worst Feeders/DTs",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "96%",
                     "dashboard": "finance"
@@ -116,7 +74,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_5072",
                     "kpiName": "Top High Loss DTs / Feeders",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "92%",
                     "dashboard": "finance"
@@ -124,7 +82,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_9765",
                     "kpiName": "Top High-Loss Feeders / DTs",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "84%",
                     "dashboard": "finance"
@@ -132,17 +90,15 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_4171",
                     "kpiName": "Revenue Recovery Improvement (%)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "92%",
                     "dashboard": "theft_analysis"
                 }
             ],
             "issues": {
-                "critical": 5,
-                "high": 5,
-                "medium": 0,
-                "low": 0
+                "total": 10,
+                "attention": 5
             },
             "needsAttention": [
                 "Feeder Loss (%)",
@@ -185,84 +141,12 @@ export const executiveDummyData = {
             "id": "dept_2",
             "name": "Operations",
             "impactStatement": "Operations performance is at risk with 9 critical items.",
-            "kpis": 31,
+            "kpis": 17,
             "kpiList": [
-                {
-                    "id": "kpi_2211",
-                    "kpiName": "SAIDI",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "86%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_3153",
-                    "kpiName": "SAIFI",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "92%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_5017",
-                    "kpiName": "CAIDI",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "82%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_5905",
-                    "kpiName": "CAIFI",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "93%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_8811",
-                    "kpiName": "MAIFI",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "82%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_9360",
-                    "kpiName": "Number of Outages (Frequency)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "97%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_9593",
-                    "kpiName": "Duration of Outages (Minutes)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "89%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_1970",
-                    "kpiName": "DT/Feeder Reliability Trends (Monthly/Yearly)",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "89%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_5041",
-                    "kpiName": "DTs with High Failure Rate",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "86%",
-                    "dashboard": "operation_parameters"
-                },
                 {
                     "id": "kpi_9111",
                     "kpiName": "Detection Accuracy",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "99%",
                     "dashboard": "to_be_on_hold"
@@ -270,7 +154,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_3791",
                     "kpiName": "False Positive Rate",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "84%",
                     "dashboard": "to_be_on_hold"
@@ -278,7 +162,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_6406",
                     "kpiName": "Field inspection hit-rate",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "100%",
                     "dashboard": "to_be_on_hold"
@@ -286,7 +170,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8464",
                     "kpiName": "MTTI",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "88%",
                     "dashboard": "to_be_on_hold"
@@ -294,7 +178,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_4011",
                     "kpiName": "MTTR",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "98%",
                     "dashboard": "to_be_on_hold"
@@ -302,7 +186,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8240",
                     "kpiName": "Alert response time",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "86%",
                     "dashboard": "to_be_on_hold"
@@ -316,49 +200,9 @@ export const executiveDummyData = {
                     "dashboard": "to_be_on_hold"
                 },
                 {
-                    "id": "kpi_9433",
-                    "kpiName": "Feeders with Maximum Outages",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "98%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_6512",
-                    "kpiName": "Reliability Improvement Trend",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "87%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_1894",
-                    "kpiName": "Consumer Service Reliability Score",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "93%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_8248",
-                    "kpiName": "Composite Reliability Score",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "90%",
-                    "dashboard": "operation_parameters"
-                },
-                {
-                    "id": "kpi_2605",
-                    "kpiName": "Composite Efficiency Score",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "93%",
-                    "dashboard": "operation_parameters"
-                },
-                {
                     "id": "kpi_4968",
                     "kpiName": "Voltage Deviation (%)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "88%",
                     "dashboard": "power_quality"
@@ -366,17 +210,9 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1387",
                     "kpiName": "Voltage Deviation Index (VDI)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "96%",
-                    "dashboard": "power_quality"
-                },
-                {
-                    "id": "kpi_5216",
-                    "kpiName": "Frequency Deviation Index (FDI)",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "92%",
                     "dashboard": "power_quality"
                 },
                 {
@@ -390,7 +226,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_4950",
                     "kpiName": "Voltage Unbalance Index",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "94%",
                     "dashboard": "power_quality"
@@ -398,23 +234,15 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_2985",
                     "kpiName": "Voltage Drop (V)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "81%",
                     "dashboard": "power_quality"
                 },
                 {
-                    "id": "kpi_6195",
-                    "kpiName": "Low Power Factor (%) by DT/Feeder",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "97%",
-                    "dashboard": "power_quality"
-                },
-                {
                     "id": "kpi_5786",
                     "kpiName": "Meter Current Unbalance (%)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "99%",
                     "dashboard": "power_quality"
@@ -422,7 +250,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_4445",
                     "kpiName": "% Time beyond voltage tolerance band",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "92%",
                     "dashboard": "power_quality"
@@ -437,24 +265,19 @@ export const executiveDummyData = {
                 }
             ],
             "issues": {
-                "critical": 9,
-                "high": 15,
-                "medium": 7,
-                "low": 0
+                "total": 21,
+                "attention": 5
             },
             "needsAttention": [
-                "SAIDI",
-                "SAIFI",
-                "CAIDI",
-                "CAIFI",
-                "Number of Outages (Frequency)"
+                "Voltage Deviation (%)",
+                "% Time beyond voltage tolerance band",
+                "Voltage Unbalance Index",
+                "Voltage Drop (V)"
             ],
             "workingWell": [
-                "MAIFI",
                 "Planned outage suppression rate",
-                "Consumer Service Reliability Score",
-                "Composite Reliability Score",
-                "Composite Efficiency Score"
+                "Voltage Fluctuation Index",
+                "% Time with unacceptable current imbalance (>10%)"
             ],
             "trend": [
                 {
@@ -487,20 +310,140 @@ export const executiveDummyData = {
             "id": "dept_3",
             "name": "Analytics",
             "impactStatement": "Analytics performance is at risk with 9 critical items.",
-            "kpis": 30,
+            "kpis": 44,
             "kpiList": [
+                {
+                    "id": "kpi_2002",
+                    "kpiName": "Consumption Comparison - Energy Gap (kWh)",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "82%",
+                    "dashboard": "theft_analysis"
+                },
                 {
                     "id": "kpi_3085",
                     "kpiName": "Low-voltage pockets",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "86%",
                     "dashboard": "operation_parameters"
                 },
                 {
+                    "id": "kpi_2211",
+                    "kpiName": "SAIDI",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "86%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_3153",
+                    "kpiName": "SAIFI",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "92%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_5017",
+                    "kpiName": "CAIDI",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "82%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_5905",
+                    "kpiName": "CAIFI",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "93%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_8811",
+                    "kpiName": "MAIFI",
+                    "status": "Good",
+                    "trend": "stable",
+                    "value": "82%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_9360",
+                    "kpiName": "Number of Outages (Frequency)",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "97%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_9593",
+                    "kpiName": "Duration of Outages (Minutes)",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "89%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_1970",
+                    "kpiName": "DT/Feeder Reliability Trends (Monthly/Yearly)",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "89%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_5041",
+                    "kpiName": "DTs with High Failure Rate",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "86%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_9433",
+                    "kpiName": "Feeders with Maximum Outages",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "98%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_6512",
+                    "kpiName": "Reliability Improvement Trend",
+                    "status": "Active",
+                    "trend": "stable",
+                    "value": "87%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_1894",
+                    "kpiName": "Consumer Service Reliability Score",
+                    "status": "Good",
+                    "trend": "stable",
+                    "value": "93%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_8248",
+                    "kpiName": "Composite Reliability Score",
+                    "status": "Good",
+                    "trend": "stable",
+                    "value": "90%",
+                    "dashboard": "operation_parameters"
+                },
+                {
+                    "id": "kpi_2605",
+                    "kpiName": "Composite Efficiency Score",
+                    "status": "Good",
+                    "trend": "stable",
+                    "value": "93%",
+                    "dashboard": "operation_parameters"
+                },
+                {
                     "id": "kpi_5750",
                     "kpiName": "Number of Tamper Alerts (Cover Open)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "94%",
                     "dashboard": "theft_analysis"
@@ -508,7 +451,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8753",
                     "kpiName": "Number of Tamper Alerts (External Magnet)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "93%",
                     "dashboard": "theft_analysis"
@@ -516,7 +459,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_6486",
                     "kpiName": "Number of Tamper Alerts (Neutral Disturbance)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "93%",
                     "dashboard": "theft_analysis"
@@ -524,23 +467,16 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1938",
                     "kpiName": "Number of Tamper Alerts (Neutral Missing)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "87%",
                     "dashboard": "theft_analysis"
                 },
-                {
-                    "id": "kpi_2002",
-                    "kpiName": "Consumption Comparison - Energy Gap (kWh)",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "82%",
-                    "dashboard": "theft_analysis"
-                },
+
                 {
                     "id": "kpi_2646",
                     "kpiName": "Total anomalies detected (by time period)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "up",
                     "value": "3,150",
                     "dashboard": "theft_analysis"
@@ -548,7 +484,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_7057",
                     "kpiName": "Anomalies by type",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "up",
                     "value": "1,450",
                     "dashboard": "theft_analysis"
@@ -556,7 +492,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1021",
                     "kpiName": "Anomalies by severity",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "97%",
                     "dashboard": "theft_analysis"
@@ -564,7 +500,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_3345",
                     "kpiName": "Anomalies by geography",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "82%",
                     "dashboard": "theft_analysis"
@@ -572,7 +508,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_2749",
                     "kpiName": "Anomaly trends (daily/weekly/monthly)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "87%",
                     "dashboard": "theft_analysis"
@@ -580,7 +516,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_4292",
                     "kpiName": "Repeat anomaly tracking",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "98%",
                     "dashboard": "theft_analysis"
@@ -588,7 +524,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8045",
                     "kpiName": "Theft Suspect Flags",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "94%",
                     "dashboard": "theft_analysis"
@@ -596,7 +532,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1635",
                     "kpiName": "% Reduction in Theft Events (monthly trend)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "98%",
                     "dashboard": "theft_analysis"
@@ -604,7 +540,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1198",
                     "kpiName": "Theft / Load diversion",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "84%",
                     "dashboard": "theft_analysis"
@@ -612,7 +548,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8572",
                     "kpiName": "Areas with Highest Theft Risk",
-                    "status": "Watchlist",
+                    "status": "Blocked",
                     "trend": "stable",
                     "value": "85%",
                     "dashboard": "theft_analysis"
@@ -628,7 +564,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_5348",
                     "kpiName": "Tamper sequence detection",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "85%",
                     "dashboard": "operation_analytics"
@@ -636,7 +572,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_1882",
                     "kpiName": "Voltage/Current imbalance",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "99%",
                     "dashboard": "operation_analytics"
@@ -650,17 +586,9 @@ export const executiveDummyData = {
                     "dashboard": "operation_analytics"
                 },
                 {
-                    "id": "kpi_4945",
-                    "kpiName": "Overload / MD breach risk",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "93%",
-                    "dashboard": "load_management"
-                },
-                {
                     "id": "kpi_1678",
                     "kpiName": "Hidden outage pockets",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "85%",
                     "dashboard": "operation_analytics"
@@ -676,7 +604,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8459",
                     "kpiName": "Reverse flow",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "91%",
                     "dashboard": "operation_analytics"
@@ -690,14 +618,6 @@ export const executiveDummyData = {
                     "dashboard": "operation_analytics"
                 },
                 {
-                    "id": "kpi_4875",
-                    "kpiName": "Phase-level mapping accuracy",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "80%",
-                    "dashboard": "operation_analytics"
-                },
-                {
                     "id": "kpi_7124",
                     "kpiName": "Phase imbalance reduced by minimum 30%",
                     "status": "Good",
@@ -708,7 +628,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_8695",
                     "kpiName": "Real-time phase load monitoring per transformer",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "87%",
                     "dashboard": "operation_analytics"
@@ -716,27 +636,102 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_2343",
                     "kpiName": "Imbalance alerts when threshold exceeded",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "91%",
                     "dashboard": "operation_analytics"
                 },
                 {
-                    "id": "kpi_9601",
-                    "kpiName": "Phase transfer recommendations (what-if)",
-                    "status": "Good",
+                    "id": "kpi_overload_risk",
+                    "kpiName": "Overload / MD Breach Risk",
+                    "status": "Active",
                     "trend": "stable",
-                    "value": "80%",
-                    "dashboard": "operation_analytics"
+                    "value": "Ready",
+                    "dashboard": "load_management_analytics"
+                },
+                {
+                    "id": "asset_kpi_1",
+                    "kpiName": "Total Assets Tracked",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_2",
+                    "kpiName": "Track updated tag of Feeder to DT",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_3",
+                    "kpiName": "Track updated tag of DT to Consumer",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_4",
+                    "kpiName": "Mapping Accuracy",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_5",
+                    "kpiName": "DT-to-meter mapping accuracy",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_6",
+                    "kpiName": "Mismatch analysis",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_7",
+                    "kpiName": "Correctly mapped meters (%)",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_8",
+                    "kpiName": "Incorrectly mapped meters requiring correction (%)",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
+                },
+                {
+                    "id": "asset_kpi_9",
+                    "kpiName": "Track updated effective dated mapping",
+                    "status": "Ready",
+                    "trend": "stable",
+                    "value": "View",
+                    "dashboard": "advanced_analytics"
                 }
             ],
             "issues": {
-                "critical": 11,
-                "high": 15,
-                "medium": 3,
-                "low": 1
+                "total": 40,
+                "attention": 15
             },
             "needsAttention": [
+                "SAIDI",
+                "SAIFI",
+                "Number of Outages (Frequency)",
+                "Duration of Outages (Minutes)",
+                "Overload / MD Breach Risk",
                 "Low-voltage pockets",
                 "Number of Tamper Alerts (Cover Open)",
                 "Number of Tamper Alerts (External Magnet)",
@@ -744,6 +739,10 @@ export const executiveDummyData = {
                 "Number of Tamper Alerts (Neutral Missing)"
             ],
             "workingWell": [
+                "MAIFI",
+                "Consumer Service Reliability Score",
+                "Composite Reliability Score",
+                "Composite Efficiency Score",
                 "Communication health issues",
                 "Power factor deterioration",
                 "Data quality issues",
@@ -785,104 +784,16 @@ export const executiveDummyData = {
             "kpiList": [
                 {
                     "id": "kpi_4535",
-                    "kpiName": "% DT Peak Loading",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "83%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_4161",
-                    "kpiName": "% DT Loading",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "94%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_4535",
                     "kpiName": "DT Load (kVA)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "98%",
                     "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_3897",
-                    "kpiName": "% Loading Bands",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "99%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_8016",
-                    "kpiName": "Top Overloaded DTs / Feeders",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "92%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_1055",
-                    "kpiName": "Load Rise Trend",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "95%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_6072",
-                    "kpiName": "Consumers exceeding sanctioned load",
-                    "status": "Critical",
-                    "trend": "stable",
-                    "value": "99%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_4183",
-                    "kpiName": "% Consumers with Load Violation",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "81%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_6069",
-                    "kpiName": "Load Duration Curve & Asset Loading Spread",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "98%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_5664",
-                    "kpiName": "DT Failure Rate (%)",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "87%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_6133",
-                    "kpiName": "Top Overloaded Assets",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "85%",
-                    "dashboard": "load_management"
-                },
-                {
-                    "id": "kpi_6165",
-                    "kpiName": "Top Power Quality Issues",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "82%",
-                    "dashboard": "power_quality"
                 },
                 {
                     "id": "kpi_6818",
                     "kpiName": "Signal strength statistics",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "94%",
                     "dashboard": "to_be_on_hold"
@@ -890,7 +801,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_6539",
                     "kpiName": "Packet loss percentage",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "down",
                     "value": "2.5%",
                     "dashboard": "to_be_on_hold"
@@ -906,7 +817,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_3442",
                     "kpiName": "Non-reporting meters (>24 hours)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "95%",
                     "dashboard": "to_be_on_hold"
@@ -921,21 +832,15 @@ export const executiveDummyData = {
                 }
             ],
             "issues": {
-                "critical": 5,
-                "high": 9,
-                "medium": 3,
-                "low": 0
+                "total": 17,
+                "attention": 5
             },
             "needsAttention": [
-                "% DT Peak Loading",
-                "% DT Loading",
                 "DT Load (kVA)",
-                "% Loading Bands",
-                "Top Overloaded DTs / Feeders"
+                "Non-reporting meters (>24 hours)",
+                "Packet loss percentage"
             ],
             "workingWell": [
-                "Load Rise Trend",
-                "Load Duration Curve & Asset Loading Spread",
                 "Communication retry counts",
                 "Communication technology performance (RF/GPRS/PLC)"
             ],
@@ -975,31 +880,31 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_9681",
                     "kpiName": "Auto-indexing consumers and DTRs for correct mapping",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "87%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_1208",
-                    "kpiName": "Track updated tag of DTs to Feeders",
-                    "status": "Critical",
+                    "kpiName": "Track updated tag of Feeders to DTs",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "96%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_3587",
-                    "kpiName": "Track updated tag of consumers to DTs",
-                    "status": "Critical",
+                    "kpiName": "Track updated tag of DT to Consumers",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "80%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_9570",
-                    "kpiName": "Re-index consumer/DTR data for correct past-period T&D loss",
-                    "status": "Watchlist",
+                    "kpiName": "Track updated effective dated mapping",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "94%",
                     "dashboard": "advanced_analytics"
@@ -1007,7 +912,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_5417",
                     "kpiName": "Mapping Accuracy (95%)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "93%",
                     "dashboard": "advanced_analytics"
@@ -1015,7 +920,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_7118",
                     "kpiName": "DT-to-meter mapping accuracy",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "97%",
                     "dashboard": "advanced_analytics"
@@ -1023,7 +928,7 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_5180",
                     "kpiName": "% meters pending field verification (<5%)",
-                    "status": "Watchlist",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "95%",
                     "dashboard": "advanced_analytics"
@@ -1039,88 +944,62 @@ export const executiveDummyData = {
                 {
                     "id": "kpi_6825",
                     "kpiName": "Total assets tracked (Meters/Feeders/DTs)",
-                    "status": "Critical",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "97%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_3689",
-                    "kpiName": "Overloaded DTs identified and monitored",
-                    "status": "Critical",
+                    "kpiName": "Auto-identify and track overloaded assets (DT/Feeder)",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "85%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_1977",
-                    "kpiName": "Mismatch analysis (Feeder?DT, DT?Meter)",
-                    "status": "Watchlist",
+                    "kpiName": "Mismatch analysis (Feeder→DT, DT→Meter)",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "91%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_3359",
-                    "kpiName": "Correctly mapped meters (%)",
-                    "status": "Critical",
+                    "kpiName": "Correctly mapped meters (Consumer Count)",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "93%",
                     "dashboard": "advanced_analytics"
                 },
                 {
                     "id": "kpi_9644",
-                    "kpiName": "Incorrectly mapped meters requiring correction (%)",
-                    "status": "Watchlist",
+                    "kpiName": "Incorrectly mapped meters requiring correction (Consumer Count)",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "91%",
                     "dashboard": "advanced_analytics"
                 },
                 {
-                    "id": "kpi_2396",
-                    "kpiName": "Verification pending count",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "89%",
-                    "dashboard": "to_be_on_hold"
-                },
-                {
-                    "id": "kpi_3480",
-                    "kpiName": "Correction cycle time (avg days)",
-                    "status": "Good",
-                    "trend": "stable",
-                    "value": "94%",
-                    "dashboard": "to_be_on_hold"
-                },
-                {
                     "id": "kpi_4811",
-                    "kpiName": "Transformer utilization rate (% of rated capacity)",
-                    "status": "Watchlist",
+                    "kpiName": "Transformer / Feeder utilization rate (% of rated capacity)",
+                    "status": "Active",
                     "trend": "stable",
                     "value": "96%",
                     "dashboard": "advanced_analytics"
-                },
-                {
-                    "id": "kpi_7221",
-                    "kpiName": "Field verification completion rate",
-                    "status": "Watchlist",
-                    "trend": "stable",
-                    "value": "98%",
-                    "dashboard": "to_be_on_hold"
                 }
             ],
             "issues": {
-                "critical": 8,
-                "high": 7,
-                "medium": 2,
-                "low": 0
+                "total": 17,
+                "attention": 8
             },
             "needsAttention": [
                 "Auto-indexing consumers and DTRs for correct mapping",
-                "Track updated tag of DTs to Feeders",
+                "Track updated tag of Feeders to DTs",
                 "Track updated tag of consumers to DTs",
                 "Re-index consumer/DTR data for correct past-period T&D loss",
-                "Mapping Accuracy (95%)"
+                "Mapping Accuracy"
             ],
             "workingWell": [
                 "Confidence scoring (High/Medium/Low)",
@@ -1169,10 +1048,8 @@ export const executiveDummyData = {
                 { "id": "kpi_biz_8", "kpiName": "Inventory Utilization rate", "status": "Good", "trend": "up", "value": "88%" }
             ],
             "issues": {
-                "critical": 4,
-                "high": 6,
-                "medium": 3,
-                "low": 1
+                "total": 14,
+                "attention": 4
             },
             "needsAttention": [
                 "Never / Non-comm Status",

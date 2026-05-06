@@ -1,292 +1,529 @@
 export const dashboardData = {
+    "advanced_analytics": [
+        {
+            "name": "Auto-indexing consumers and DTRs for correct mapping",
+            "department": "Advanced Analytics",
+            "description": "Correct T&D loss calculations",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Process" },
+                { "label": "Key IDs", "value": "Meter IDs (partial)" },
+                { "label": "Source", "value": "Authoritative topology master + change history" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" },
+                { "label": "Module", "value": "Auto-Indexing / Mapping" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Maintain mapping tables + change history; reconcile on outage events"
+        },
+        {
+            "name": "Track updated tag of Feeders to DTs",
+            "department": "Advanced Analytics",
+            "description": "Correct hierarchy over time",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Process" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "DT→Feeder mapping + audit trail" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" },
+                { "label": "Module", "value": "Auto-Indexing / Mapping" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Effective-dated DT→Feeder mapping"
+        },
+        {
+            "name": "Track updated tag of DT to Consumers",
+            "department": "Advanced Analytics",
+            "description": "Correct consumer grouping",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Process" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Consumer→DT mapping + audit trail" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" },
+                { "label": "Module", "value": "Auto-Indexing / Mapping" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Effective-dated Consumer→DT mapping"
+        },
+        {
+            "name": "Track updated effective dated mapping",
+            "department": "Advanced Analytics",
+            "description": "Historical accuracy",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Process" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Historical mapping snapshots + backfill mandate" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Deepanshu" },
+                { "label": "Module", "value": "Auto-Indexing / Mapping" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Backfill using effective-dated mapping snapshots"
+        },
+        {
+            "name": "Mapping Accuracy",
+            "department": "Advanced Analytics",
+            "description": "Data Mapping System",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Ground truth + verification outcomes" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Correct mappings / total ×100"
+        },
+        {
+            "name": "DT-to-meter mapping accuracy",
+            "department": "Advanced Analytics",
+            "description": "DT grouping accuracy",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Ground truth DT mapping" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Correct DT mappings / total ×100"
+        },
+        {
+            "name": "% meters pending field verification (<5%)",
+            "department": "Advanced Analytics",
+            "description": "Backlog control",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Field workflow statuses" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Pending / total meters ×100"
+        },
+        {
+            "name": "Confidence scoring (High/Medium/Low)",
+            "department": "Advanced Analytics",
+            "description": "Communicate certainty",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Confidence model inputs + labels" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Confidence score banding"
+        },
+        {
+            "name": "Total assets tracked (Meters/Feeders/DTs)",
+            "department": "Advanced Analytics",
+            "description": "Inventory visibility",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Meter IDs only" },
+                { "label": "Source", "value": "Asset registry" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Meters: COUNT(DISTINCT newMeterNumber); Feeders: COUNT(DISTINCT FeederCode); DTs: COUNT(DISTINCT DTRCode)"
+        },
+        {
+            "name": "Overloaded DTs identified and monitored",
+            "department": "Advanced Analytics",
+            "description": "Asset risk",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "DT capacity + load + mapping" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" },
+                { "label": "Note", "value": "We need Master Profile (Rated Capacity). Recommendation: need to build bucket." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "% Loading = (√3 × Vavg × Iavg /1000 ÷ Rated kVA) ×100 → Flag if >60%, 80% , 100%"
+        },
+        {
+            "name": "Mismatch analysis (Feeder→DT, DT→Meter)",
+            "department": "Advanced Analytics",
+            "description": "Detect mapping errors",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Current & corrected mappings" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Compare current vs corrected mapping; count mismatches"
+        },
+        {
+            "name": "Correctly mapped meters (%)",
+            "department": "Advanced Analytics",
+            "description": "Completion",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Mapping verification outcomes" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Correct mappings / total meters ×100"
+        },
+        {
+            "name": "Incorrectly mapped meters requiring correction (%)",
+            "department": "Advanced Analytics",
+            "description": "Reduce errors",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Mismatch list + validation" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Deepanshu" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Incorrect / total ×100"
+        },
+        {
+            "name": "Transformer utilization rate (% of rated capacity)",
+            "department": "Advanced Analytics",
+            "description": "Utilization",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "DT capacity + load" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Rated capacity will come from the DTR rating (WFM)" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(Actual kVA Load ÷ Rated Capacity) ×100"
+        }
+    ],
+    "operation_analytics": [
+        {
+            "name": "Tamper sequence detection",
+            "department": "Analytics",
+            "description": "Tamper detection",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Status byte (insufficient)" },
+                { "label": "Source", "value": "Event logs with codes & timestamps" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Event profile + AI optimization" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Pattern detection within time window (e.g., Power Fail → Cover Open → Reverse Current)"
+        },
+        {
+            "name": "Voltage/Current imbalance",
+            "department": "Analytics",
+            "description": "Phase imbalance",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Some phase V/I fields" },
+                { "label": "Source", "value": "Consistent per-phase V/I + phase mapping" },
+                { "label": "Priority", "value": "High" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Phase unbalance > threshold for N intervals"
+        },
+        {
+            "name": "Power factor deterioration",
+            "department": "Analytics",
+            "description": "Efficiency",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "kVAh only (partial)" },
+                { "label": "Source", "value": "PF register or kW/kvar/kvarh" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "PF = kWh ÷ kVAh; Flag if PF <0.85 sustained"
+        },
+        {
+            "name": "Hidden outage pockets",
+            "department": "Analytics",
+            "description": "Outage detection",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Zero kWh; voltage (if present)" },
+                { "label": "Source", "value": "OMS outage feed + planned outage calendar" },
+                { "label": "Priority", "value": "High" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Zero kWh (not planned) + voltage drop; comms ok"
+        },
+        {
+            "name": "Data quality issues",
+            "department": "Analytics",
+            "description": "Data SLA",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Load Duration Curve" },
+                { "label": "Source", "value": "Interval definition" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Confirm block interval & expected blocks" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Flatline>6h; missing blocks; timestamp drift"
+        },
+        {
+            "name": "Reverse flow",
+            "department": "Analytics",
+            "description": "Unauthorized export",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Export kWh" },
+                { "label": "Source", "value": "Net-metering registry/approvals" },
+                { "label": "Priority", "value": "Critical" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Provide net-meter registry flag" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Export kWh > threshold (Solar Export)"
+        },
+        {
+            "name": "Consumption spikes/drops",
+            "department": "Analytics",
+            "description": "Anomaly detection",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Historical kWh" },
+                { "label": "Source", "value": "Peer baselines optional" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Baseline=Avg. of theft, event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Spike/drop >5σ from baseline"
+        },
+        // {
+        //     "name": "Phase-level mapping accuracy",
+        //     "department": "Analytics",
+        //     "description": "Phase allocation correctness",
+        //     "status": "Ready",
+        //     "analysisItems": [
+        //         { "label": "Entity", "value": "KPI/Anomaly" },
+        //         { "label": "Key IDs", "value": "Partial phase V/I fields" },
+        //         { "label": "Source", "value": "Phase mapping master + validation" },
+        //         { "label": "Priority", "value": "P1" },
+        //         { "label": "Owner", "value": "Deepanshu" },
+        //         { "label": "Note", "value": "Mapping required" }
+        //     ],
+        //     "qualityHeader": "Calculation Logic",
+        //     "qualityDescription": "Correct phase mappings / total ×100"
+        // },
+        {
+            "name": "Phase imbalance reduced by minimum 30%",
+            "department": "Analytics",
+            "description": "Reduce imbalance",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Anomaly" },
+                { "label": "Key IDs", "value": "Per-phase V/I (if available)" },
+                { "label": "Source", "value": "Baseline period + phase mapping" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Baseline imbalance − current imbalance (target 30%)"
+        },
+        {
+            "name": "Real-time phase load monitoring per transformer",
+            "department": "Analytics",
+            "description": "Operational monitoring",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Anomaly" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Topology + per-phase V/I" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Phase kVA = Vphase × Iphase ÷1000 "
+        },
+        {
+            "name": "Imbalance alerts when threshold exceeded",
+            "department": "Analytics",
+            "description": "Alerting",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI/Anomaly" },
+                { "label": "Key IDs", "value": "Per-phase V/I (if available)" },
+                { "label": "Source", "value": "Consistent per-phase data + thresholds" },
+                { "label": "Priority", "value": "High" },
+                { "label": "Owner", "value": "Arshia" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Phase imbalance > threshold for N intervals"
+        },
+        // {
+        //     "name": "Phase transfer recommendations (what-if)",
+        //     "department": "Analytics",
+        //     "description": "Operational planning",
+        //     "status": "Ready",
+        //     "analysisItems": [
+        //         { "label": "Entity", "value": "KPI" },
+        //         { "label": "Key IDs", "value": "None" },
+        //         { "label": "Source", "value": "Network model + phase mapping + constraints" },
+        //         { "label": "Priority", "value": "P2" },
+        //         { "label": "Owner", "value": "Deepanshu" },
+        //         { "label": "Note", "value": "We need consumer phase mapping" }
+        //     ],
+        //     "qualityHeader": "Calculation Logic",
+        //     "qualityDescription": "Imbalance % = (Max Phase − Avg Phase) ÷ Avg Phase ×100 "
+        // }
+    ],
     "finance": [
-        {
-            "name": "Feeder Loss (%)",
-            "department": "Finance",
-            "description": "Identify feeder-level losses",
-            "status": "Stable"
-        },
-        {
-            "name": "DT (Distribution Transformer) Loss (%)",
-            "department": "Finance",
-            "description": "Identify DT-level losses",
-            "status": "Stable"
-        },
-        {
-            "name": "LT Loss (%)",
-            "department": "Finance",
-            "description": "Estimate LT segment losses",
-            "status": "Stable"
-        },
         {
             "name": "Billing Efficiency (%)",
             "department": "Finance",
             "description": "Track billing effectiveness",
-            "status": "Stable"
-        },
-        {
-            "name": "Collection Efficiency (%)",
-            "department": "Finance",
-            "description": "Track collections",
-            "status": "Stable"
-        },
-        {
-            "name": "AT&C Loss (%)",
-            "department": "Finance",
-            "description": "Track AT&C losses",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Billing extracts + supply metering" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Need Geographic Mapping, Indexing and Mapping Required." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(Billed Energy ÷ Total Energy Supplied) ×100"
         },
         {
             "name": "Top X Best/Worst Feeders/DTs",
             "department": "Finance",
             "description": "Prioritize worst assets",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Feeder/DT metering exists; consumer mapping exists" },
+                { "label": "Source", "value": "Topology master + meter coverage confirmation" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Can rank on partial coverage immediately; Indexing and Mapping Required." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Rank by loss%, reliability, overload, PQ violations"
         },
         {
             "name": "Top High Loss DTs / Feeders",
             "department": "Finance",
             "description": "Target interventions",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Loss KPIs possible where Feeder/DT loss is computable" },
+                { "label": "Source", "value": "Validated topology master + complete Feeder/DT meter coverage" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Ranking depends on completeness of feeder/DT loss calculations. High loss bucketing is recommended." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Rank by loss % and energy gap"
         },
         {
             "name": "Top High-Loss Feeders / DTs",
             "department": "Finance",
             "description": "Executive focus",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Feeder/DT meters + topology" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Rank by loss KPIs"
         }
     ],
     "operation_parameters": [
         {
-            "name": "SAIDI",
-            "department": "Operations",
-            "description": "Avg interruption duration",
-            "status": "Stable"
-        },
-        {
-            "name": "SAIFI",
-            "department": "Operations",
-            "description": "Avg interruption frequency",
-            "status": "Stable"
-        },
-        {
-            "name": "CAIDI",
-            "department": "Operations",
-            "description": "Avg duration per interruption",
-            "status": "Stable"
-        },
-        {
-            "name": "CAIFI",
-            "department": "Operations",
-            "description": "Interruptions per affected customer",
-            "status": "Stable"
-        },
-        {
-            "name": "MAIFI",
-            "department": "Operations",
-            "description": "Momentary interruption frequency",
-            "status": "Stable"
-        },
-        {
-            "name": "Number of Outages (Frequency)",
-            "department": "Operations",
-            "description": "Outage count trend",
-            "status": "Stable"
-        },
-        {
-            "name": "Duration of Outages (Minutes)",
-            "department": "Operations",
-            "description": "Outage duration trend",
-            "status": "Stable"
-        },
-        {
-            "name": "DT/Feeder Reliability Trends (Monthly/Yearly)",
-            "department": "Operations",
-            "description": "Reliability trends",
-            "status": "Stable"
-        },
-        {
-            "name": "DTs with High Failure Rate",
-            "department": "Operations",
-            "description": "Asset health",
-            "status": "Stable"
-        },
-        {
-            "name": "Detection Accuracy",
-            "department": "Operations",
-            "description": "Model performance",
-            "status": "Stable"
-        },
-        {
-            "name": "False Positive Rate",
-            "department": "Operations",
-            "description": "Noise control",
-            "status": "Stable"
-        },
-        {
-            "name": "Field inspection hit-rate",
-            "department": "Operations",
-            "description": "Operational usefulness",
-            "status": "Stable"
-        },
-        {
-            "name": "MTTI",
-            "department": "Operations",
-            "description": "Speed to identify",
-            "status": "Stable"
-        },
-        {
-            "name": "MTTR",
-            "department": "Operations",
-            "description": "Speed to restore",
-            "status": "Stable"
-        },
-        {
-            "name": "Alert response time",
-            "department": "Operations",
-            "description": "Response tracking",
-            "status": "Stable"
-        },
-        {
-            "name": "Planned outage suppression rate",
-            "department": "Operations",
-            "description": "Noise reduction",
-            "status": "Stable"
-        },
-        {
             "name": "Low-voltage pockets",
             "department": "Analytics",
             "description": "Voltage quality",
-            "status": "Critical",
+            "status": "Ready",
             "analysisItems": [
-                { "label": "Anomaly Types", "value": "11" },
-                { "label": "Parameters", "value": "Voltage, Vrn, Voltage, Vyn, Voltage, Vbn" },
-                { "label": "Config", "value": "+GIS optional" }
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Voltage" },
+                { "label": "Source", "value": "Voltage bands + geo mapping optional" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Need to make buckets" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Voltage < (230*0.9) for >30 mins AND \ncount(Account ID) > 5 in DTR",
-            "chartData": {
-                "trendTitle": "Low Voltage Events (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 45 },
-                    { "name": "Tue", "value": 52 },
-                    { "name": "Wed", "value": 38 },
-                    { "name": "Thu", "value": 65 },
-                    { "name": "Fri", "value": 42 },
-                    { "name": "Sat", "value": 30 },
-                    { "name": "Sun", "value": 25 }
-                ],
-                "distTitle": "Voltage Band Distribution",
-                "distribution": [
-                    { "name": "<200V", "value": 15 },
-                    { "name": "200-210V", "value": 35 },
-                    { "name": "210-230V", "value": 120 },
-                    { "name": ">240V", "value": 10 }
-                ]
-            }
-        },
-        {
-            "name": "Feeders with Maximum Outages",
-            "department": "Operations",
-            "description": "Reliability focus",
-            "status": "Stable"
-        },
-        {
-            "name": "Reliability Improvement Trend",
-            "department": "Operations",
-            "description": "Improvement tracking",
-            "status": "Stable"
-        },
-        {
-            "name": "Consumer Service Reliability Score",
-            "department": "Operations",
-            "description": "Composite KPI",
-            "status": "Stable"
-        },
-        {
-            "name": "Composite Reliability Score",
-            "department": "Operations",
-            "description": "Composite KPI",
-            "status": "Stable"
-        },
-        {
-            "name": "Composite Efficiency Score",
-            "department": "Operations",
-            "description": "Composite KPI",
-            "status": "Stable"
+            "qualityDescription": "Voltage < band for N intervals; cluster by geo"
         }
     ],
     "load_management": [
         {
-            "name": "% DT Peak Loading",
-            "department": "Technical",
-            "description": "Overload risk",
-            "status": "Stable"
-        },
-        {
-            "name": "% DT Loading",
-            "department": "Technical",
-            "description": "Loading level",
-            "status": "Stable"
-        },
-        {
             "name": "DT Load (kVA)",
             "department": "Technical",
             "description": "DT load monitoring",
-            "status": "Stable"
-        },
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "DT meters present; kVAh import available (proxy)" },
+                { "label": "Source", "value": "Confirm block interval + provide kVA/kW instantaneous profile (optional)" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Approx using ΔkVAh; best with instantaneous kVA." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Direct measurement or proxy via energy delta"
+        }
+    ],
+    "load_management_analytics": [
         {
-            "name": "% Loading Bands",
-            "department": "Technical",
-            "description": "Classify assets",
-            "status": "Stable"
-        },
-        {
-            "name": "Top Overloaded DTs / Feeders",
-            "department": "Technical",
-            "description": "Prioritize overloads",
-            "status": "Stable"
-        },
-        {
-            "name": "Load Rise Trend",
-            "department": "Technical",
-            "description": "Growth hotspots",
-            "status": "Stable"
-        },
-        {
-            "name": "Consumers exceeding sanctioned load",
-            "department": "Technical",
-            "description": "Contract violation",
-            "status": "Stable"
-        },
-        {
-            "name": "% Consumers with Load Violation",
-            "department": "Technical",
-            "description": "Violation prevalence",
-            "status": "Stable"
-        },
-        {
-            "name": "Load Duration Curve & Asset Loading Spread",
-            "department": "Technical",
-            "description": "Load distribution",
-            "status": "Stable"
-        },
-        {
-            "name": "DT Failure Rate (%)",
-            "department": "Technical",
-            "description": "Asset reliability",
-            "status": "Stable"
-        },
-        {
-            "name": "Top Overloaded Assets",
-            "department": "Technical",
-            "description": "Augmentation priorities",
-            "status": "Stable"
-        },
-        {
-            "name": "Top Power Quality Issues",
-            "department": "Technical",
-            "description": "PQ focus",
-            "status": "Stable"
+            "name": "Overload / MD Breach Risk",
+            "department": "Analytics",
+            "description": "Asset Risk",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Calculation logic", "value": "(Max Demand ÷ Sanctioned Load) × 100; Flag if > 90%" },
+                { "label": "Source", "value": "Max Demand (Consumer Block Profile), Sanctioned Load (Consumer Master Profile), and MD Profile/Register (CIS/MDM)" },
+                { "label": "Required columns", "value": "Max Demand, Sanctioned Load" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Status", "value": "Ready and In Progress" },
+                { "label": "Anomaly Types", "value": "(11)" }
+            ],
+            "qualityHeader": "Business Objective",
+            "qualityDescription": "Asset Risk"
         }
     ],
     "power_quality": [
@@ -294,205 +531,220 @@ export const dashboardData = {
             "name": "Voltage Deviation (%)",
             "department": "Operations",
             "description": "Voltage quality",
-            "status": "Critical",
+            "status": "Ready",
             "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
                 { "label": "Key IDs", "value": "Voltage" },
-                { "label": "Config", "value": "Utility config: Vnom & bands" },
-                { "label": "Refs", "value": "Vnom + tolerance bands" },
-                { "label": "Note", "value": "Nominal: 1ph:240, 3ph:440, HT:11KV" }
+                { "label": "Source", "value": "Utility config: Vnom & bands" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Nominal voltage 1-phase:240, 3-phase-440, HT-11KV" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "(Measured Voltage− Nominal Voltage)/Nominal Voltage ×100",
-            "chartData": {
-                "trendTitle": "Average Deviation Trend (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 2.5 },
-                    { "name": "Tue", "value": 3.1 },
-                    { "name": "Wed", "value": 1.8 },
-                    { "name": "Thu", "value": 4.2 },
-                    { "name": "Fri", "value": 3.5 },
-                    { "name": "Sat", "value": 1.5 },
-                    { "name": "Sun", "value": 1.2 }
-                ],
-                "distTitle": "Deviation Histogram",
-                "distribution": [
-                    { "name": "< 2%", "value": 60, "color": "#10B981" },
-                    { "name": "2-5%", "value": 30, "color": "#F59E0B" },
-                    { "name": "> 5%", "value": 10, "color": "#EF4444" }
-                ]
-            }
+            "qualityDescription": "(Measured Voltage− Nominal Voltage)/Nominal Voltage ×100"
         },
         {
             "name": "Voltage Deviation Index (VDI)",
             "department": "Operations",
             "description": "Composite voltage metric",
-            "status": "Critical",
+            "status": "Ready",
             "analysisItems": [
-                { "label": "Group", "value": "Power Quality" },
+                { "label": "Entity", "value": "KPI" },
                 { "label": "Key IDs", "value": "Voltage time-series" },
-                { "label": "Config", "value": "VDI definition" },
-                { "label": "Calculation", "value": "Aggregate |deviation| over time" },
-                { "label": "Note", "value": "Define VDI method + bands" }
+                { "label": "Source", "value": "Define VDI method + bands" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Metric representing aggregate voltage deviation over time (mean/p95).",
-            "chartData": {
-                "trendTitle": "VDI Trend (Last 24 Hours)",
-                "trend": [
-                    { "name": "00:00", "value": 0.8 },
-                    { "name": "04:00", "value": 1.2 },
-                    { "name": "08:00", "value": 2.5 },
-                    { "name": "12:00", "value": 3.1 },
-                    { "name": "16:00", "value": 2.8 },
-                    { "name": "20:00", "value": 1.5 }
-                ],
-                "distTitle": "VDI Severity Distribution",
-                "distribution": [
-                    { "name": "Low", "value": 50, "color": "#10B981" },
-                    { "name": "Medium", "value": 35, "color": "#F59E0B" },
-                    { "name": "High", "value": 15, "color": "#EF4444" }
-                ]
-            }
-        },
-        {
-            "name": "Frequency Deviation Index (FDI)",
-            "department": "Operations",
-            "description": "Frequency quality",
-            "status": "Stable"
+            "qualityDescription": "Aggregate |deviation| over time (mean/p95 etc.)"
         },
         {
             "name": "Voltage Fluctuation Index",
             "department": "Operations",
             "description": "Voltage stability",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Voltage time-series" },
+                { "label": "Source", "value": "Define window + confirm interval" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Rolling std-dev/ΔV metrics"
         },
         {
             "name": "Voltage Unbalance Index",
             "department": "Operations",
             "description": "Phase voltage imbalance",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Vrn/Vyn/Vbn (inconsistent)" },
+                { "label": "Source", "value": "Ensure per-phase voltages populated" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Max phase V deviation / avg ×100"
         },
         {
             "name": "Voltage Drop (V)",
             "department": "Operations",
             "description": "Low voltage magnitude",
-            "status": "Warning",
+            "status": "Ready",
             "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
                 { "label": "Key IDs", "value": "Voltage" },
-                { "label": "Refs", "value": "Vnom" },
-                { "label": "Config", "value": "Provide Vnom" },
-                { "label": "Note", "value": "Nominal: 1ph:240, 3ph:440, HT:11KV" }
+                { "label": "Source", "value": "Provide Vnom" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Nominal voltage 1-phase:240, 3-phase-440, HT-11KV" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "MAX(0, (230*0.9) - MIN(Voltage,Vrn, Voltage,Vyn, Voltage,Vbn))",
-            "chartData": {
-                "trendTitle": "Max Voltage Drop Trend (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 12 },
-                    { "name": "Tue", "value": 15 },
-                    { "name": "Wed", "value": 10 },
-                    { "name": "Thu", "value": 18 },
-                    { "name": "Fri", "value": 14 },
-                    { "name": "Sat", "value": 8 },
-                    { "name": "Sun", "value": 6 }
-                ],
-                "distTitle": "Worst Affected Feeders",
-                "distribution": [
-                    { "name": "Feeder A", "value": 25, "color": "#EF4444" },
-                    { "name": "Feeder B", "value": 20, "color": "#F59E0B" },
-                    { "name": "Feeder C", "value": 15, "color": "#3B82F6" }
-                ]
-            }
-        },
-        {
-            "name": "Low Power Factor (%) by DT/Feeder",
-            "department": "Operations",
-            "description": "Low PF pockets",
-            "status": "Critical",
-            "analysisItems": [
-                { "label": "Group", "value": "Power Quality" },
-                { "label": "Anomaly Types", "value": "KPI" },
-                { "label": "Calculation", "value": "(Blocks with PF < threshold / Total Blocks) * 100" },
-                { "label": "Data Source", "value": "kVAh import (partial)" },
-                { "label": "Config", "value": "Provide PF/kW/kvar + topology" },
-                { "label": "Note", "value": "We need the threshold value" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Percentage of blocks where Power Factor is below the defined threshold.",
-            "chartData": {
-                "trendTitle": "Low PF % Trend (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 15 },
-                    { "name": "Tue", "value": 18 },
-                    { "name": "Wed", "value": 12 },
-                    { "name": "Thu", "value": 25 },
-                    { "name": "Fri", "value": 20 },
-                    { "name": "Sat", "value": 10 },
-                    { "name": "Sun", "value": 8 }
-                ],
-                "distTitle": "Affected Feeders/DTs",
-                "distribution": [
-                    { "name": "Feeder X", "value": 40, "color": "#EF4444" },
-                    { "name": "Feeder Y", "value": 35, "color": "#F59E0B" },
-                    { "name": "Feeder Z", "value": 25, "color": "#3B82F6" }
-                ]
-            }
+            "qualityDescription": "MAX(0, (230*0.9) - MIN(Voltage,Vrn, Voltage,Vyn, Voltage,Vbn))"
         },
         {
             "name": "Meter Current Unbalance (%)",
             "department": "Operations",
             "description": "Phase current imbalance",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Ir/Iy/Ib (inconsistent)" },
+                { "label": "Source", "value": "Ensure per-phase currents populated" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Max phase I deviation / avg ×100"
         },
         {
             "name": "% Time beyond voltage tolerance band",
             "department": "Operations",
             "description": "Compliance",
-            "status": "Critical",
+            "status": "Ready",
             "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
                 { "label": "Key IDs", "value": "Voltage + timestamps" },
-                { "label": "Config", "value": "Define voltage bands" },
-                { "label": "Refs", "value": "Voltage band config" }
+                { "label": "Source", "value": "Define voltage bands" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "(Time Voltage Outside Limits / Total Time) × 100",
-            "chartData": {
-                "trendTitle": "Non-Compliance Trend (%)",
-                "trend": [
-                    { "name": "Mon", "value": 5 },
-                    { "name": "Tue", "value": 8 },
-                    { "name": "Wed", "value": 4 },
-                    { "name": "Thu", "value": 12 },
-                    { "name": "Fri", "value": 9 },
-                    { "name": "Sat", "value": 3 },
-                    { "name": "Sun", "value": 2 }
-                ],
-                "distTitle": "Duration of Excursions (Mins)",
-                "distribution": [
-                    { "name": "< 15m", "value": 50, "color": "#F59E0B" },
-                    { "name": "15-60m", "value": 30, "color": "#EF4444" },
-                    { "name": "> 60m", "value": 20, "color": "#7C3AED" }
-                ]
-            }
+            "qualityDescription": "(Time Voltage Outside Limits / Total Time) × 100"
         },
         {
             "name": "% Time with unacceptable current imbalance (>10%)",
             "department": "Operations",
             "description": "Compliance (I unbalance)",
-            "status": "Stable"
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Per-phase current (if present)" },
+                { "label": "Source", "value": "Confirm threshold + ensure currents" },
+                { "label": "Priority", "value": "P2" },
+                { "label": "Owner", "value": "Vaibhav, Anshika" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "(# intervals imbalance>10% / total)×100"
         }
     ],
-    "to_be_on_hold": [
+    "to_be_on_hold": [],
+    "theft_analysis": [
+        {
+            "name": "Consumption Comparison - Energy Gap (kWh)",
+            "department": "Analytics",
+            "description": "Detect theft/loss pockets",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "KPI" },
+                { "label": "Key IDs", "value": "Consumer kWh + DT meters + DTR mapping fields available" },
+                { "label": "Config", "value": "Confirm DT meter identifier per DTR (DTRcode) and period alignment" },
+                { "label": "Master", "value": "DT meter ↔ DTRcode mapping table (authoritative)" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owners", "value": "Vaibhav, Anshika" },
+                { "label": "Note", "value": "Can compute where DT meter-to-DTR mapping is confirmed." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "DT energy *mf − Σ consumer energy (same period)",
+            "chartData": {
+                "trendTitle": "Energy Gap Trend (kWh)",
+                "trend": [
+                    { "name": "Week 1", "value": 1200 },
+                    { "name": "Week 2", "value": 1150 },
+                    { "name": "Week 3", "value": 1400 },
+                    { "name": "Week 4", "value": 1300 }
+                ],
+                "distTitle": "Gap by DTR (Top 5)",
+                "distribution": [
+                    { "name": "DTR-01", "value": 450, "color": "#EF4444" },
+                    { "name": "DTR-05", "value": 380, "color": "#EF4444" },
+                    { "name": "DTR-12", "value": 310, "color": "#F59E0B" },
+                    { "name": "DTR-08", "value": 240, "color": "#F59E0B" },
+                    { "name": "DTR-22", "value": 180, "color": "#3B82F6" }
+                ]
+            }
+        },
+        {
+            "name": "Theft Suspect Flags",
+            "department": "Analytics",
+            "description": "Prioritize suspected theft",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Import/export kWh; voltage; data gaps" },
+                { "label": "Source", "value": "Peer groups + topology + billing + events" },
+                { "label": "Priority", "value": "P0" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Module", "value": "Loss Analytics" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Rules/ML: reverse flow + peer deviation + sudden drop + event patterns"
+        },
+        {
+            "name": "% Reduction in Theft Events (monthly trend)",
+            "department": "Analytics",
+            "description": "Measure enforcement impact",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "None" },
+                { "label": "Source", "value": "Confirmed theft outcomes + history" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Baseline=Avg. of theft, event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "((Baseline Theft − Current Theft) ÷ Baseline Theft) ×100 "
+        },
+        {
+            "name": "Theft / Load diversion",
+            "department": "Analytics",
+            "description": "Revenue protection",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Consumer + DT/Feeder energy readings exist" },
+                { "label": "Source", "value": "Billing + event logs for bypass/tamper + peer grouping" },
+                { "label": "Priority", "value": "Critical" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Energy gap/peer deviation possible now; confirmation needs billing/events." }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Peer deviation >3σ; sudden drop; reverse flow; DT energy gap"
+        },
         {
             "name": "Total anomalies detected (by time period)",
             "department": "Analytics",
             "description": "Volume tracking",
             "status": "Ready",
             "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
                 { "label": "Key IDs", "value": "Anomaly flags" },
                 { "label": "Source", "value": "Scoring pipeline output" },
-                { "label": "Pipeline", "value": "ML scoring output" },
                 { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
                 { "label": "Note", "value": "Event profile needed" }
             ],
             "qualityHeader": "Calculation Logic",
@@ -615,60 +867,96 @@ export const dashboardData = {
             "description": "Distribution",
             "status": "Ready",
             "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
                 { "label": "Key IDs", "value": "Anomaly flags + type" },
-                { "label": "Config", "value": "None" },
-                { "label": "Source", "value": "Scoring output" },
+                { "label": "Source", "value": "None" },
                 { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
                 { "label": "Note", "value": "Event profile needed" }
             ],
             "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Count by anomaly_type",
-            "chartData": {
-                "trendTitle": "Anomaly Type Trend (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 150 },
-                    { "name": "Tue", "value": 180 },
-                    { "name": "Wed", "value": 120 },
-                    { "name": "Thu", "value": 250 },
-                    { "name": "Fri", "value": 190 },
-                    { "name": "Sat", "value": 110 },
-                    { "name": "Sun", "value": 90 }
-                ],
-                "distTitle": "Distribution by Type",
-                "distribution": [
-                    { "name": "Tamper", "value": 45, "color": "#EF4444" },
-                    { "name": "Bypass", "value": 30, "color": "#F59E0B" },
-                    { "name": "Defective", "value": 25, "color": "#3B82F6" }
-                ]
-            }
-        }
-    ],
-    "theft_analysis": [
-        {
-            "name": "Theft Suspect Flags",
-            "department": "Analytics",
-            "description": "Prioritize suspected theft",
-            "status": "Stable"
+            "qualityDescription": "Count by anomaly_type"
         },
         {
-            "name": "% Reduction in Theft Events (monthly trend)",
+            "name": "Anomalies by severity",
             "department": "Analytics",
-            "description": "Measure enforcement impact",
-            "status": "Stable"
+            "description": "Severity mix",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Anomaly flags + severity" },
+                { "label": "Source", "value": "Severity mapping" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Count by severity"
         },
         {
-            "name": "Theft / Load diversion",
+            "name": "Anomalies by geography",
             "department": "Analytics",
-            "description": "Revenue protection",
-            "status": "Critical"
+            "description": "Hotspots",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Subdivision (partial)" },
+                { "label": "Source", "value": "GIS + topology hierarchy" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Group by region/feeder/DT"
+        },
+        {
+            "name": "Anomaly trends (daily/weekly/monthly)",
+            "department": "Analytics",
+            "description": "Trends",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Anomaly history" },
+                { "label": "Source", "value": "None" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Time-series of anomaly counts"
+        },
+        {
+            "name": "Repeat anomaly tracking",
+            "department": "Analytics",
+            "description": "Repeat offenders",
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Meter ID + anomaly history" },
+                { "label": "Source", "value": "None" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Note", "value": "Event profile needed" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Repeat offenders within window"
         },
         {
             "name": "Areas with Highest Theft Risk",
             "department": "Analytics",
             "description": "Revenue focus",
-            "status": "Stable"
-        },
-// Moved to theft_analysis
+            "status": "Ready",
+            "analysisItems": [
+                { "label": "Entity", "value": "Anomaly" },
+                { "label": "Key IDs", "value": "Consumption anomalies (partial)" },
+                { "label": "Source", "value": "Billing + topology + events" },
+                { "label": "Priority", "value": "P1" },
+                { "label": "Owner", "value": "Arshia" },
+                { "label": "Module", "value": "Management Summary" }
+            ],
+            "qualityHeader": "Calculation Logic",
+            "qualityDescription": "Composite theft risk from anomalies"
+        }
     ],
     "to_be_on_hold_extra": [
         {
@@ -832,178 +1120,108 @@ export const dashboardData = {
     ],
     "advanced_analytics": [
         {
-            "name": "Auto-indexing consumers and DTRs for correct mapping",
+            "name": "Total Assets Tracked",
             "department": "Advanced Analytics",
-            "description": "Correct T&D loss calculations",
-            "status": "Stable"
+            "description": "Total count of consumers, DTRs, and feeders.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "hbar", "donut"],
+                "allowedDistTypes": ["bar", "hbar", "donut"],
+                "isTimeSeries": false
+            }
         },
         {
-            "name": "Track updated tag of DTs to Feeders",
+            "name": "Track updated tag of Feeder to DT",
             "department": "Advanced Analytics",
-            "description": "Correct hierarchy over time",
-            "status": "Stable"
+            "description": "Feeder to DTR mapping tracking data.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
+            }
         },
         {
-            "name": "Track updated tag of consumers to DTs",
+            "name": "Track updated tag of DT to Consumer",
             "department": "Advanced Analytics",
-            "description": "Correct consumer grouping",
-            "status": "Stable"
+            "description": "DTR to consumer mapping tracking data.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
+            }
         },
         {
-            "name": "Re-index consumer/DTR data for correct past-period T&D loss",
+            "name": "Mapping Accuracy",
             "department": "Advanced Analytics",
-            "description": "Historical accuracy",
-            "status": "Stable"
-        },
-        {
-            "name": "Mapping Accuracy (95%)",
-            "department": "Advanced Analytics",
-            "description": "Mapping quality",
-            "status": "Stable"
+            "description": "Overall mapping accuracy metrics.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "gauge"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
+            }
         },
         {
             "name": "DT-to-meter mapping accuracy",
             "department": "Advanced Analytics",
-            "description": "DT grouping accuracy",
-            "status": "Stable"
-        },
-        {
-            "name": "% meters pending field verification (<5%)",
-            "department": "Advanced Analytics",
-            "description": "Backlog control",
-            "status": "Stable"
-        },
-        {
-            "name": "Confidence scoring (High/Medium/Low)",
-            "department": "Advanced Analytics",
-            "description": "Communicate certainty",
-            "status": "Stable"
-        },
-        {
-            "name": "Total assets tracked (Meters/Feeders/DTs)",
-            "department": "Advanced Analytics",
-            "description": "Inventory visibility",
-            "status": "Stable",
-            "analysisItems": [
-                { "label": "Key IDs", "value": "Meter IDs only" },
-                { "label": "Source", "value": "Data Mapping System" },
-                { "label": "Registry", "value": "Asset registry" },
-                { "label": "Master", "value": "Asset master registry" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Meters: COUNT(DISTINCT newMeterNumber)\nFeeders: COUNT(DISTINCT FeederCode)\nDTs: COUNT(DISTINCT DTRCode)",
+            "description": "Specific accuracy for DTR to meter mappings.",
+            "status": "Ready",
             "chartData": {
-                "trendTitle": "Asset Growth Trend (Last 6 Months)",
-                "trend": [
-                    { "name": "Aug", "value": 12000 },
-                    { "name": "Sep", "value": 12500 },
-                    { "name": "Oct", "value": 13200 },
-                    { "name": "Nov", "value": 14000 },
-                    { "name": "Dec", "value": 14800 },
-                    { "name": "Jan", "value": 15500 }
-                ],
-                "distTitle": "Current Asset Breakdown",
-                "distribution": [
-                    { "name": "Meters", "value": 15500, "color": "#3B82F6" },
-                    { "name": "DTs", "value": 450, "color": "#10B981" },
-                    { "name": "Feeders", "value": 85, "color": "#F59E0B" }
-                ]
+                "allowedTrendTypes": ["bar", "gauge"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
             }
         },
         {
-            "name": "Overloaded DTs identified and monitored",
+            "name": "Mismatch analysis",
             "department": "Advanced Analytics",
-            "description": "Asset risk",
-            "status": "Stable"
-        },
-        {
-            "name": "Mismatch analysis (Feeder?DT, DT?Meter)",
-            "department": "Advanced Analytics",
-            "description": "Detect mapping errors",
-            "status": "Stable"
+            "description": "Analysis of mapping mismatches.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "hbar", "donut"],
+                "allowedDistTypes": ["bar", "hbar", "donut"],
+                "isTimeSeries": false
+            }
         },
         {
             "name": "Correctly mapped meters (%)",
             "department": "Advanced Analytics",
-            "description": "Completion",
-            "status": "Stable"
+            "description": "Percentage of correctly mapped meters.",
+            "status": "Ready",
+            "chartData": {
+                "allowedTrendTypes": ["bar", "gauge"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
+            }
         },
         {
             "name": "Incorrectly mapped meters requiring correction (%)",
             "department": "Advanced Analytics",
-            "description": "Reduce errors",
-            "status": "Stable"
-        },
-        {
-            "name": "Verification pending count",
-            "department": "Advanced Analytics",
-            "description": "Track work",
-            "status": "Warning",
-            "analysisItems": [
-                { "label": "Source", "value": "Field workflow data" },
-                { "label": "System", "value": "Field app/work order system" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "COUNT(*) WHERE \nQC1Status != 'Approved' OR \nQC2Status != 'Approved' OR \nQC3Status != 'Approved'",
+            "description": "Percentage of incorrectly mapped meters.",
+            "status": "Ready",
             "chartData": {
-                "trendTitle": "Pending Requests Trend (Last 7 Days)",
-                "trend": [
-                    { "name": "Mon", "value": 15 },
-                    { "name": "Tue", "value": 18 },
-                    { "name": "Wed", "value": 12 },
-                    { "name": "Thu", "value": 25 },
-                    { "name": "Fri", "value": 22 },
-                    { "name": "Sat", "value": 10 },
-                    { "name": "Sun", "value": 8 }
-                ],
-                "distTitle": "Pending by Stage",
-                "distribution": [
-                    { "name": "QC1", "value": 45, "color": "#F59E0B" },
-                    { "name": "QC2", "value": 20, "color": "#10B981" },
-                    { "name": "QC3", "value": 12, "color": "#3B82F6" }
-                ]
+                "allowedTrendTypes": ["bar", "gauge"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
             }
         },
         {
-            "name": "Correction cycle time (avg days)",
+            "name": "Track updated effective dated mapping",
             "department": "Advanced Analytics",
-            "description": "Speed improvements",
-            "status": "Stable",
-            "analysisItems": [
-                { "label": "Source", "value": "Ticketing/work order system" },
-                { "label": "Key IDs", "value": "Ticket timestamps" },
-                { "label": "Priority", "value": "P2" }
-            ],
-            "qualityHeader": "Calculation Logic",
-            "qualityDescription": "Cycle Time = Final_QC_Date − installationDate\nAvg Cycle Time: MEAN(Cycle Time)",
+            "description": "Effective date tracking for mappings.",
+            "status": "Ready",
             "chartData": {
-                "trendTitle": "Avg Cycle Time Trend (Last 6 Months)",
-                "trend": [
-                    { "name": "Aug", "value": 12 },
-                    { "name": "Sep", "value": 10 },
-                    { "name": "Oct", "value": 9 },
-                    { "name": "Nov", "value": 7 },
-                    { "name": "Dec", "value": 5 },
-                    { "name": "Jan", "value": 4 }
-                ],
-                "distTitle": "Cycle Time Distribution",
-                "distribution": [
-                    { "name": "< 2 Days", "value": 60, "color": "#10B981" },
-                    { "name": "2-5 Days", "value": 30, "color": "#F59E0B" },
-                    { "name": "> 5 Days", "value": 10, "color": "#EF4444" }
-                ]
+                "allowedTrendTypes": ["bar", "hbar"],
+                "allowedDistTypes": ["bar", "hbar"],
+                "isTimeSeries": false
             }
         },
         {
             "name": "Transformer utilization rate (% of rated capacity)",
             "department": "Advanced Analytics",
             "description": "Utilization",
-            "status": "Stable"
-        },
-        {
-            "name": "Field verification completion rate",
-            "department": "Advanced Analytics",
-            "description": "Throughput",
             "status": "Stable"
         }
     ],
@@ -1051,12 +1269,6 @@ export const dashboardData = {
                     { "name": "> 0.95", "value": 50, "color": "#10B981" }
                 ]
             }
-        },
-        {
-            "name": "Overload / MD breach risk",
-            "department": "Analytics",
-            "description": "Asset risk",
-            "status": "Critical"
         },
         {
             "name": "Hidden outage pockets",
@@ -1135,12 +1347,12 @@ export const dashboardData = {
                 ]
             }
         },
-        {
-            "name": "Phase-level mapping accuracy",
-            "department": "Analytics",
-            "description": "Phase allocation correctness",
-            "status": "Stable"
-        },
+        // {
+        //     "name": "Phase-level mapping accuracy",
+        //     "department": "Analytics",
+        //     "description": "Phase allocation correctness",
+        //     "status": "Stable"
+        // },
         {
             "name": "Phase imbalance reduced by minimum 30%",
             "department": "Analytics",
@@ -1184,12 +1396,6 @@ export const dashboardData = {
             "description": "Alerting",
             "status": "Critical"
         },
-        {
-            "name": "Phase transfer recommendations (what-if)",
-            "department": "Analytics",
-            "description": "Operational planning",
-            "status": "Stable"
-        }
     ],
     "dashboard10": [
         {
@@ -1762,7 +1968,7 @@ export const dashboardData = {
             "module": "Meter Journey",
             "department": "Business",
             "description": "Consolidated cycle time analysis from PO/Inventory to Cash Realization.",
-            "status": "Warning",
+            "status": "Active",
             "analysisItems": [
                 { "label": "Workflow", "value": "Store -> Agency -> Install -> SAT -> Invoice -> Revenue" },
                 { "label": "Metric", "value": "Avg Lead Time (Days)" }
@@ -1827,8 +2033,8 @@ export const dashboardData = {
             "notFeasible": 0
         },
         "load_management": {
-            "totalKPIs": 12,
-            "totalAnomalies": 12,
+            "totalKPIs": 1,
+            "totalAnomalies": 1,
             "highPriority": 0,
             "notFeasible": 0
         },
@@ -1884,16 +2090,8 @@ export const dashboardData = {
             ],
             "pie": [
                 {
-                    "name": "Stable",
-                    "value": 9
-                },
-                {
-                    "name": "Warning",
-                    "value": 0
-                },
-                {
-                    "name": "Critical",
-                    "value": 0
+                    "name": "Active",
+                    "value": 10
                 }
             ],
             "line": [
@@ -1940,16 +2138,8 @@ export const dashboardData = {
             ],
             "pie": [
                 {
-                    "name": "Stable",
-                    "value": 21
-                },
-                {
-                    "name": "Warning",
-                    "value": 0
-                },
-                {
-                    "name": "Critical",
-                    "value": 1
+                    "name": "Active",
+                    "value": 22
                 }
             ],
             "line": [
@@ -1983,7 +2173,11 @@ export const dashboardData = {
             "bar": [
                 {
                     "name": "Technical",
-                    "value": 12
+                    "value": 1
+                },
+                {
+                    "name": "Analytics",
+                    "value": 1
                 }
             ],
             "pie": [

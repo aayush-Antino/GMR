@@ -3,6 +3,7 @@ import { X, CheckCircle, AlertOctagon, AlertTriangle, Activity, MapPin, ChevronD
 import SmartChart from './charts/SmartChart';
 import { getRegionChartData, REGIONS } from '../utils/regionUtils';
 import { useSmartMeterKPI } from '../hooks/useSmartMeterKPI';
+import { useAssetTrackingKPI } from '../hooks/useAssetTrackingKPI';
 import { getDateRange, fillDateGaps, getPeriodFromRange } from '../utils/dateUtils';
 
 const STATUS_CFG = {
@@ -89,6 +90,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
     const [showLiveInsights, setShowLiveInsights] = useState(false);
 
     const isBusiness = kpi?.department === 'Business';
+    const isAssetTracking = kpi?.department === 'Advanced Analytics';
     const isProductivityTeamKPI = kpi?.name?.toLowerCase().includes('productivity per team');
 
     // Params for the API – map UI state to API param names
@@ -97,7 +99,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         Division: 'division', SubDivision: 'subdivision',
     }[l] || 'discom');
 
-    const apiParams = isBusiness ? {
+    const apiParams = (isBusiness || isAssetTracking) ? {
         period: isCustomDate ? getPeriodFromRange(fromDate, toDate) : duration.toLowerCase(),
         level_by: levelToParam(level),
         ...(category !== 'Total' ? { meter_category: category.toLowerCase() } : {}),
@@ -115,12 +117,15 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         return () => clearTimeout(handler);
     }, [JSON.stringify(apiParams)]);
 
+    // Live data fetchers
+    const businessKPI = useSmartMeterKPI(kpi?.name, debouncedParams, isBusiness && isOpen);
+    const assetKPI = useAssetTrackingKPI(kpi?.name, debouncedParams, isAssetTracking && isOpen);
+
     const {
         trendData: liveTrend,
         distData: liveDist,
         summary: liveSummary,
         insights: liveInsights,
-        categoryBreakdown,
         loading: apiLoading,
         error: apiError,
         refetch,
@@ -242,6 +247,12 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             Live
                                         </div>
                                     )}
+                                    {isAssetTracking && (
+                                        <div className="px-1.5 py-0 rounded-full border bg-violet-50 text-violet-600 border-violet-100 text-[7px] font-black uppercase tracking-tighter shadow-sm flex items-center gap-1 animate-pulse">
+                                            <div className="w-1 h-1 rounded-full bg-violet-500" />
+                                            Live
+                                        </div>
+                                    )}
                                     {/* <div className="px-1.5 py-0 rounded-full border bg-slate-900 text-white border-slate-800 text-[7px] font-black uppercase tracking-tighter shadow-md flex items-center gap-1">
                                         <CheckCircle size={7} />
                                         Verified
@@ -285,7 +296,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                         Analytics
                                     </h3>
 
-                                    {kpi.department === 'Business' ? (
+                                    {(kpi.department === 'Business' || kpi.department === 'Advanced Analytics') ? (
                                         <div className="flex flex-wrap items-center gap-3">
                                             {/* Duration Filter */}
                                             <div className="relative" ref={durationRef}>
@@ -537,7 +548,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             </h3>
                                             
                                             <div className="flex items-center gap-2">
-                                                {kpi.department === 'Business' && (
+                                                {(kpi.department === 'Business' || isAssetTracking) && (
                                                     <div className="relative" ref={trendTypeRef}>
                                                         <button 
                                                             onClick={() => setIsTrendTypeOpen(!isTrendTypeOpen)}
@@ -550,7 +561,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                         {isTrendTypeOpen && (
                                                             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in slide-in-from-top-2 duration-200">
                                                                 <div className="max-h-60 overflow-y-auto scrollbar-thin">
-                                                                    {CHART_TYPES.filter(t => !t.id || (kpi.chartData?.allowedTrendTypes || []).includes(t.id)).map(type => (
+                                                                    {CHART_TYPES.filter(t => !t.id || (kpi.chartData?.allowedTrendTypes || ['bar', 'hbar', 'donut', 'gauge']).includes(t.id)).map(type => (
                                                                         <button
                                                                             key={type.label}
                                                                             onClick={() => { setTrendType(type.id); setIsTrendTypeOpen(false); }}
@@ -583,6 +594,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             )}
                                             {(() => {
                                                 const effectivePeriod = isCustomDate ? getPeriodFromRange(fromDate, toDate) : duration.toLowerCase();
+                                                const isLive = isBusiness || isAssetTracking;
                                                 
                                                 if (isProcessing) return <ChartSkeleton />;
                                                 if (isBusiness && apiError) return <ErrorBanner message={apiError} onRetry={refetch} />;
@@ -595,7 +607,11 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                     <SmartChart
                                                         data={chartData}
                                                         name={kpi.name}
-                                                        hint={trendType === 'Auto Detect' ? undefined : trendType}
+                                                        hint={
+                                                            trendType 
+                                                                ? (trendType === 'Auto Detect' ? undefined : trendType)
+                                                                : (isAssetTracking && kpi.name === 'Total Assets Tracked' ? 'donut' : undefined)
+                                                        }
                                                     />
                                                 );
                                             })()}
@@ -620,7 +636,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             </h3>
 
                                             <div className="flex items-center gap-2">
-                                                {kpi.department === 'Business' && (
+                                                {(kpi.department === 'Business' || isAssetTracking) && (
                                                     <div className="relative" ref={distTypeRef}>
                                                         <button 
                                                             onClick={() => setIsDistTypeOpen(!isDistTypeOpen)}
@@ -633,7 +649,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                                         {isDistTypeOpen && (
                                                             <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in slide-in-from-top-2 duration-200">
                                                                 <div className="max-h-60 overflow-y-auto scrollbar-thin">
-                                                                    {CHART_TYPES.filter(t => !t.id || (kpi.chartData?.allowedDistTypes || []).includes(t.id)).map(type => (
+                                                                    {CHART_TYPES.filter(t => !t.id || (kpi.chartData?.allowedDistTypes || ['bar', 'hbar', 'donut']).includes(t.id)).map(type => (
                                                                         <button
                                                                             key={type.label}
                                                                             onClick={() => { setDistType(type.id); setIsDistTypeOpen(false); }}
@@ -660,11 +676,11 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                         <div className="h-[340px]">
                                             {isProcessing ? (
                                                 <ChartSkeleton />
-                                            ) : isBusiness && apiError ? (
+                                            ) : (isBusiness || isAssetTracking) && apiError ? (
                                                 <ErrorBanner message={apiError} onRetry={refetch} />
                                             ) : (
                                                 <SmartChart
-                                                    data={isBusiness ? liveDist : activeChartData?.distribution}
+                                                    data={(isBusiness || isAssetTracking) ? liveDist : activeChartData?.distribution}
                                                     name={kpi.name}
                                                     hint={distType === 'Auto Detect' ? undefined : distType}
                                                 />
