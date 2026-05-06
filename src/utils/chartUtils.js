@@ -142,11 +142,17 @@ export const TOOLTIP_STYLE = {
 };
 
 const isDate = (val) => {
-    if (typeof val !== 'string') return false;
-    // Basic date patterns: YYYY-MM-DD, DD-MM-YYYY, DD/MM/YYYY, Monthly/Daily formats
-    // Also handles week patterns like YYYY-W## or YYYY-Www
+    if (!val || typeof val !== 'string') return false;
+    const v = val.trim().toLowerCase();
+    
+    // Standard ISO/DD-MM-YYYY formats
     const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{2}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{2}|\d{4}-\d{2}|\d{4}-W\d{1,2}|[a-zA-Z]{3}[-\s]\d{2,4})$/i;
-    return dateRegex.test(val);
+    if (dateRegex.test(v)) return true;
+    
+    // Weekly labels: week1, week1-jan, w1-jan
+    if (v.startsWith('week') || (v.startsWith('w') && v.includes('-') && v.length > 4)) return true;
+    
+    return false;
 };
 
 export const detectVariant = (data, name) => {

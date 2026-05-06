@@ -34,6 +34,27 @@ export const getDateRange = (duration) => {
     };
 };
 
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Returns a string range for a week based on GMR rules (1-7, 8-14, 15-21, 22-28, 29-end)
+ */
+export const getWeekRange = (date) => {
+    if (!date || isNaN(date.getTime())) return '';
+    const day = date.getDate();
+    const week = Math.ceil(day / 7);
+    const start = (week - 1) * 7 + 1;
+    let end = week * 7;
+    
+    const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    if (end > lastDayOfMonth || week >= 5) {
+        end = lastDayOfMonth;
+    }
+    
+    const month = monthNames[date.getMonth()];
+    return `(${month} ${String(start).padStart(2, '0')} - ${month} ${String(end).padStart(2, '0')})`;
+};
+
 /**
  * Fills missing dates in a dataset with zero values to ensure a continuous timeline.
  * @param {Array} data - Array of { name: 'Label', ... } objects
@@ -50,10 +71,8 @@ export const fillDateGaps = (data, fromStr, toStr, granularity = 'daily') => {
     const lookup = new Map((data || []).map(d => [d.name, d]));
     
     const valueKeys = (data && data.length > 0) 
-        ? Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color') 
+        ? Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k !== 'range') 
         : ['value', 'count', 'installations', 'stock', 'verified'];
-
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     const getLabel = (date, gran) => {
         const d = gran?.toLowerCase() || 'daily';
@@ -62,7 +81,7 @@ export const fillDateGaps = (data, fromStr, toStr, granularity = 'daily') => {
         }
         if (d === 'weekly') {
             const dayNum = date.getDate();
-            const week = Math.min(4, Math.ceil(dayNum / 7));
+            const week = Math.ceil(dayNum / 7);
             const month = monthNames[date.getMonth()].toLowerCase();
             return `week${week}-${month}`;
         }
@@ -79,13 +98,15 @@ export const fillDateGaps = (data, fromStr, toStr, granularity = 'daily') => {
     // We loop day by day to ensure we hit every potential label boundary
     while (tempDate <= end) {
         const label = getLabel(tempDate, granularity);
+        const range = granularity.toLowerCase() === 'weekly' ? getWeekRange(tempDate) : null;
         
         if (!seenLabels.has(label)) {
             const existing = lookup.get(label);
             if (existing) {
-                filled.push(existing);
+                filled.push(range ? { ...existing, range } : existing);
             } else {
                 const entry = { name: label };
+                if (range) entry.range = range;
                 valueKeys.forEach(k => { entry[k] = 0; });
                 filled.push(entry);
             }

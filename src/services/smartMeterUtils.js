@@ -9,12 +9,12 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
     const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
+    // Returns a plain label string — safe to use directly as `name` in chart data
     const formatLabel = (rawName) => {
         if (!rawName || rawName === 'Unknown') return rawName;
         
         try {
             let date;
-            // Robust parsing for DD-MM-YY or DD-MM-YYYY formats
             if (typeof rawName === 'string' && /^\d{2}-\d{2}-\d{2}(\d{2})?$/.test(rawName)) {
                 const parts = rawName.split('-');
                 const day = parseInt(parts[0], 10);
@@ -30,7 +30,7 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
             if (dur === 'weekly') {
                 const day = date.getDate();
-                const week = Math.min(4, Math.ceil(day / 7));
+                const week = Math.ceil(day / 7);
                 const month = monthNames[date.getMonth()];
                 return `week${week}-${month}`;
             } else if (dur === 'monthly') {
@@ -38,7 +38,6 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
                 const month = monthNames[date.getMonth()].charAt(0).toUpperCase() + monthNames[date.getMonth()].slice(1);
                 return `${month} ${year}`;
             } else {
-                // Default / Daily: Standardize to YYYY-MM-DD to align with fillDateGaps utility
                 const y = date.getFullYear();
                 const m = String(date.getMonth() + 1).padStart(2, '0');
                 const d = String(date.getDate()).padStart(2, '0');
@@ -47,7 +46,6 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         } catch (e) {
             return rawName;
         }
-        return rawName;
     };
 
     const aggregateData = (rows, labelKey = 'period_value', valueKey = 'value') => {
@@ -251,7 +249,6 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         if (Array.isArray(dashboardData?.trend)) {
             trend = dashboardData.trend.map(node => {
                 const label = formatLabel(node.date || node.period_value);
-                
                 return {
                     name: label,
                     Productivity: node.productivity_per_technician_per_day || 0,
@@ -295,13 +292,16 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.month || node.date || node.period_value),
-                Productivity: node.productivity_per_technician_per_day || node.productivity_per_day || 0,
-                Installations: node.total_installations || 0,
-                'Active Days': node.active_days || 0,
-                Technicians: node.avg_active_technicians || 0
-            }));
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.month || node.date || node.period_value);
+                return {
+                    name: label,
+                    Productivity: node.productivity_per_technician_per_day || node.productivity_per_day || 0,
+                    Installations: node.total_installations || 0,
+                    'Active Days': node.active_days || 0,
+                    Technicians: node.avg_active_technicians || 0
+                };
+            });
         }
         
         // 2. Comparison
@@ -332,12 +332,15 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 1. Trend Analysis (Source: period_breakdown or trend)
         const trendSource = dashboardData?.period_breakdown || dashboardData?.trend;
         if (Array.isArray(trendSource)) {
-            trend = trendSource.map(node => ({
-                name: formatLabel(node.period_value),
-                Burnt: getBucketVal(node, 'total_burnt', selCategory),
-                Faulty: getBucketVal(node, 'total_faulty', selCategory),
-                Others: getBucketVal(node, 'total_others', selCategory)
-            }));
+            trend = trendSource.map(node => {
+                const label = formatLabel(node.period_value);
+                return {
+                    name: label,
+                    Burnt: getBucketVal(node, 'total_burnt', selCategory),
+                    Faulty: getBucketVal(node, 'total_faulty', selCategory),
+                    Others: getBucketVal(node, 'total_others', selCategory)
+                };
+            });
         }
         
         // 2. Comparison
@@ -610,7 +613,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         trend = buckets.map(b => {
             const bucketNode = dashboardData.summary?.[b.key];
-            return { name: b.label, ...getBreakdownData(bucketNode, selCategory) };
+            const range = null; // Range is now handled by SmartChart tooltip helper
+            return { name: b.label, range, ...getBreakdownData(bucketNode, selCategory) };
         });
 
         // 2. Comparison (Geographical Array)
@@ -660,8 +664,9 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
             const label = st.label;
             const stageKey = `total_${st.key}`;
             const stageSummary = dashboardData.summary?.[stageKey];
+            const range = null;
 
-            return { name: label, ...getBreakdownData(stageSummary, selCategory) };
+            return { name: label, range, ...getBreakdownData(stageSummary, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
@@ -712,7 +717,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 1. Snapshot Stages (Left Chart)
         trend = realizationStages.map(st => {
             const node = dashboardData.summary?.['total_' + st.key];
-            return { name: st.label, ...getBreakdownData(node, selCategory) };
+            const range = null;
+            return { name: st.label, range, ...getBreakdownData(node, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
@@ -758,7 +764,8 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 1. Snapshot Breakdown (Left Chart)
         trend = ageBuckets.map(bucket => {
             const bucketNode = dashboardData.summary?.[bucket.key];
-            return { name: bucket.label, ...getBreakdownData(bucketNode, selCategory) };
+            const range = null;
+            return { name: bucket.label, range, ...getBreakdownData(bucketNode, selCategory) };
         });
 
         // 2. Comparison (Right Chart)
@@ -999,12 +1006,15 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.date || node.period_value),
-                Productivity: node.productivity_per_technician_per_day || 0,
-                'Closed Tickets': node.total_closed_tickets || 0,
-                Technicians: node.active_technicians || 0
-            }));
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.date || node.period_value);
+                return {
+                    name: label,
+                    Productivity: node.productivity_per_technician_per_day || 0,
+                    'Closed Tickets': node.total_closed_tickets || 0,
+                    Technicians: node.active_technicians || 0
+                };
+            });
         }
         
         // 2. Comparison
@@ -1032,13 +1042,16 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.month || node.date || node.period_value),
-                Productivity: node.productivity_per_technician_per_day || 0,
-                'Closed Tickets': node.total_closed_tickets || 0,
-                'Active Days': node.active_days || 0,
-                Technicians: node.avg_active_technicians || 0
-            }));
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.month || node.date || node.period_value);
+                return {
+                    name: label,
+                    Productivity: node.productivity_per_technician_per_day || 0,
+                    'Closed Tickets': node.total_closed_tickets || 0,
+                    'Active Days': node.active_days || 0,
+                    Technicians: node.avg_active_technicians || 0
+                };
+            });
         }
         
         // 2. Comparison
@@ -1075,13 +1088,16 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
 
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.period_value),
-                'Auto Ticketing': node.auto_ticketing || 0,
-                '1912 Helpdesk': node['1912_helpdesk'] || 0,
-                Others: node.others || 0,
-                total: (node.auto_ticketing || 0) + (node['1912_helpdesk'] || 0) + (node.others || 0)
-            }));
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.period_value);
+                return {
+                    name: label,
+                    'Auto Ticketing': node.auto_ticketing || 0,
+                    '1912 Helpdesk': node['1912_helpdesk'] || 0,
+                    Others: node.others || 0,
+                    total: (node.auto_ticketing || 0) + (node['1912_helpdesk'] || 0) + (node.others || 0)
+                };
+            });
         }
 
         // 2. Ageing Distribution (Bar Chart)
@@ -1119,11 +1135,10 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
-            trend = dashboardData.trend.map(node => ({
-                name: formatLabel(node.period_value),
-                'Avg Days': node.avg_resolution_days || 0,
-                'Closed Tickets': node.total_closed_tickets || 0
-            }));
+            trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.period_value);
+                return { name: label, 'Avg Days': node.avg_resolution_days || 0, 'Closed Tickets': node.total_closed_tickets || 0 };
+            });
         }
         
         // 2. Comparison
@@ -1151,17 +1166,12 @@ export function transformAPIResponse(kpiName, trendData, distData, params = {}) 
         // 1. Trend Analysis
         if (Array.isArray(dashboardData?.trend)) {
             trend = dashboardData.trend.map(node => {
+                const label = formatLabel(node.period_value);
                 const auto = node.auto_ticketing || 0;
                 const helpdesk = node['1912_helpdesk'] || 0;
                 const others = node.others || 0;
                 const sum = auto + helpdesk + others;
-                return {
-                    name: formatLabel(node.period_value),
-                    'Auto Ticketing': auto,
-                    '1912 Helpdesk': helpdesk,
-                    Others: others,
-                    total: sum
-                };
+                return { name: label, 'Auto Ticketing': auto, '1912 Helpdesk': helpdesk, Others: others, total: sum };
             });
         }
         

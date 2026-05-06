@@ -9,6 +9,7 @@ import {
     XAxis, YAxis, CartesianGrid, Label, LabelList,
     Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import { Search } from 'lucide-react';
 import { GMR, AXIS_STYLE, TOOLTIP_STYLE, detectVariant, getColor } from '../../utils/chartUtils';
 
 const slugify = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').trim();
@@ -20,6 +21,24 @@ const formatValue = (v) => {
     if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
     if (v >= 1000) return `${(v / 1000).toFixed(1)}K`;
     return v;
+};
+
+const MONTH_MAP = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
+
+const getWeekRangeFromLabel = (label) => {
+    if (!label || typeof label !== 'string') return null;
+    const match = label.match(/^week(\d+)-(\w+)$/i);
+    if (!match) return null;
+    const weekNum = parseInt(match[1], 10);
+    const monthKey = match[2].toLowerCase();
+    const monthIdx = MONTH_MAP[monthKey];
+    if (monthIdx === undefined) return null;
+    const year = new Date().getFullYear();
+    const startDay = (weekNum - 1) * 7 + 1;
+    const lastDayOfMonth = new Date(year, monthIdx + 1, 0).getDate();
+    const endDay = Math.min(startDay + 6, lastDayOfMonth);
+    const monthAbbr = match[2].charAt(0).toUpperCase() + match[2].slice(1).toLowerCase();
+    return `${monthAbbr} ${String(startDay).padStart(2,'0')} - ${monthAbbr} ${String(endDay).padStart(2,'0')}`;
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -45,9 +64,16 @@ const CustomTooltip = ({ active, payload, label }) => {
             return allowedTotalKeys.some(k => n.includes(k));
         });
 
+        const weekRange = getWeekRangeFromLabel(label);
+
         return (
             <div style={TOOLTIP_STYLE}>
-                <p className="font-bold text-slate-800 mb-2 border-b border-slate-100 pb-1">{label}</p>
+                <div className="mb-2 border-b border-slate-100 pb-1">
+                    <p className="font-bold text-slate-800">{label}</p>
+                    {weekRange && (
+                        <p className="text-[10px] text-slate-400 font-bold tracking-tight mt-0.5">{weekRange}</p>
+                    )}
+                </div>
                 {sortedPayload.map((entry, index) => (
                     <div key={index} className="flex items-center justify-between gap-4 py-0.5">
                         <span className="flex items-center gap-2">
@@ -128,7 +154,7 @@ const renderCustomLegend = (props) => {
 };
 
 const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, chartName }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const chartId = slugify(chartName || 'chart');
     
@@ -182,7 +208,7 @@ const AreaVariant = ({ data, isMulti, xLabel, yLabel, interval: propInterval, ch
 };
 
 const MultiLineVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
-    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
+    const keys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && k.toLowerCase() !== 'total');
     const interval = propInterval !== undefined ? propInterval : 'auto';
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -235,7 +261,7 @@ const DonutVariant = ({ data }) => {
                     innerRadius="45%"
                     outerRadius="75%"
                     paddingAngle={3}
-                    dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color') || 'value'}
+                    dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'range') || 'value'}
                     labelLine={false}
                     label={renderCustomizedLabel}
                 >
@@ -282,7 +308,7 @@ const CustomHBarLabel = (props) => {
 };
 
 const HBarVariant = ({ data, xLabel, yLabel }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 15;
     const barSize = isDense ? Math.max(6, Math.min(12, 400 / data.length)) : 16;
@@ -372,7 +398,7 @@ const CustomVBarLabel = (props) => {
 };
 
 const BarVariant = ({ data, xLabel, yLabel, interval: propInterval }) => {
-    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
+    const rawKeys = Object.keys(data[0]).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && k.toLowerCase() !== 'total');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const isDense = data.length > 10;
     const barSize = isDense ? Math.max(12, 300 / data.length) : 32;
@@ -470,7 +496,7 @@ const GaugeVariant = ({ data }) => {
 };
 
 const BoxPlotVariant = ({ data }) => {
-    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && typeof data[0][k] === 'number');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && typeof data[0][k] === 'number');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     if (keys.length === 0 && !rawKeys.includes('value')) keys.push('value');
     if (keys.length === 0 && rawKeys.includes('value')) keys.push('value');
@@ -510,7 +536,7 @@ const BoxPlotVariant = ({ data }) => {
 };
 
 const FunnelVariant = ({ data }) => {
-    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && k.toLowerCase() !== 'total');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && k !== 'range' && k.toLowerCase() !== 'total');
     
     return (
         <ResponsiveContainer width="100%" height="100%">
@@ -553,7 +579,7 @@ const ParetoVariant = ({ data }) => {
                 <YAxis yAxisId="right" orientation="right" tick={AXIS_STYLE} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend content={renderCustomLegend} verticalAlign="top" />
-                <Bar yAxisId="left" name="Value" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative' && k !== 'value') || 'value'} fill={GMR.blue} stroke={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
+                <Bar yAxisId="left" name="Value" dataKey={Object.keys(data[0]).find(k => k !== 'name' && k !== 'color' && k !== 'cumulative' && k !== 'range' && k !== 'value') || 'value'} fill={GMR.blue} stroke={GMR.blue} radius={[6, 6, 0, 0]} barSize={32} isAnimationActive={true} />
                 <Line yAxisId="right" name="Cumulative %" type="monotone" dataKey="cumulative" stroke={GMR.orange} strokeWidth={4} dot={{ fill: GMR.orange, r: 5, strokeWidth: 0 }} isAnimationActive={true} />
             </BarChart>
         </ResponsiveContainer>
@@ -561,7 +587,7 @@ const ParetoVariant = ({ data }) => {
 };
 
 const DualAxisVariant = ({ data, chartName }) => {
-    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color');
+    const rawKeys = Object.keys(data[0] || {}).filter(k => k !== 'name' && k !== 'color' && k !== 'range');
     const keys = (rawKeys.length > 1 && rawKeys.includes('value')) ? rawKeys.filter(k => k !== 'value') : rawKeys;
     const chartId = slugify(chartName || 'dual-axis');
     
@@ -626,13 +652,31 @@ const DualAxisVariant = ({ data, chartName }) => {
     );
 };
 
+// ── No Data Placeholder ──────────────────────────────────────────────────────────
+const NoDataPlaceholder = ({ message = "No data found for this selection" }) => (
+    <div className="h-full w-full flex flex-col items-center justify-center gap-4 animate-in fade-in duration-700">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm transition-transform hover:scale-110 duration-500">
+            <Search size={22} className="text-slate-300" />
+        </div>
+        <div className="flex flex-col items-center gap-1.5 text-center px-6">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{message}</p>
+            <p className="text-[9px] font-bold text-slate-300 max-w-[200px]">Try adjusting your filters or selecting a different date range.</p>
+        </div>
+    </div>
+);
+
 const SmartChart = ({ data, hint, name, isDetailed = false }) => {
-    if (!data || !data.length) {
-        return (
-            <div className="h-full flex items-center justify-center text-gray-300 text-sm italic">
-                No data available
-            </div>
-        );
+    // Detect if data is truly empty or just contains zero-filled gaps
+    const isActuallyEmpty = !data || data.length === 0;
+    
+    const isAllZeros = !isActuallyEmpty && data.every(row => 
+        Object.entries(row).every(([key, val]) => 
+            ['name', 'range', 'color', 'total', 'Total'].includes(key) || val === 0 || val === '0' || val === null || val === undefined
+        )
+    );
+
+    if (isActuallyEmpty || isAllZeros) {
+        return <NoDataPlaceholder message={isAllZeros ? "No records found" : "No data available"} />;
     }
 
     const variant = hint || detectVariant(data, name);
@@ -651,7 +695,7 @@ const SmartChart = ({ data, hint, name, isDetailed = false }) => {
             chartName: name, // Pass name to make gradient IDs unique
             // In optimized mode, we show fewer labels. Recharts 'interval' handles this.
             // If isDetailed is false, we set interval to show fewer ticks.
-            interval: isDetailed ? 0 : (data.length > 10 ? Math.floor(data.length / 5) : 'auto')
+            interval: isDetailed ? 0 : (data.length > 30 ? Math.floor(data.length / 5) : 'auto')
         };
 
         switch (variant) {

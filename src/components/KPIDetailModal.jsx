@@ -33,15 +33,23 @@ const CHART_TYPES = [
 
 // ── Chart Skeleton ────────────────────────────────────────────────────────────
 const ChartSkeleton = () => (
-    <div className="h-full w-full flex flex-col items-center justify-center gap-3 animate-pulse">
-        <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">
-            <Activity size={20} className="text-slate-300" />
+    <div className="h-full w-full flex flex-col items-center justify-center gap-4 animate-in fade-in duration-500">
+        <div className="relative">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm">
+                <Activity size={24} className="text-indigo-500 animate-pulse" />
+            </div>
+            <div className="absolute -top-1 -right-1">
+                <div className="w-3 h-3 rounded-full bg-indigo-400 border-2 border-white animate-ping" />
+            </div>
         </div>
-        <div className="space-y-2 w-2/3">
-            <div className="h-2 bg-slate-100 rounded-full" />
-            <div className="h-2 bg-slate-100 rounded-full w-4/5 mx-auto" />
+        <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] animate-pulse">Processing</p>
+            <div className="flex gap-1">
+                <div className="w-1 h-1 rounded-full bg-indigo-200 animate-bounce" style={{ animationDelay: '0s' }} />
+                <div className="w-1 h-1 rounded-full bg-indigo-200 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="w-1 h-1 rounded-full bg-indigo-200 animate-bounce" style={{ animationDelay: '0.4s' }} />
+            </div>
         </div>
-        <p className="text-[11px] font-semibold text-slate-300 uppercase tracking-widest">Fetching live data…</p>
     </div>
 );
 
@@ -117,6 +125,9 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
         error: apiError,
         refetch,
     } = useSmartMeterKPI(kpi?.name, debouncedParams, isBusiness && isOpen);
+
+    const isWaiting = isBusiness && JSON.stringify(apiParams) !== JSON.stringify(debouncedParams);
+    const isProcessing = isBusiness && (apiLoading || isWaiting);
     
     const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
     const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
@@ -573,15 +584,16 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             {(() => {
                                                 const effectivePeriod = isCustomDate ? getPeriodFromRange(fromDate, toDate) : duration.toLowerCase();
                                                 
-                                                return isBusiness && apiLoading ? (
-                                                    <ChartSkeleton />
-                                                ) : isBusiness && apiError ? (
-                                                    <ErrorBanner message={apiError} onRetry={refetch} />
-                                                ) : (
-                                                    <SmartChart
-                                                        data={isBusiness 
+                                                if (isProcessing) return <ChartSkeleton />;
+                                                if (isBusiness && apiError) return <ErrorBanner message={apiError} onRetry={refetch} />;
+
+                                                const chartData = isBusiness 
                                                             ? (kpi.chartData?.isTimeSeries === false ? liveTrend : fillDateGaps(liveTrend, fromDate, toDate, effectivePeriod))
-                                                            : activeChartData?.trend}
+                                                            : activeChartData?.trend;
+
+                                                return (
+                                                    <SmartChart
+                                                        data={chartData}
                                                         name={kpi.name}
                                                         hint={trendType === 'Auto Detect' ? undefined : trendType}
                                                     />
@@ -646,7 +658,7 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                             </div>
                                         </div>
                                         <div className="h-[340px]">
-                                            {isBusiness && apiLoading ? (
+                                            {isProcessing ? (
                                                 <ChartSkeleton />
                                             ) : isBusiness && apiError ? (
                                                 <ErrorBanner message={apiError} onRetry={refetch} />
@@ -757,23 +769,26 @@ const KPIDetailModal = ({ isOpen, onClose, kpi }) => {
                                     <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Live Data Active</span>
                                 </div>
                             )}
-                            
-                            {(() => {
-                                const chartData = expandedChart === 'trend' 
-                                    ? (isBusiness 
-                                        ? (kpi.chartData?.isTimeSeries === false ? liveTrend : fillDateGaps(liveTrend, fromDate, toDate, getPeriodFromRange(fromDate, toDate)))
-                                        : activeChartData?.trend)
-                                    : (isBusiness ? liveDist : activeChartData?.distribution);
+                            {isProcessing ? (
+                                <ChartSkeleton />
+                            ) : (
+                                (() => {
+                                    const chartData = expandedChart === 'trend' 
+                                        ? (isBusiness 
+                                            ? (kpi.chartData?.isTimeSeries === false ? liveTrend : fillDateGaps(liveTrend, fromDate, toDate, getPeriodFromRange(fromDate, toDate)))
+                                            : activeChartData?.trend)
+                                        : (isBusiness ? liveDist : activeChartData?.distribution);
 
-                                return (
-                                    <SmartChart
-                                        data={chartData}
-                                        name={kpi.name}
-                                        hint={expandedChart === 'trend' ? trendType : distType}
-                                        isDetailed={true}
-                                    />
-                                );
-                            })()}
+                                    return (
+                                        <SmartChart
+                                            data={chartData}
+                                            name={kpi.name}
+                                            hint={expandedChart === 'trend' ? trendType : distType}
+                                            isDetailed={true}
+                                        />
+                                    );
+                                })()
+                            )}
                         </div>
                     </div>
                 </div>

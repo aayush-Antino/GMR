@@ -503,7 +503,8 @@ export const dashboardData = {
                     { "name": "Week 1", "value": 350 },
                     { "name": "Week 2", "value": 420 },
                     { "name": "Week 3", "value": 310 },
-                    { "name": "Week 4", "value": 380 }
+                    { "name": "Week 4", "value": 380 },
+                    { "name": "Week 5", "value": 410 }
                 ],
                 "distTitle": "Anomalies by Region",
                 "distribution": [
@@ -564,7 +565,8 @@ export const dashboardData = {
                     { "name": "Week 1", "value": 145 },
                     { "name": "Week 2", "value": 132 },
                     { "name": "Week 3", "value": 158 },
-                    { "name": "Week 4", "value": 120 }
+                    { "name": "Week 4", "value": 120 },
+                    { "name": "Week 5", "value": 135 }
                 ],
                 "distTitle": "Monthly Volume Comparison",
                 "distribution": [
